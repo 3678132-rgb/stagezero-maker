@@ -1,0 +1,22 @@
+{
+ "name": "스테이지 제로 메이커",
+ "short_name": "스테이지제로",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#0d1530",
+ "theme_color": "#1f3bb3",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  }
+ ]
+}
