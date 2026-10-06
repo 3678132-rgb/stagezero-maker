@@ -249,13 +249,6 @@ button:focus-visible{outline:2px solid var(--serum);outline-offset:2px}
 body.game-mode{padding:0;margin:0}
 .phone{position:relative;max-width:460px;margin:0 auto;height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));min-height:560px;overflow:hidden;background:#1b2140;--dlg-bottom:212px}
 @media (min-width:600px){ .phone{margin-block:12px;border-radius:24px;height:min(calc(100dvh - 24px),940px);box-shadow:0 20px 50px rgba(20,24,27,.35)} }
-/* 휴대폰·태블릿: 화면 전체를 꽉 채운다 (노치·홈바 영역은 피함, dvh 미지원 브라우저도 OK) */
-@media (pointer:coarse), (max-width:600px){
-  body.game-mode{background:#1b2140;overflow:hidden;overscroll-behavior:none}
-  body.game-mode .wrap{max-width:none}
-  .phone{position:fixed;left:env(safe-area-inset-left,0px);right:env(safe-area-inset-right,0px);top:env(safe-area-inset-top,0px);bottom:env(safe-area-inset-bottom,0px);
-    width:auto;height:auto;max-width:none;min-height:0;margin:0;border-radius:0;box-shadow:none}
-}
 .phone .scene{position:absolute;inset:0;overflow:hidden;background:#1b2140}
 .phone .scene::before{content:'';position:absolute;inset:-30px;background:var(--scene-bg) center/cover no-repeat;filter:blur(18px) brightness(.75) saturate(1.1)}
 .phone .scene .pimg{position:absolute;left:0;right:0;top:108px;bottom:0;width:100%;height:calc(100% - 108px);object-fit:cover;object-position:50% 0;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 28px);mask-image:linear-gradient(180deg,transparent 0,#000 28px)}
@@ -444,6 +437,24 @@ body.running .phone .dialog{max-height:30%}
 .act.love{border-color:#ffc2d6}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* 휴대폰·태블릿: 화면 전체를 꽉 채운다 (노치·홈바 영역은 피함, dvh 미지원 브라우저도 OK) */
+@media (pointer:coarse), (max-width:600px){
+  body.game-mode{background:#1b2140;overflow:hidden;overscroll-behavior:none}
+  body.game-mode .wrap{max-width:none}
+  html,body.game-mode{height:100%}
+  .phone{position:fixed;inset:0;left:env(safe-area-inset-left,0px);right:env(safe-area-inset-right,0px);
+    width:auto;height:auto;max-width:none;min-height:0;margin:0;border-radius:0;box-shadow:none;
+    --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);--dlg-bottom:calc(212px + var(--sb))}
+  body.running .phone{--dlg-bottom:calc(90px + var(--sb))}
+  .hud-top{top:calc(10px + var(--st))}
+  .hud-res{top:calc(82px + var(--st))}
+  .side-l,.side-r{top:calc(128px + var(--st))}
+  .phone .scene .pimg{top:calc(108px + var(--st));height:auto}
+  .phone .scene .scene-tag{top:calc(122px + var(--st))}
+  .bottom-area{bottom:calc(84px + var(--sb))}
+  .tabbar{height:calc(78px + var(--sb));padding-bottom:var(--sb);box-sizing:border-box}
+  .sheet-card{padding-bottom:calc(18px + var(--sb))}
+}
 </style>
 
 <div class="wrap">
