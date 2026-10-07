@@ -437,6 +437,41 @@ body.running .phone .dialog{max-height:30%}
 .act.love{border-color:#ffc2d6}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ---------- 이벤트 CG (큰 일러스트 + 켄번스 연출) ---------- */
+.cg{position:absolute;inset:0;z-index:40;background:#05070f;overflow:hidden;cursor:pointer;animation:cg-in .45s ease both}
+.cg-img{position:absolute;inset:-6%;background:#05070f center/cover no-repeat;animation:cg-kb 10s ease-out both;will-change:transform}
+.cg.v2 .cg-img{animation-name:cg-kb2}
+.cg::before,.cg::after{content:"";position:absolute;left:0;right:0;height:8%;background:#000;z-index:3;animation:cg-bar .8s ease both}
+.cg::before{top:0}.cg::after{bottom:0}
+.cg-cap{position:absolute;left:0;right:0;bottom:calc(8% + 18px);z-index:4;padding:56px 20px 0;color:#fff;display:grid;gap:4px;text-shadow:0 2px 10px rgba(0,0,0,.85);background:linear-gradient(180deg,transparent,rgba(0,0,0,.55) 45%);animation:cg-cap .9s .35s ease both}
+.cg-cap small{font-size:11px;font-weight:800;letter-spacing:.22em;color:#ffe08a}
+.cg-cap b{font-family:var(--f-display);font-size:21px;line-height:1.3;font-weight:800}
+.cg-cap span{font-size:13px;opacity:.92;white-space:pre-line}
+.cg-cap .cg-tap{font-style:normal;font-size:11px;opacity:.7;margin-top:6px;animation:cg-blink 1.6s ease-in-out 1.2s infinite}
+.cg.chap .cg-cap{top:0;bottom:0;align-content:center;justify-items:center;text-align:center;background:radial-gradient(70% 45% at 50% 50%,rgba(0,0,0,.6),transparent)}
+.cg.chap .cg-cap small{font-size:13px}
+.cg.chap .cg-cap b{font-size:40px;letter-spacing:.04em}
+.cg.out{animation:cg-out .35s ease both}
+.cg-fx{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.cg-fx i{position:absolute;top:-10%;display:block;animation:cg-fall linear infinite}
+.cg-fx.rain i{width:1.5px;height:46px;background:linear-gradient(180deg,transparent,rgba(200,225,255,.75));animation-duration:.7s}
+.cg-fx.snow i{width:7px;height:7px;border-radius:50%;background:#fff;opacity:.85;filter:blur(.5px);animation-duration:7s}
+.cg-fx.petal i{width:10px;height:7px;border-radius:70% 0 70% 0;background:#ffc3d8;animation-duration:6s}
+.cg-fx.confetti i{width:7px;height:11px;animation-duration:3.4s}
+.cg-fx.sparkle i{top:auto;width:5px;height:5px;border-radius:50%;background:#fff6c8;box-shadow:0 0 10px 3px rgba(255,236,160,.8);animation:cg-twinkle 2.4s ease-in-out infinite}
+@keyframes cg-kb{from{transform:scale(1.14) translate(2%,3%)}to{transform:scale(1) translate(0,0)}}
+@keyframes cg-kb2{from{transform:scale(1) translate(-2%,1%)}to{transform:scale(1.14) translate(1%,-2%)}}
+@keyframes cg-bar{from{height:0}}
+@keyframes cg-in{from{opacity:0}}
+@keyframes cg-out{to{opacity:0}}
+@keyframes cg-cap{from{opacity:0;transform:translateY(14px)}}
+@keyframes cg-blink{50%{opacity:.25}}
+@keyframes cg-fall{to{transform:translate(var(--dx,0),115vh) rotate(var(--rot,0deg))}}
+@keyframes cg-twinkle{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:1;transform:scale(1.2)}}
+@media (prefers-reduced-motion:reduce){ .cg-img{animation:none} .cg-fx{display:none} }
+.face.lover{background-color:#ffe4ee}
+.fab.gone{filter:grayscale(1);opacity:.65}
+.pt-rank{display:block;font-size:11px;color:#b5498a;font-weight:700;margin-top:2px}
 /* 휴대폰·태블릿: 화면 전체를 꽉 채운다 (노치·홈바 영역은 피함, dvh 미지원 브라우저도 OK) */
 @media (pointer:coarse), (max-width:600px){
   body.game-mode{background:#1b2140;overflow:hidden;overscroll-behavior:none}
@@ -454,6 +489,7 @@ body.running .phone .dialog{max-height:30%}
   .bottom-area{bottom:calc(84px + var(--sb))}
   .tabbar{height:calc(78px + var(--sb));padding-bottom:var(--sb);box-sizing:border-box}
   .sheet-card{padding-bottom:calc(18px + var(--sb))}
+  .cg-cap{bottom:calc(8% + 18px + var(--sb))}
 }
 /* 태블릿 가로: 게임 화면은 세로 비율로 가운데에 (양옆은 배경) */
 @media (orientation:landscape) and (min-width:700px){
@@ -533,6 +569,7 @@ body.running .phone .dialog{max-height:30%}
       <div class="mini-pop" id="mini" hidden></div>
       <div class="actor" id="actor" hidden><img id="actor-img" alt=""><span class="actor-name" id="actor-name"></span></div>
       <div class="dialog" id="dialog" aria-live="polite"></div>
+      <div class="cg" id="cg" hidden role="button" tabindex="0" aria-label="이벤트 장면, 누르면 계속"><div class="cg-img" id="cg-img"></div><div class="cg-fx" id="cg-fx"></div><div class="cg-cap"><small id="cg-kick"></small><b id="cg-title"></b><span id="cg-sub"></span><em class="cg-tap">화면을 누르면 계속</em></div></div>
 
       <div class="bottom-area">
         <div class="slots3" id="slots3"></div>
@@ -1123,20 +1160,42 @@ function jobReq(S, id) {
 }
 function jobGate(S) { return null; }
 function jobGateOld(S) { return (S.prods.length === 0 || avgRev(S) < 1500 || S.cash < 1000) ? null : '회사가 자리 잡아 알바할 때가 아니에요'; }
+// 알바도 오래 하면 승진한다 (근무 횟수 + 해당 능력치)
+const PT_RANKS = { pt_cafe: ['아르바이트생', '바리스타', '매니저', '점장'], pt_cvs: ['야간 알바', '야간 리더', '부점장', '점장 대리'], pt_hb: ['매장 알바', '뷰티 어드바이저', '매장 매니저', '지역 MD 보조'], pt_mua: ['막내 어시', '어시스턴트', '서브 아티스트', '실장'], pt_clinic: ['데스크 알바', '상담 코디', '상담 실장', '총괄실장 후보'], pt_model: ['신인 피팅모델', '전속 모델', '메인 모델', '브랜드 뮤즈'], pt_lecture: ['보조 강사', '정규 강사', '수석 강사', '커리큘럼 디렉터'], pt_host: ['게스트', '고정 게스트', '서브 쇼호스트', '간판 쇼호스트'], pt_consult: ['프리랜서', '리드 컨설턴트', '파트너', '대표 컨설턴트'] };
+const PT_STEP = [0, 5, 12, 20], PT_STAT = [0, 25, 40, 55], PT_PAY = [1, 1.3, 1.7, 2.2], PT_GROW = [1, 1.15, 1.3, 1.5];
+function ptRank(S, id) { if (!PT_RANKS[id])
+    return 0; const d = (S.jobDone || {})[id] || 0, st = S.st[ACTS[id].stat] || 0; let r = 0; for (let i = 1; i < 4; i++)
+    if (d >= PT_STEP[i] && st >= PT_STAT[i])
+        r = i; return Math.max(r, (S.ptRank || {})[id] || 0); }
+function ptTitle(S, id) { return (PT_RANKS[id] || [])[ptRank(S, id)] || ''; }
+function ptNext(S, id) { const r = ptRank(S, id); if (r >= 3)
+    return '최고 직급 달성'; const d = (S.jobDone || {})[id] || 0, k = ACTS[id].stat; const need = []; if (d < PT_STEP[r + 1])
+    need.push(`근무 ${PT_STEP[r + 1] - d}회 더`); if ((S.st[k] || 0) < PT_STAT[r + 1])
+    need.push(`${STAT_SHORT[k]} ${PT_STAT[r + 1]}`); return `다음 「${PT_RANKS[id][r + 1]}」: ${need.join(' · ')}`; }
+function ptPay(S, id) { return Math.round(ACTS[id].pay * PT_PAY[ptRank(S, id)] * (1 + Math.min((S.jobXp || {})[id] || 0, 10) * 0.05)); }
 function partTime(S, id, ch, grows, good, bad) {
-    const a = ACTS[id], xp = (S.jobXp || (S.jobXp = {}))[id] || 0;
+    const a = ACTS[id], xp = (S.jobXp || (S.jobXp = {}))[id] || 0, rk = ptRank(S, id);
     const p = clamp(0.55 + (S.st[a.stat] || 0) / 160 + xp * 0.03 - (S.hp < 30 ? 0.2 : 0) - (S.stress > 70 ? 0.15 : 0), 0.2, 0.95);
     const ok = R() < p;
     S.jobXp[id] = Math.min(10, xp + 1);
     (S.jobDone || (S.jobDone = {}))[id] = (S.jobDone[id] || 0) + 1;
-    const pay = Math.round(a.pay * (1 + Math.min(xp, 10) * 0.05) * (ok ? 1 : 0.5));
+    const pay = Math.round(a.pay * PT_PAY[rk] * (1 + Math.min(xp, 10) * 0.05) * (ok ? 1 : 0.5));
     bump(S, 'cash', pay, ch);
     for (const [k, v] of Object.entries(grows))
-        grow(S, k, ok ? v : v / 2, ch);
+        grow(S, k, (ok ? v : v / 2) * PT_GROW[rk], ch);
     if (!ok)
         bump(S, 'stress', 5, ch);
-    const lv = xp >= 8 ? '베테랑' : xp >= 4 ? '숙련' : '신입';
-    return (ok ? pick(good) : pick(bad) + ' 일당이 반으로 깎였다.') + `\n(${lv} · 일당 ${fmtMoney(pay)}원)`;
+    let promo = '';
+    const PR = S.ptRank || (S.ptRank = {});
+    const nr = ptRank(S, id);
+    if (nr > (PR[id] || 0)) {
+        PR[id] = nr;
+        S.promo = { id, rank: nr, title: PT_RANKS[id][nr] };
+        push(ch, '승진', 1);
+        S.album.push(`${a.name} · ${PT_RANKS[id][nr]} 승진`);
+        promo = `\n🎉 승진! 오늘부터 「${PT_RANKS[id][nr]}」. 일당과 성장 폭이 올라간다.`;
+    }
+    return (ok ? pick(good) : pick(bad) + ' 일당이 반으로 깎였다.') + `\n(${PT_RANKS[id][rk]} · 일당 ${fmtMoney(pay)}원)` + promo;
 }
 function train(S, d, ch) { const before = S.fit || 0; S.fit = clamp(before + d * (1 - before / 130), 0, 100); push(ch, '체력 단련', S.fit - before); }
 function doAction(S, id) {
@@ -1265,6 +1324,10 @@ function settle(S) {
     if (S.heartbreak > 0) {
         S.heartbreak--;
         S.stress = clamp(S.stress + 6, 0, 100);
+    }
+    if (S.secGone != null && S.m > S.secGone) {
+        S.stress = clamp(S.stress + 2, 0, 100);
+        notes.push('비서 없음: 스트레스 +2');
     }
     if (S.love && S.love.colon && S.love.colon.stage === -1 && S.stress < 50)
         S.love.colon.aff = clamp(S.love.colon.aff + 1.4, 0, 100);
@@ -1798,6 +1861,10 @@ function breakUp(S, id, ch, dumped) {
     S.hbWith = id;
     bump(S, 'stress', dumped ? 22 : 12, ch);
     bump(S, 'hp', -8, ch);
+    if (id === 'colon' && S.secGone == null) {
+        S.secGone = S.m;
+        S.album.push('콜론의 사직');
+    }
     S.album.push(`${josa(LOVERS[id].name, '과', '와')} 이별`);
 }
 const BREAKUPS = {
@@ -1806,7 +1873,7 @@ const BREAKUPS = {
     vc: { title: '재현의 이별 통보', text: '“계산해 봤어. 우리 둘 다 너무 바빠. 이건 내가 손절할 수 있는 마지막 타이밍이야.”' },
     star: { title: '이안의 이별 통보', text: '“답장 기다리다 대본을 세 번 다 외웠어요. 저 혼자 연애하는 것 같아요.”' },
     ceo2: { title: '승우의 이별 통보', text: '“우리 둘 다 회사랑 결혼했나 봐. 서로한테 미안해지기 전에 그만하자.”' },
-    colon: { title: '콜론의 사직서', text: '책상 위에 사직서가 놓여 있었다. “연인으로도, 비서로도 대표님 곁에 서 있는 게… 이제 너무 아파요.”\n다음 날부터 새 비서가 출근할 예정이다.' },
+    colon: { title: '콜론의 사직서', text: '책상 위에 사직서가 놓여 있었다. “연인으로도, 비서로도 대표님 곁에 서 있는 게… 이제 너무 아파요.”\n다음 날, 그의 책상은 깨끗이 비어 있었다. 새 비서는 뽑지 않기로 했다.' },
 };
 const CRISES = {
     intern: { title: '사내 연애 소문', text: '탕비실에서 수군거림이 들렸다. “대표님이랑 하준 씨, 사귄대.” 하준이 굳은 얼굴로 다가왔다.\n“제가 회사를 나갈게요. 대표님 곤란해지는 거 싫어요.”',
@@ -1911,11 +1978,33 @@ function loveEvent(S) {
                 { label: '“미안해요. 진심으로.”', sub: '라이벌 분노 완화', run: S => { const ch = []; S.rivalBoost = (S.rivalBoost || 0) + 3; bump(S, 'stress', 4, ch); return { text: '“사과는 받을게요. 용서는 아직이에요.”', chips: ch }; } },
             ] };
     }
+    // 콜론이 떠난 다음 달: 빈 책상
+    if (S.secGone != null && S.m > S.secGone && !S.seen['sec_empty']) {
+        return { id: 'sec_empty', face: 'ceo', speaker: 'OFFICE', title: '빈 책상', place: 'office',
+            text: () => '출근하자마자 습관처럼 불렀다. “콜론, 오늘 일정은?”\n대답이 없다. 책상 서랍에 손글씨 메모 한 장.\n「대표님, 점심은 꼭 드세요. — 서진」',
+            choices: [
+                { label: '메모를 지갑에 넣는다', sub: '이제 일정은 혼자 챙긴다 · 리더십↑', run: S => { const ch = []; grow(S, 'lead', 1.5, ch); bump(S, 'stress', -6, ch); return { text: '비서 조언도, 새벽의 컵라면도 이제 없다. 혼자서도 해낼 수 있다. 해내야 한다.', chips: ch }; } },
+                { label: '그에게 전화를 건다', sub: '받지 않는다', run: S => { const ch = []; bump(S, 'stress', 6, ch); return { text: '신호음이 열 번 울리고 끊겼다. 문자 하나가 왔다.\n“잘 지내세요, 대표님. 이제 제 일정에 대표님은 없어요.”', chips: ch }; } },
+            ] };
+    }
+    // 삼각관계: 호감도 60 이상인 두 사람이 부딪친다
+    const tp = triPair(S);
+    if (tp && S.m >= 12) {
+        const T = S.tri || (S.tri = {});
+        const key = tp.slice().sort().join('|');
+        const t = T[key] || { n: 0, last: -99 };
+        if (t.n < 2 && S.m - t.last >= 8 && R() < 0.3) {
+            t.n++;
+            t.last = S.m;
+            T[key] = t;
+            return t.n === 1 ? triFight(S, tp[0], tp[1]) : triShowdown(S, tp[0], tp[1]);
+        }
+    }
     // 실연 후유증 (이별 다음 달)
     if (S.heartbreak === 2 && !S.seen['after_' + S.m]) {
         const who = LOVERS[S.hbWith] ? LOVERS[S.hbWith].name : '그';
         return { id: 'after_' + S.m, face: 'ceo', speaker: 'HEARTBREAK', title: '실연 후유증', place: 'rain', cast: { ask: 'sec' },
-            text: () => `${who}의 번호를 지웠다가, 다시 저장했다가, 또 지웠다.\n비서 콜론이 우산을 씌워 주며 말했다. “대표님, 오늘은 뭐 하실래요?”`,
+            text: () => `${who}의 번호를 지웠다가, 다시 저장했다가, 또 지웠다.\n${S.secGone != null ? '우산을 씌워 줄 사람은 이제 없다. 오늘은 뭘 할까?' : '비서 콜론이 우산을 씌워 주며 말했다. “대표님, 오늘은 뭐 하실래요?”'}`,
             choices: [
                 { label: '일에 미친 듯이 몰두한다', sub: '경영·연구↑, 스트레스↑', run: S => { const ch = []; grow(S, 'biz', 3, ch); grow(S, 'rnd', 3, ch); bump(S, 'stress', 8, ch); return { text: '새벽 4시까지 사업계획서를 고쳤다. 숫자는 배신하지 않는다.', chips: ch }; } },
                 { label: '친구들과 밤새 술 마시고 운다', sub: '실연 회복, 체력↓', run: S => { const ch = []; S.heartbreak = 0; bump(S, 'stress', -25, ch); bump(S, 'hp', -12, ch); grow(S, 'net', 2, ch); return { text: '“그 남자 원래 별로였어.” 친구들의 거짓말이 고마웠다.', chips: ch }; } },
@@ -1980,6 +2069,106 @@ function loveEvent(S) {
             ] };
     }
     return null;
+}
+// ---- 삼각관계 ----
+const TRI_LINE = {
+    playboy: { jab: o => `“${o}? 얘 웃는 거 본 적 있어? 나랑 있을 때만 저렇게 웃는데.”`, back: o => `“진지한 척은 혼자 해, ${o}. 얘 숨 쉴 틈은 내가 만들어 줄 거니까.”`, last: o => `“나 원래 이런 거 안 해. 근데 이번엔 진심이야. ${o}야, 나야?”`, bye: '“…재밌었다, 진짜로. 잘 살아라.” 도윤은 처음으로 뒤를 돌아보지 않았다.' },
+    intern: { jab: o => `“${o} 씨는 대표님이 몇 시에 점심 거르는지 알아요? 전 매일 봐요.”`, back: o => `“나이 어리다고 무시하지 마세요, ${o} 씨. 마음은 제가 제일 오래됐어요.”`, last: o => `“대표님, 저 이번엔 안 물러설게요. ${o} 씨예요, 저예요?”`, bye: '“대표님이 행복하면 됐어요. …진짜예요.” 하준은 웃으며 울었다.' },
+    vc: { jab: o => `“${o} 씨, 감정은 리스크예요. 당신은 그녀 커리어에 손실 요인이고.”`, back: o => `“숫자로 증명하죠, ${o} 씨. 당신이 그녀에게 남긴 게 뭔지.”`, last: o => `“결정 미루는 게 제일 비싼 비용이야. ${o}인지 나인지, 지금 정해.”`, bye: '“손절도 실력이니까.” 재현은 안경을 고쳐 쓰고 돌아섰다. 손이 조금 떨렸다.' },
+    star: { jab: o => `“카메라 없는 데서도 저 사람 웃게 할 수 있어요, ${o} 씨? 전 할 수 있는데.”`, back: o => `“전 질투 같은 거 안 해요, ${o} 씨. …지금 빼고요.”`, last: o => `“이번 장면은 애드리브 없어요. ${o} 씨예요, 저예요?”`, bye: '“이번 작품에선 제가 조연이었네요.” 이안은 모자를 깊게 눌러썼다.' },
+    ceo2: { jab: o => `“${o} 씨는 그녀가 왜 밤새는지 몰라요. 같은 무게를 들어 본 사람만 알죠.”`, back: o => `“좋은 말이네요, ${o} 씨. 근데 그 사람 옆자리는 내가 먼저예요.”`, last: o => `“우리 둘 다 CEO잖아. 결정은 빠르게. ${o}야, 나야?”`, bye: '“네 회사, 꼭 잘돼라. 진심이야.” 승우는 악수를 청하고 떠났다.' },
+    colon: { jab: o => `“대표님 일정표에 ${o} 씨 이름이 나올 때마다… 저 지우고 싶었어요.”`, back: o => `“3년을 기다렸어요, ${o} 씨. 어제오늘 만난 분이 끼어들 자리는 없어요.”`, last: o => `“비서로서가 아니라 이서진으로 묻는 거예요. ${o} 씨예요, 저예요?”`, bye: '“…인수인계 문서는 책상에 두고 갈게요.” 콜론은 끝까지 비서처럼 고개를 숙였다.' },
+};
+function triPair(S) {
+    const L = loveOf(S);
+    if (S.married)
+        return null;
+    const c = Object.keys(L).filter(i => LOVERS[i] && TRI_LINE[i] && L[i].stage >= -1 && L[i].stage <= 1 && !L[i].taken && L[i].aff >= 60 && !(i === 'colon' && S.secGone != null)).sort((a, b) => L[b].aff - L[a].aff);
+    return c.length >= 2 ? [c[0], c[1]] : null;
+}
+function triLose(S, l, ch) {
+    const L = loveOf(S);
+    const v = L[l];
+    if (!v)
+        return;
+    if (v.stage >= 1) {
+        breakUp(S, l, ch, false);
+        S.heartbreak = 0;
+    }
+    else {
+        v.stage = -9;
+        v.aff = Math.min(v.aff, 10);
+        if (S.dateWith === l)
+            S.dateWith = null;
+        if (l === 'colon' && S.secGone == null) {
+            S.secGone = S.m;
+            S.album.push('콜론의 사직');
+        }
+    }
+    v.gone = true;
+    push(ch, `${LOVERS[l].name} 떠남`, -1);
+}
+function triFight(S, a, b) {
+    const A = LOVERS[a], B = LOVERS[b];
+    return { id: `tri1_${a}_${b}_${S.m}`, face: 'ceo', speaker: 'LOVE', title: `삼각관계: ${A.name} vs ${B.name}`, place: 'street', cg: 'triangle',
+        beats: [{ actor: 'lv_' + a, speaker: A.name, text: `${josa(B.name, '과', '와')} 있는 자리에 ${josa(A.name, '이', '가')} 나타났다. 공기가 얼어붙었다.\n${TRI_LINE[a].jab(B.name)}` },
+            { actor: 'lv_' + b, speaker: B.name, text: TRI_LINE[b].back(A.name) }],
+        text: () => '두 사람이 동시에 나를 돌아봤다.\n“그래서, 누구 편이야?”',
+        choices: [
+            { label: `${A.name} 편을 든다`, sub: `${A.name} 호감↑↑ · ${B.name} 호감↓↓`, run: S => triSide(S, a, b) },
+            { label: `${B.name} 편을 든다`, sub: `${B.name} 호감↑↑ · ${A.name} 호감↓↓`, run: S => triSide(S, b, a) },
+            { label: '“둘 다 그만해!”', sub: '매력이나 리더십 55 이상이면 둘 다 진정', run: S => {
+                    const ch = [];
+                    bump(S, 'stress', 10, ch);
+                    if ((S.st.charm || 0) >= 55 || S.st.lead >= 55) {
+                        addAff(S, a, 3, ch);
+                        addAff(S, b, 3, ch);
+                        return { text: '두 사람이 머쓱하게 서로를 봤다. “…오늘은 봐준다.” 일단 휴전이다.', chips: ch };
+                    }
+                    addAff(S, a, -8, ch);
+                    addAff(S, b, -8, ch);
+                    return { text: '둘 다 “실망이야”라는 얼굴로 각자 돌아섰다. 혼자 남은 길이 유난히 길었다.', chips: ch };
+                } },
+        ] };
+}
+function triSide(S, w, l) {
+    const ch = [];
+    const L = loveOf(S);
+    addAff(S, w, 12, ch);
+    addAff(S, l, -22, ch);
+    bump(S, 'stress', 6, ch);
+    return { text: `${josa(LOVERS[w].name, '이', '가')} 내 손을 잡아끌었다. 뒤에 남은 ${LOVERS[l].name}의 표정이 오래 마음에 걸렸다.${L[l].stage >= 1 ? '\n(연인이 크게 상처받았다…)' : ''}`, chips: ch };
+}
+function triShowdown(S, a, b) {
+    const A = LOVERS[a], B = LOVERS[b];
+    return { id: `tri2_${a}_${b}_${S.m}`, face: 'ceo', speaker: 'LOVE', title: `결판: ${A.name}인가, ${B.name}인가`, place: 'rain', cg: 'triangle',
+        beats: [{ actor: 'lv_' + a, speaker: A.name, text: `비 오는 밤, 두 사람이 또 마주쳤다. 이번엔 아무도 웃지 않는다.\n${TRI_LINE[a].last(B.name)}` },
+            { actor: 'lv_' + b, speaker: B.name, text: TRI_LINE[b].last(A.name) }],
+        text: () => '더는 미룰 수 없다. 한 사람의 손만 잡을 수 있다.',
+        choices: [
+            { label: `${A.name}의 손을 잡는다`, sub: `${josa(B.name, '은', '는')} 떠난다`, run: S => triChoose(S, a, b) },
+            { label: `${B.name}의 손을 잡는다`, sub: `${josa(A.name, '은', '는')} 떠난다`, run: S => triChoose(S, b, a) },
+            { label: '둘 다 보낸다', sub: '둘 다 떠나고 실연', run: S => { const ch = []; triLose(S, a, ch); triLose(S, b, ch); S.heartbreak = 3; bump(S, 'stress', 15, ch); S.album.push('삼각관계의 끝: 혼자'); return { text: '“미안해. 둘 다한테.”\n우산 두 개가 서로 다른 방향으로 멀어졌다.', chips: ch }; } },
+        ], leave: true };
+}
+function triChoose(S, w, l) {
+    const ch = [];
+    const L = loveOf(S);
+    addAff(S, w, 15, ch);
+    triLose(S, l, ch);
+    const cur = Object.keys(L).find(i => i !== w && L[i].stage >= 1 && !L[i].taken);
+    if (cur) {
+        breakUp(S, cur, ch, false);
+        S.heartbreak = 0;
+    }
+    if (L[w].stage === -1) {
+        L[w].stage = 1;
+        L[w].since = S.m;
+        S.album.push(`${josa(LOVERS[w].name, '과', '와')} 연애 시작`);
+    }
+    S.dateWith = w;
+    S.album.push(`삼각관계의 끝: ${LOVERS[w].name}`);
+    return { text: `${TRI_LINE[l].bye}\n${josa(LOVERS[w].name, '이', '가')} 조용히 내 손을 잡았다. “이제 나만 봐.”`, chips: ch };
 }
 // 여름(8월)·겨울(1월) 휴가: 호감도 80 이상인 연인/배우자와 함께 떠난다
 const TRIPS = {
@@ -2047,7 +2236,7 @@ function grantEvents(S) {
                         if (pend === 'tips')
                             grow(S, 'rnd', 2, ch);
                         S.album.push(`${g.name} 선정`);
-                        return { text: `최종 선정 메일이 왔다. 「${g.name}」 지원금 ${fmtMoney(g.amt)}원!\n콜론이 협약서와 정산 가이드를 벌써 출력해 왔다.`, chips: ch };
+                        return { text: `최종 선정 메일이 왔다. 「${g.name}」 지원금 ${fmtMoney(g.amt)}원!${S.secGone != null ? '' : '\n콜론이 협약서와 정산 가이드를 벌써 출력해 왔다.'}`, chips: ch };
                     }
                     G[pend].state = 'lost';
                     G[pend].retry = S.m + 12;
@@ -2069,15 +2258,167 @@ function grantEvents(S) {
         if (R() > 0.25 && !(st == null && k === 'pre' && S.m >= 3))
             continue;
         const pr = grantChance(S, k);
-        return { id: 'grant_ad_' + k + '_' + S.m, face: 'colon', speaker: '콜론', title: `${g.name} 공고가 떴어요`, place: 'office', cast: { ask: 'sec' },
-            text: () => `“대표님, 「${g.name}」 모집 공고예요. 선정되면 ${fmtMoney(g.amt)}원을 받을 수 있어요.\n심사에서는 ${g.hint}. 지금 상태면 합격 가능성은 대략 ${Math.round(pr * 100)}% 정도로 보여요.”`,
+        const solo = S.secGone != null;
+        return { id: 'grant_ad_' + k + '_' + S.m, face: solo ? 'news' : 'colon', speaker: solo ? 'MAIL' : '콜론', title: `${g.name} 공고가 떴어요`, place: 'office', cast: solo ? null : { ask: 'sec' },
+            text: () => solo ? `메일함에 「${g.name}」 모집 공고가 와 있었다. 선정되면 ${fmtMoney(g.amt)}원.\n심사에서는 ${g.hint}. 혼자 따져 보니 합격 가능성은 대략 ${Math.round(pr * 100)}%.` : `“대표님, 「${g.name}」 모집 공고예요. 선정되면 ${fmtMoney(g.amt)}원을 받을 수 있어요.\n심사에서는 ${g.hint}. 지금 상태면 합격 가능성은 대략 ${Math.round(pr * 100)}% 정도로 보여요.”`,
             choices: [
-                { label: '지원한다 (사업계획서 작성)', sub: '체력 -10 · 스트레스 +10 · 2개월 뒤 발표평가', run: S => { const ch = []; bump(S, 'hp', -10, ch); bump(S, 'stress', 10, ch); grow(S, 'biz', 1, ch); G[k] = { state: 'applied', due: S.m + 2, p: pr }; return { text: '밤새 사업계획서 30쪽을 썼다. 콜론이 오탈자 47개를 잡아냈다. 제출 완료!', chips: ch }; } },
+                { label: '지원한다 (사업계획서 작성)', sub: '체력 -10 · 스트레스 +10 · 2개월 뒤 발표평가', run: S => { const ch = []; bump(S, 'hp', -10, ch); bump(S, 'stress', 10, ch); grow(S, 'biz', 1, ch); G[k] = { state: 'applied', due: S.m + 2, p: pr }; return { text: S.secGone != null ? '밤새 사업계획서 30쪽을 혼자 썼다. 오탈자는… 아마 있을 것이다. 제출 완료!' : '밤새 사업계획서 30쪽을 썼다. 콜론이 오탈자 47개를 잡아냈다. 제출 완료!', chips: ch }; } },
                 { label: '이번엔 넘긴다', sub: '지금 일에 집중', run: S => { G[k] = { state: 'skip', retry: S.m + 6 }; return { text: '“알겠습니다. 다음 공고 나오면 다시 알려 드릴게요.”', chips: [] }; } },
             ] };
     }
     return null;
 }
+// ---- 메인 스토리: 4개의 장 · 선택의 기억 · 콜론의 비밀 ----
+const CHAPTERS = {
+    0: { n: 1, name: '0단계', age: '20~22세', cg: 'ch1', goal: '첫 제품을 세상에 내놓자. 통장이 바닥나지 않게.' },
+    36: { n: 2, name: '성장통', age: '23~25세', cg: 'ch2', goal: '팀을 꾸리고 브랜드를 알리자. 한서린이 지켜보고 있다.' },
+    72: { n: 3, name: '시험대', age: '26~28세', cg: 'ch3', goal: '위기는 반드시 온다. 끝까지 지킬 것을 정하자.' },
+    108: { n: 4, name: '선택', age: '29~30세', cg: 'ch4', goal: '서른까지 1년. 무엇을 남길지 고를 시간.' },
+};
+const WHY = {
+    skin: { label: '내 피부가 망가졌던 그해 겨울 때문에', sub: '연구↑', k: 'rnd', text: '마스크 속에서 짓물렀던 피부. 어떤 크림도 듣지 않던 그 겨울. 그때 다짐했다. 내가 직접 만들겠다고.', epi: '그해 겨울 망가졌던 피부는 이제 기억도 안 난다. 대신 그 겨울이 만든 브랜드가 남았다.' },
+    smile: { label: '거울 앞에서 웃는 사람을 보고 싶어서', sub: '감각↑', k: 'aes', text: '화장품 매장 알바 시절, 테스터를 발라 본 손님이 거울을 보고 웃던 얼굴. 그 얼굴을 매일 만들고 싶었다.', epi: '오늘도 누군가 거울 앞에서 웃고 있을 것이다. 그거면 됐다.' },
+    name: { label: '내 이름으로 된 무언가를 남기고 싶어서', sub: '경영↑', k: 'biz', text: '누군가의 회사가 아니라 내 회사. 내 이름보다 오래 남을 이름 하나를 세상에 새기고 싶었다.', epi: '내 이름보다 더 오래 남을 이름을 만들었다.' },
+    mom: { label: '엄마 화장대의 그 유리병 때문에', sub: '매력↑', k: 'charm', text: '엄마 화장대 위, 긁힌 자국투성이였던 유리병. 엄마는 그 병을 버리지 못했다. 언젠가 긁힌 데 하나 없는 병을 선물하고 싶었다.', epi: '엄마 화장대에 이제 우리 브랜드 병이 놓여 있다. 긁힌 데 하나 없이.' },
+};
+const PROLOGUE = { id: 'prologue', face: 'ceo', speaker: 'PROLOGUE', title: '스무 살, 0단계의 밤', cg: 'prologue',
+    text: () => '옥탑방 책상 위에 작은 유리병 하나. 표면엔 눈에 보이지 않을 만큼 가는 스크래치가 있다. 빛을 받으면 반짝이고, 손끝으로 쓸면 사라질 것만 같다.\n일상의 마찰이 남긴 흔적을 되돌리는 것. 내가 화장품을 만들고 싶은 진짜 이유는…',
+    choices: Object.entries(WHY).map(([k, w]) => ({ label: w.label, sub: w.sub, run: S => { const ch = []; S.why = k; grow(S, w.k, 2, ch); return { text: w.text, chips: ch }; } })) };
+const pickOf = (S, id) => (S.picks || {})[id];
+const STORY2 = [
+    // 2장의 고비: 핵심 멤버 이탈
+    { id: 'key_ch2', when: S => S.m === 50, make: S => {
+            const r = S.emp >= 2 ? anyStaff(S) : null;
+            const fromIntern = pickOf(S, 'intern') && pickOf(S, 'intern').k === 0;
+            if (!r)
+                return { id: 'key_ch2', face: 'ceo', speaker: 'CHAPTER 2', title: '혼자라는 무게', cg: 'staff_burnout',
+                    text: () => '창업 5년차. 아무도 없는 사무실에서 오늘도 혼자 불을 껐다.\n이대로 괜찮은 걸까.',
+                    choices: [
+                        { label: '이제 사람을 믿어 볼 때다', sub: '리더십↑ 스트레스↓', run: S => { const ch = []; grow(S, 'lead', 3, ch); bump(S, 'stress', -8, ch); return { text: '채용 공고를 썼다. 첫 줄은 “우리는 0단계부터 함께할 사람을 찾습니다.”', chips: ch }; } },
+                        { label: '혼자가 편하다', sub: '경영↑ 스트레스↑', run: S => { const ch = []; grow(S, 'biz', 3, ch); bump(S, 'stress', 10, ch); return { text: '혼자라서 빠르다. 혼자라서 외롭다. 둘 다 사실이다.', chips: ch }; } },
+                    ] };
+            return { id: 'key_ch2', face: 'news', speaker: 'CHAPTER 2', title: '핵심 멤버의 이탈 위기', cg: 'staff_conflict',
+                text: () => `${fromIntern ? '인턴으로 들어왔던 그 친구, ' : ''}${josa(r.name, '이', '가')} 사직서를 들고 왔다.\n“대표님, 회사가 커지는 건 좋은데… 이제 제 자리가 안 보여요.”`,
+                choices: [
+                    { label: '“네가 리드할 팀을 만들자.”', sub: '리더십 45 이상이면 붙잡는다', run: S => { const ch = []; if (S.st.lead >= 45) {
+                            grow(S, 'lead', 3, ch);
+                            bump(S, 'fan', 2, ch);
+                            S.keptCore = true;
+                            S.album.push('핵심 멤버를 지켜 냄');
+                            return { text: '새 조직도 맨 위에 그 이름을 적었다. 사직서는 파쇄기로 들어갔다.', chips: ch };
+                        } removeStaff(S, r.id, ch); bump(S, 'stress', 10, ch); return { text: '진심은 전해졌지만, 약속을 지킬 그림이 없었다. 그는 떠났다.', chips: ch }; } },
+                    { label: '“붙잡지 않을게. 응원해.”', sub: '인맥↑, 직원 −1', run: S => { const ch = []; removeStaff(S, r.id, ch); grow(S, 'net', 2, ch); bump(S, 'stress', 6, ch); return { text: '송별회에서 그가 말했다. “여기서 배운 걸로 저도 언젠가 0단계를 시작할게요.”', chips: ch }; } },
+                ] };
+        } },
+    // 3장의 고비: 리콜
+    { id: 'key_ch3', when: S => S.m === 80 && S.prods.length > 0, make: S => {
+            const p = S.prods[0];
+            const lett = pickOf(S, 'letter');
+            return { id: 'key_ch3', face: 'news', speaker: 'CHAPTER 3', title: '최대의 위기: 제품 회수', cg: 'rival4',
+                text: () => `「${p.name}」 일부 로트에서 미생물 기준 초과 결과가 나왔다. 아직 아무도 모른다.\n${S.secGone != null ? '의논할 사람이 없다. 결정은 혼자 해야 한다.' : '콜론이 조용히 물었다. “대표님, 어떻게 할까요?”'}`,
+                choices: [
+                    { label: '전량 회수하고 먼저 공개한다', sub: '자금 −1,500만 · 팬덤↑↑', run: S => {
+                            const ch = [];
+                            bump(S, 'cash', -1500, ch);
+                            bump(S, 'fan', lett ? 12 : 8, ch);
+                            bump(S, 'aware', 4, ch);
+                            grow(S, 'lead', 2, ch);
+                            S.album.push('자발적 리콜');
+                            S.recall = 'open';
+                            return { text: `기자회견에서 고개를 숙였다. “우리는 숨기지 않습니다.”${lett ? '\n다음 날, 예전에 손편지를 보냈던 고객이 커뮤니티에 글을 올렸다. “이 회사는 믿어도 돼요.”' : ''}`, chips: ch };
+                        } },
+                    { label: '문제 로트만 조용히 교체한다', sub: '돈은 아끼지만 들키면 치명적', run: S => {
+                            const ch = [];
+                            if (R() < 0.5) {
+                                bump(S, 'fan', -12, ch);
+                                bump(S, 'aware', -6, ch);
+                                bump(S, 'stress', 15, ch);
+                                S.recall = 'caught';
+                                S.album.push('리콜 은폐 들통');
+                                return { text: '두 달 뒤, 내부 문서가 유출됐다. “숨긴 회사”라는 꼬리표는 오래갔다.', chips: ch };
+                            }
+                            bump(S, 'cash', -300, ch);
+                            bump(S, 'stress', 8, ch);
+                            S.recall = 'quiet';
+                            return { text: '아무도 몰랐다. 그런데 이상하게 잠이 오지 않는다.', chips: ch };
+                        } },
+                ] };
+        } },
+    // 4장: 마지막 선택
+    { id: 'key_ch4', when: S => S.m === 112, make: S => {
+            const p = partnerOf(S);
+            return { id: 'key_ch4', face: 'ceo', speaker: 'CHAPTER 4', title: '마지막 선택', cg: 'prologue',
+                text: () => '책상 서랍 깊은 곳에서 10년 전 그 긁힌 유리병이 나왔다.\n서른까지 남은 시간은 여덟 달. 무엇에 전부를 걸까?',
+                choices: [
+                    { label: '회사에 남은 시간을 전부 건다', sub: '경영·리더십↑ 스트레스↑', run: S => { const ch = []; grow(S, 'biz', 3, ch); grow(S, 'lead', 3, ch); bump(S, 'stress', 12, ch); S.final = 'work'; return { text: '유리병을 모니터 옆에 세워 두었다. 마지막 스퍼트다.', chips: ch }; } },
+                    { label: '다음 세대에게 길을 연다', sub: '인맥·리더십↑', run: S => { const ch = []; grow(S, 'net', 3, ch); grow(S, 'lead', 2, ch); S.final = 'next'; return { text: '대학 창업동아리에 강연을 나갔다. 맨 앞줄의 스무 살들이 반짝였다.', chips: ch }; } },
+                    ...(p ? [{ label: `${josa(LOVERS[p].name, '과', '와')}의 내일을 고른다`, sub: '호감↑↑ 스트레스↓', run: S => { const ch = []; addAff(S, p, 20, ch); bump(S, 'stress', -15, ch); S.final = 'love'; return { text: `유리병을 ${LOVERS[p].name}에게 보여 줬다. “이게 내 0단계야.” 그가 웃으며 손을 잡았다.`, chips: ch }; } }] : []),
+                    { label: '나 자신을 돌본다', sub: '체력·스트레스 회복', run: S => { const ch = []; bump(S, 'hp', 30, ch); bump(S, 'stress', -30, ch); S.final = 'self'; return { text: '처음으로 2주 휴가를 냈다. 회사는 생각보다 잘 돌아갔다.', chips: ch }; } },
+                ] };
+        } },
+    // 라이벌의 마지막 장면
+    { id: 'rival_final', when: S => S.m === 118 && S.seen['rival1'], make: S => {
+            const fr = (S.rivalFriend || 0) >= (S.rival || 0);
+            return { id: 'rival_final', face: 'news', speaker: 'RIVAL', title: `${RIVAL}, 마지막 인사`, cg: 'rival_final',
+                text: () => fr ? `어워즈 백스테이지. ${RIVAL}이 먼저 손을 내밀었다.\n“10년 동안 당신 덕분에 한 번도 안 멈췄어요. 고마워요, 진짜로.”` : `어워즈 백스테이지. ${RIVAL}이 팔짱을 낀 채 말했다.\n“10년 내내 당신이 거슬렸어요. …그래서 여기까지 왔죠.”`,
+                choices: [
+                    { label: '“다음 10년도 잘 부탁해요.”', sub: '모든 능력 소폭↑', run: S => { const ch = []; STAT_KEYS.forEach(k => grow(S, k, 0.5, ch)); S.rivalEnd = 'friend'; S.album.push(`${RIVAL}과 화해`); return { text: '라이벌이자 친구. 둘은 오래 악수했다.', chips: ch }; } },
+                    { label: '“다음엔 내가 이겨요.”', sub: '리더십↑', run: S => { const ch = []; grow(S, 'lead', 2, ch); S.rivalEnd = 'rival'; return { text: '서린이 웃었다. “그래야 당신답죠.”', chips: ch }; } },
+                ] };
+        } },
+    // 콜론의 비밀 1·2·3
+    { id: 'colon_secret1', when: S => S.m >= 30 && S.secGone == null && S.m % 3 === 2, make: S => ({ id: 'colon_secret1', face: 'ceo', speaker: 'OFFICE', title: '콜론의 오래된 사원증', cg: 'colon_secret',
+            text: () => `야근 중, 콜론의 서랍에서 떨어진 낡은 사원증을 주웠다.\n「${RIVAL_BRAND} 연구소 · 선임연구원 이서진」\n…${RIVAL}의 회사다.`,
+            choices: [
+                { label: '“무슨 사연인지 물어봐도 돼?”', sub: '콜론과의 신뢰↑', run: S => { const ch = []; S.colonTrust = (S.colonTrust || 0) + 1; addAff(S, 'colon', 8, ch); bump(S, 'stress', -4, ch); return { text: '“…언젠가 말씀드릴게요. 지금은 대표님 회사 사람이고 싶어요.”\n그가 사원증을 서랍 깊숙이 넣었다.', chips: ch }; } },
+                { label: '모른 척 책상에 올려 둔다', sub: '경영↑', run: S => { const ch = []; grow(S, 'biz', 1, ch); return { text: '다음 날 사원증은 사라져 있었다. 콜론은 평소보다 커피를 한 잔 더 내려 왔다.', chips: ch }; } },
+            ] }) },
+    { id: 'colon_secret2', when: S => S.seen['colon_secret1'] && S.seen['rival4'] && S.secGone == null && S.m >= 70, make: S => ({ id: 'colon_secret2', face: 'ceo', speaker: 'OFFICE', title: '보존제 논란의 제보자', cg: 'colon_secret',
+            text: () => `${RIVAL_BRAND} 성분 논란의 최초 제보자가 “전 연구원 L씨”라는 후속 보도가 났다.\n콜론이 조용히 말했다. “…저예요. 숨기라는 지시를 따를 수 없었어요. 그래서 나왔고, 대표님 회사에 왔어요.”`,
+            choices: [
+                { label: '“잘했어. 우리 회사는 숨기지 않아.”', sub: '팬덤·리더십↑ 콜론 신뢰↑', run: S => { const ch = []; bump(S, 'fan', 4, ch); grow(S, 'lead', 2, ch); addAff(S, 'colon', 10, ch); S.colonTrust = (S.colonTrust || 0) + 1; return { text: '콜론이 안경을 벗고 눈가를 훔쳤다. “이 회사라서 다행이에요.”', chips: ch }; } },
+                { label: `“${RIVAL} 씨가 알면 곤란해질 텐데….”`, sub: '라이벌과 사이↑', run: S => { const ch = []; S.rivalFriend = (S.rivalFriend || 0) + 1; grow(S, 'net', 1, ch); return { text: '“그래서 이름을 바꿨어요. 콜론. 대표님 브랜드 이름에서 따왔어요.”', chips: ch }; } },
+            ] }) },
+    { id: 'colon_secret3', when: S => S.seen['colon_secret2'] && S.secGone == null && S.m >= 96, make: S => ({ id: 'colon_secret3', face: 'colon', speaker: '수석비서 콜론', title: '콜론이라는 이름', cg: 'colon_open',
+            text: () => `“${S.brand}의 ‘:’ 있잖아요. 0단계 앞에서 잠깐 숨 고르는 자리. 저한텐 대표님 회사가 그 자리였어요.”\n콜론이 처음으로 본명으로 사인한 서류를 내밀었다. 임원 계약서다.`,
+            choices: [
+                { label: '“이서진 이사님, 잘 부탁해요.”', sub: '모든 능력 소폭↑', run: S => { const ch = []; STAT_KEYS.forEach(k => grow(S, k, 0.6, ch)); S.colonExec = true; S.album.push('콜론, 이사로 승진'); return { text: '명패를 바꾸던 날, 그는 비서 시절 일정표를 액자에 넣어 걸었다.', chips: ch }; } },
+                { label: '“넌 영원히 내 비서야.”', sub: '스트레스↓ 콜론 호감↑', run: S => { const ch = []; bump(S, 'stress', -15, ch); addAff(S, 'colon', 10, ch); return { text: '“…그 말, 계약서보다 좋네요.” 그가 계약서를 반으로 접었다.', chips: ch }; } },
+            ] }) },
+    // 선택의 기억(콜백)
+    { id: 'cb_intern', when: S => pickOf(S, 'intern') && pickOf(S, 'intern').k === 0 && S.m >= pickOf(S, 'intern').m + 30, make: S => ({ id: 'cb_intern', face: 'news', speaker: 'MEMORY', title: '그때 그 인턴이 팀장이 됐다', cg: 'intern_lead',
+            text: () => '손글씨 자기소개서를 들고 왔던 인턴이, 오늘 투자자들 앞에서 직접 피칭을 했다. 질문 세례에도 흔들리지 않는다.\n“대표님이 그때 뽑아 주셔서 여기까지 왔어요.”',
+            choices: [
+                { label: '“이제 네가 이 회사의 0단계야.”', sub: '리더십↑ 투자금 +1,000만', run: S => { const ch = []; grow(S, 'lead', 2, ch); bump(S, 'cash', 1000, ch); S.album.push('인턴이 팀장으로'); return { text: '후속 투자가 확정됐다. 회의실 화분의 이름표는 아직 그대로다.', chips: ch }; } },
+                { label: '박수만 크게 쳐 준다', sub: '스트레스↓', run: S => { const ch = []; bump(S, 'stress', -12, ch); return { text: '가장 큰 박수는 맨 뒷줄에서 나왔다. 그게 나였다.', chips: ch }; } },
+            ] }) },
+    { id: 'cb_idea', when: S => pickOf(S, 'staff_idea') && pickOf(S, 'staff_idea').k === 0 && S.m >= pickOf(S, 'staff_idea').m + 10 && S.prods.length > 0, make: S => ({ id: 'cb_idea', face: 'news', speaker: 'MEMORY', title: '그때 그 아이디어가 터졌다', cg: 'staff_viral',
+            text: () => '예전에 팀원이 조심스럽게 내밀었던 기획. 그걸로 만든 라인이 입소문을 탔다.\n기획서 첫 장엔 아직도 “고객 리뷰 300개 분석”이라고 적혀 있다.',
+            choices: [{ label: '공을 팀원에게 돌린다', sub: '인지도·팬덤·리더십↑', run: S => { const ch = []; bump(S, 'aware', 5, ch); bump(S, 'fan', 3, ch); grow(S, 'lead', 1.5, ch); return { text: '전체 회의에서 그 이름을 세 번 불렀다. 팀원의 귀가 빨개졌다.', chips: ch }; } }] }) },
+    { id: 'cb_blackcon', when: S => pickOf(S, 'blackcon') && pickOf(S, 'blackcon').k === 1 && S.m >= pickOf(S, 'blackcon').m + 12, make: S => ({ id: 'cb_blackcon', face: 'news', speaker: 'MEMORY', title: '그 민원인이 돌아왔다', cg: 'scandal',
+            text: () => '예전에 돈으로 합의했던 그 민원인이 다른 이름으로 다시 보상금을 요구한다.\n“지난번처럼 해 주시면 조용히 있을게요.”',
+            choices: [
+                { label: '이번엔 법대로 간다', sub: '경영 45 이상이면 승소', run: S => { const ch = []; bump(S, 'stress', 6, ch); if (S.st.biz >= 45) {
+                        grow(S, 'biz', 2, ch);
+                        bump(S, 'fan', 3, ch);
+                        return { text: '법무법인 의견서 한 장에 민원은 사라졌다. 진작 이렇게 할걸.', chips: ch };
+                    } bump(S, 'cash', -300, ch); bump(S, 'stress', 8, ch); return { text: '소송은 길고 피곤했다. 그래도 다시는 안 온다.', chips: ch }; } },
+                { label: '또 합의한다', sub: '자금 −800만', run: S => { const ch = []; bump(S, 'cash', -800, ch); bump(S, 'stress', 10, ch); return { text: '같은 실수를 두 번 했다. 통장보다 마음이 더 아프다.', chips: ch }; } },
+            ] }) },
+    { id: 'cb_blackcon_ok', when: S => pickOf(S, 'blackcon') && pickOf(S, 'blackcon').k === 0 && S.m >= pickOf(S, 'blackcon').m + 12, make: S => ({ id: 'cb_blackcon_ok', face: 'news', speaker: 'MEMORY', title: '악성 민원인 적발 뉴스', cg: 'celeb',
+            text: () => '예전에 원칙대로 대응했던 그 민원인이 여러 브랜드를 상대로 같은 수법을 쓰다 적발됐다는 뉴스.\n커뮤니티에 “여긴 그때도 당당했지”라는 글이 올라왔다.',
+            choices: [{ label: '조용히 웃는다', sub: '팬덤·인지도↑', run: S => { const ch = []; bump(S, 'fan', 4, ch); bump(S, 'aware', 3, ch); return { text: '원칙은 늦게 보답한다. 하지만 반드시 보답한다.', chips: ch }; } }] }) },
+    { id: 'cb_letter', when: S => pickOf(S, 'letter') && S.m >= pickOf(S, 'letter').m + 24, make: S => ({ id: 'cb_letter', face: 'news', speaker: 'MEMORY', title: '손편지의 주인공', cg: 'letter',
+            text: () => '예전에 손편지를 보냈던 고객이 면접장에 들어왔다.\n“이번엔 제가 이 회사를 오래 있게 만들고 싶어서요.”',
+            choices: [
+                { label: '고객 경험팀으로 채용한다', sub: '팬덤↑ 리더십↑', run: S => { const ch = []; bump(S, 'fan', 5, ch); grow(S, 'lead', 1, ch); bump(S, 'stress', -8, ch); return { text: '첫 업무는 고객 편지함 정리. 그녀는 자기 편지를 찾아 액자에 넣었다.', chips: ch }; } },
+                { label: '브랜드 앰배서더를 제안한다', sub: '인지도·팬덤↑', run: S => { const ch = []; bump(S, 'aware', 4, ch); bump(S, 'fan', 5, ch); return { text: '“진짜 고객”의 비포 애프터 영상은 어떤 광고보다 강했다.', chips: ch }; } },
+            ] }) },
+];
+function storyExtra(S) { for (const x of STORY2) {
+    if (!S.seen[x.id] && x.when(S))
+        return x.make(S);
+} return null; }
 function fixedEvents(S) {
     const out = [];
     const mo = monthOf(S);
@@ -2089,6 +2430,9 @@ function fixedEvents(S) {
     const st = STORY.find(x => x.m === S.m && !S.seen[x.id]);
     if (st)
         out.push(st);
+    const sx = storyExtra(S);
+    if (sx)
+        out.push(sx);
     if (mo === 10 && S.prods.length > 0)
         out.push(awardsEvent(S));
     const le = loveEvent(S);
@@ -2428,6 +2772,15 @@ function render() {
         const L = loveOf(S);
         $('#badge-love').hidden = !Object.values(L).some(v => v.stage >= 1);
     }
+    {
+        const b = $('#btn-advice');
+        if (b) {
+            b.classList.toggle('gone', S.secGone != null);
+            const lb = b.querySelector('.lb');
+            if (lb)
+                lb.textContent = S.secGone != null ? '빈 책상' : '비서 조언';
+        }
+    }
     const st = S.st;
     const pf = S.prof || {}, pz = ZODIACS.find(x => x.id === pf.zodiac);
     $('#status').innerHTML = `${pf.mbti ? `<p class="sheet-sub" style="margin:0 0 6px">${pf.mbti} ${MBTI_NICK[pf.mbti] || ''} · ${BLOODS[pf.blood] ? BLOODS[pf.blood].name : ''} · ${pz ? pz.name : ''}</p>` : ''}
@@ -2504,8 +2857,8 @@ function renderSchedule() {
         const poor = a.cost > 0 && a.cost > S.cash - S.plan.reduce((x, pid, k) => x + (pid && pid !== '>' && (k < activeSlot || k >= activeSlot + span) ? ACTS[pid].cost : 0), 0);
         const dis = running || lock || poor;
         return `<button class="act ${a.cat === '연애' ? 'love' : ''}" data-act="${id}" ${dis ? 'disabled' : ''}>
-        <b>${a.name}</b><span class="d">${typeof a.desc === 'function' ? a.desc(S) : a.desc}</span>
-        <span class="meta"><span class="c">${a.pay ? '+' + fmtMoney(Math.round(a.pay * (1 + Math.min((S.jobXp || {})[id] || 0, 10) * 0.05))) + '원' : a.cost ? fmtMoney(a.cost) + '원' : '무료'}</span>${a.hp ? `<span>체력 −${a.hp}</span>` : ''}${a.stress ? `<span>스트레스 +${a.stress}</span>` : ''}<span>${a.eff}</span></span>
+        <b>${a.name}${PT_RANKS[id] ? ` · ${ptTitle(S, id)}` : ''}</b><span class="d">${typeof a.desc === 'function' ? a.desc(S) : a.desc}</span>
+        <span class="meta"><span class="c">${a.pay ? '+' + fmtMoney(ptPay(S, id)) + '원' : a.cost ? fmtMoney(a.cost) + '원' : '무료'}</span>${a.hp ? `<span>체력 −${a.hp}</span>` : ''}${a.stress ? `<span>스트레스 +${a.stress}</span>` : ''}<span>${a.eff}</span>${PT_RANKS[id] ? `<span class="pt-rank">${ptNext(S, id)}</span>` : ''}</span>
         ${span > 1 ? `<span class="lock" style="background:#fff2d6;color:#8a5a00">${span === 3 ? '한 달 전체 (3칸)' : '2칸 · 20일'}</span>` : ''}${a.cat === '교육' && S.lastEdu === id && S.m - ((_a = S.lastEduM) !== null && _a !== void 0 ? _a : -9) <= 1 && !lock ? `<span class="lock" style="background:#e8f7ec;color:#1e7a3c">연속 수강 +${Math.round(Math.min(S.eduStreak || 1, 5) * 10)}%</span>` : ''}
         ${lock ? `<span class="lock">${lock}</span>` : poor ? '<span class="lock">자금 부족</span>' : ''}
         ${id === 'hire' && !lock ? (() => { const nh = nextHire(S); return `<span class="lock" style="background:#eef3ff;color:var(--serum)">다음: ${nh.role.name}${nh.first ? ' (신규 직무)' : ' 증원'}</span>`; })() : ''}
@@ -2747,10 +3100,16 @@ function sfxForChips(chips) {
 // ---------- 대화창 ----------
 const FACES = { colon: '', ceo: '', news: 'NEWS' };
 function dialogHTML(o) {
-    const face = o.face || 'colon';
+    let face = o.face || 'colon';
+    if (face === 'colon' && S && S.secGone != null) {
+        face = 'ceo';
+        if (!o.speaker)
+            o = Object.assign(Object.assign({}, o), { speaker: '나' });
+    }
     const chips = (o.chips || []).map(c => { const v = c.money ? fmtMoney(c.d) + '원' : (Math.abs(c.d) < 1 ? c.d.toFixed(1) : Math.round(c.d)); const sign = c.d > 0 ? '+' : ''; const bad = (c.label === '스트레스' || c.label === '번아웃') ? c.d > 0 : c.d < 0; return `<span class="chip ${bad ? 'down' : 'up'}">${c.label} ${sign}${v}</span>`; }).join('');
-    const bg = face === 'colon' ? 'art/secretary.jpg' : face === 'ceo' && S ? portraitSrc(S) : '';
-    return `<div class="face ${face}" style="${bg ? `background-image:url('${bg}');background-size:${face === 'ceo' ? '330%' : 'cover'};background-position:${face === 'ceo' ? '50% 9%' : 'center'}` : ''}">${FACES[face] || ''}</div><div style="min-width:0"><div class="speaker">${o.speaker || '수석비서 콜론'}</div>${o.title ? `<div class="head">${esc(o.title)}</div>` : ''}<div class="text">${esc(o.text || '')}</div>${chips ? `<div class="chips">${chips}</div>` : ''}<div class="slot-choices"></div></div>`;
+    const bg = o.faceImg || (face === 'colon' ? 'art/secretary.jpg' : face === 'ceo' && S ? portraitSrc(S) : '');
+    const fsz = o.faceImg ? '230%' : face === 'ceo' ? '330%' : 'cover', fpos = o.faceImg ? '50% 4%' : face === 'ceo' ? '50% 9%' : 'center';
+    return `<div class="face ${face}" style="${bg ? `background-image:url('${bg}');background-size:${fsz};background-position:${fpos}` : ''}">${FACES[face] || ''}</div><div style="min-width:0"><div class="speaker">${o.speaker || '수석비서 콜론'}</div>${o.title ? `<div class="head">${esc(o.title)}</div>` : ''}<div class="text">${esc(o.text || '')}</div>${chips ? `<div class="chips">${chips}</div>` : ''}<div class="slot-choices"></div></div>`;
 }
 function note(o) { const d = $('#dialog'); d.hidden = false; d.classList.remove('has-next'); d.classList.add('mini'); d.onclick = (e) => { if (!e.target.isConnected || e.target.closest('#btn-dlg-close'))
     return; d.classList.toggle('mini'); }; d.innerHTML = dialogHTML(o) + '<button class="dlg-close" id="btn-dlg-close" aria-label="말풍선 접기">×</button>'; $('#btn-dlg-close').onclick = () => { d.hidden = true; }; }
@@ -2829,7 +3188,18 @@ function advice() {
 function monthIntro() {
     bgm('home');
     render();
-    note({ text: `${monthOf(S)}월. ${SEASON[monthOf(S)]}\n${advice()}` });
+    const c = CHAPTERS[S.m];
+    if (c && !S.seen['chap_' + c.n]) {
+        S.seen['chap_' + c.n] = true;
+        busy = true;
+        $('#dialog').hidden = true;
+        showCG(c.cg, { chapter: c }).then(() => { busy = false; save(); monthIntro(); });
+        return;
+    }
+    if (S.secGone != null)
+        note({ face: 'ceo', speaker: '나 (혼잣말)', text: `${monthOf(S)}월. ${SEASON[monthOf(S)]}\n${R() < 0.5 ? '…콜론이 있었다면 이렇게 말했겠지. ' : ''}“${advice()}”` });
+    else
+        note({ text: `${monthOf(S)}월. ${SEASON[monthOf(S)]}\n${advice()}` });
 }
 // 프린세스 메이커식 미니 화면: 스케줄을 하는 동안 꼬마 대표가 움직인다
 const MINI_KIND = { 교육: 'edu', 업무: 'work', 휴식: 'rest', 연애: 'love', 운동: 'fit', 알바: 'job' };
@@ -2890,6 +3260,15 @@ async function runMonth() {
         const id = S.plan[i], a = ACTS[id], span = spanOf(id);
         const r = doAction(S, id);
         render();
+        if (S.promo) {
+            const P = S.promo;
+            S.promo = null;
+            await playMini(id, a, i, span);
+            await showCG('promo', { kicker: 'PROMOTION', title: `${a.name} · 「${P.title}」 승진!`, sub: PT_RANKS[P.id].slice(0, P.rank + 1).join(' → ') });
+            showScene(cgSrc('promo'), a.name);
+            await say({ speaker: `${SLOT_NAMES[i]} · 알바`, face: 'ceo', title: a.name, text: r.text, chips: r.chips });
+            continue;
+        }
         const loveShow = !r.burnout && !r.sick && (r.lover || r.place);
         if (!r.burnout && !r.sick)
             await playMini(id, a, i, span);
@@ -3024,6 +3403,8 @@ function showActor(key) {
     const a = $('#actor');
     if (!sp || !a)
         return;
+    if (/^sec/.test(key) && S && S.secGone != null)
+        return;
     const changed = actorKey && actorKey !== key;
     const same = actorKey === key;
     const dating = S && S.love && S.love.colon && S.love.colon.stage >= 1 && /^sec/.test(key);
@@ -3064,13 +3445,31 @@ async function playEvent(ev) {
     S.seen[ev.id] = true;
     const prevBgm = SND.track;
     bgm(/^(conf|prop|colon|rlover|crisis|dump|cheat|wedding)/.test(ev.id) || ev.leave ? 'love' : 'event');
-    const cast = ev.cast || CAST[ev.id];
-    if (cast || ev.place)
+    const cast0 = ev.cast === null ? null : (ev.cast || CAST[ev.id]);
+    const cg = cgKey(ev);
+    const cast = cg ? null : cast0;
+    if (cg) {
+        $('#dialog').hidden = true;
+        await showCG(cg, { kicker: ev.speaker, title: ev.title });
+        showScene(cgSrc(cg), ev.title);
+    }
+    else if ((cast && cast.ask) || ev.place)
         setPlace(ev.place || PLACE_BY_EVENT[ev.id] || PLACE_BY_CAST[cast.ask]);
+    if (ev.beats) {
+        for (const b of ev.beats) {
+            showActor(b.actor);
+            await say({ speaker: b.speaker, face: 'lover', faceImg: SPR[b.actor] && SPR[b.actor].src, title: ev.title, text: b.text });
+        }
+        hideActor();
+    }
     const pend = ask({ speaker: ev.speaker, face: ev.face, title: ev.title, text: ev.text(S), choices: ev.choices });
     if (cast)
         showActor(cast.ask);
     const k = await pend;
+    const P = S.picks || (S.picks = {});
+    const pid = ev.id.replace(/_\d+$/, '');
+    if (!P[pid])
+        P[pid] = { k, m: S.m };
     const pre = { rivalWin: S.rivalWin };
     const out = ev.choices[k].run(S);
     render();
@@ -3086,6 +3485,81 @@ async function playEvent(ev) {
     hideActor();
     $('#phone').classList.remove('rainy');
     bgm(prevBgm || 'home');
+}
+// ---------- 이벤트 CG ----------
+const CG_MAP = { prologue: 'prologue', rival1: 'rival1', rival2: 'rival2', rival3: 'rival3', rival4: 'rival4', rival5: 'rival5', rival_final: 'rival_final', awards: 'awards', bday: 'bday',
+    colon_open: 'colon_open', sec_empty: 'colon_quit', rlover_reveal: 'rlover', rlover_steal: 'breakup',
+    staff_idea: 'staff_idea', staff_conflict: 'staff_conflict', staff_mistake: 'staff_mistake', staff_viral: 'staff_viral', viralmeme: 'staff_viral', staff_burnout: 'staff_burnout', workshop: 'workshop',
+    staff_award: 'party', teambirthday: 'party', yearend: 'party', staff_wedding: 'party', sakura: 'sakura', spring_fever: 'sakura', monsoon: 'monsoon', first_snow: 'first_snow', chuseok: 'chuseok',
+    olive: 'retail', homeshop: 'retail', hyundai: 'retail', scandal: 'scandal', blackcon: 'scandal', celeb: 'celeb', material: 'supply', factory: 'supply', fx: 'supply',
+    derma: 'lab', patent: 'lab', gov: 'lab', fashion: 'fashion', ma: 'ma', parents: 'parents', letter: 'letter', health: 'health',
+    lv_anniv: 'date', lv_surprise: 'date', lv_visit: 'date', blind: 'date', lv_newlywed: 'date', lv_parents: 'date', lv_pet: 'pet', award: 'awards' };
+const CG_PREFIX = [['conf_', 'confess'], ['prop_', 'propose'], ['tri', 'triangle'], ['dump_', 'breakup'], ['after_', 'breakup'], ['grant_ad_', 'lab']];
+const CG_FX = { rain: ['breakup', 'rival3', 'colon_secret', 'monsoon', 'triangle', 'ch3', 'scandal'], snow: ['first_snow'], petal: ['sakura', 'ch1'], confetti: ['awards', 'party', 'promo', 'rival_final', 'workshop'], sparkle: ['confess', 'propose', 'date', 'prologue', 'bday', 'ch4', 'ch2', 'colon_open', 'letter', 'pet', 'fashion'] };
+function cgKey(ev) { if (ev.cg)
+    return ev.cg; if (CG_MAP[ev.id])
+    return CG_MAP[ev.id]; const p = CG_PREFIX.find(([x]) => ev.id.startsWith(x)); return p ? p[1] : null; }
+const cgSrc = k => `art/cg_${k}.jpg`;
+const CG_ALL = ['prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final'];
+let cgFlip = false;
+function showCG(key, o = {}) {
+    return new Promise(res => {
+        const el = $('#cg');
+        if (!el) {
+            res();
+            return;
+        }
+        cgFlip = !cgFlip;
+        el.className = 'cg' + (cgFlip ? ' v2' : '') + (o.chapter ? ' chap' : '');
+        const img = $('#cg-img');
+        img.style.animation = 'none';
+        void img.offsetWidth;
+        img.style.animation = '';
+        img.style.backgroundImage = `url('${cgSrc(key)}')`;
+        const fx = Object.keys(CG_FX).find(k => CG_FX[k].includes(key));
+        const box = $('#cg-fx');
+        box.className = 'cg-fx' + (fx ? ' ' + fx : '');
+        box.innerHTML = '';
+        if (fx) {
+            const n = fx === 'rain' ? 60 : fx === 'sparkle' ? 18 : 28;
+            const cols = ['#ff7aa8', '#ffd84d', '#7ad7ff', '#9b8cff', '#7be35a'];
+            for (let i = 0; i < n; i++) {
+                const p = document.createElement('i');
+                p.style.left = (Math.random() * 100) + '%';
+                p.style.animationDelay = (-Math.random() * (fx === 'rain' ? 1 : 7)) + 's';
+                if (fx === 'sparkle')
+                    p.style.top = (10 + Math.random() * 75) + '%';
+                else {
+                    p.style.setProperty('--dx', (fx === 'rain' ? -30 : (Math.random() * 80 - 40)) + 'px');
+                    p.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+                }
+                if (fx === 'confetti')
+                    p.style.background = cols[i % cols.length];
+                if (fx === 'snow' || fx === 'petal') {
+                    const z = .6 + Math.random() * .9;
+                    p.style.transform = `scale(${z})`;
+                    p.style.animationDuration = (5 + Math.random() * 4) + 's';
+                }
+                box.appendChild(p);
+            }
+        }
+        const c = o.chapter;
+        $('#cg-kick').textContent = c ? `CHAPTER ${c.n} · ${c.age}` : (o.kicker || 'EVENT');
+        $('#cg-title').textContent = c ? c.name : (o.title || '');
+        $('#cg-sub').textContent = c ? c.goal : (o.sub || '');
+        el.hidden = false;
+        sfx(c ? 'fanfare' : 'event');
+        let done = false;
+        const go = () => { if (done)
+            return; done = true; clearTimeout(t); el.classList.add('out'); setTimeout(() => { el.hidden = true; el.classList.remove('out'); box.innerHTML = ''; res(); }, 330); };
+        const t = setTimeout(go, c ? 6500 : 9000);
+        el.onclick = go;
+        el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            go();
+        } };
+        setTimeout(() => el.focus({ preventScroll: true }), 50);
+    });
 }
 // ---------- 부모님께 쓰는 편지 (프린세스 메이커 엔딩처럼) ----------
 const LETTER_ORIGIN = {
@@ -3122,6 +3596,27 @@ const LETTER_END = {
     host: '홈쇼핑 간판 쇼호스트가 됐어요. 방송 보시다가 주문하시면 안 돼요. 집에 샘플 잔뜩 보내 드릴게요.',
     consult: '이제 다른 브랜드들을 도와요. 남의 브랜드를 고치면서 우리 브랜드가 왜 소중했는지 알게 됐어요.',
 };
+function epilogueHTML(S, key) {
+    const L = [];
+    if (S.why && WHY[S.why])
+        L.push(WHY[S.why].epi.replace('이름을 만들었다', `이름, 「${S.brand}」를 만들었다`));
+    if (S.rivalEnd === 'friend')
+        L.push(`${RIVAL}과는 이제 한 달에 한 번 한강에서 캔커피를 마신다. 여전히 지는 건 싫다.`);
+    else if (S.rivalEnd === 'rival' || (S.rival || 0) > (S.rivalFriend || 0))
+        L.push(`${RIVAL}과는 끝까지 라이벌이었다. 덕분에 한 번도 멈추지 않았다.`);
+    if (S.secGone != null && S.married !== 'colon')
+        L.push('콜론의 책상은 아직 비어 있다. 가끔 그 자리에 대고 “오늘 일정은?” 하고 묻는다.');
+    else if (S.colonExec)
+        L.push('이서진 이사는 오늘도 내 일정표 맨 아래에 무언가를 몰래 적는다.');
+    if (S.recall === 'open')
+        L.push('리콜을 먼저 공개했던 그날의 기자회견 영상은, 지금도 신입 교육 첫 시간에 틀어진다.');
+    if (S.final === 'next')
+        L.push('강연장에서 만났던 스무 살 중 한 명이 얼마 전 창업했다는 소식을 들었다.');
+    const PT = Object.entries(S.ptRank || {}).filter(([, r]) => r >= 2);
+    if (PT.length)
+        L.push(`알바 경력: ${PT.map(([id, r]) => `${ACTS[id].name} 「${PT_RANKS[id][r]}」`).join(' · ')}`);
+    return L.length ? `<div class="eyebrow" style="margin-top:12px">에필로그</div><p style="white-space:pre-line">${esc(L.join('\n'))}</p>` : '';
+}
 function letterHTML(S, key) {
     const o = ORIGINS.find(x => x.id === S.origin) || ORIGINS[0];
     const L = S.love || {};
@@ -3131,8 +3626,12 @@ function letterHTML(S, key) {
             : (S.heartbreak != null && Object.values(L).some(v => v.stage === -9)) ? '연애는 한 번 크게 아팠어요. 그래도 덕분에 조금 더 단단해졌어요. 너무 걱정 마세요.'
                 : '연애는… 아직이에요. 일이 애인이었다고 해 두죠. 잔소리는 다음 명절에 몰아서 들을게요.';
     const hard = S.burnouts >= 2 ? '몇 번 쓰러지기도 했어요. 그때마다 말없이 보내 주신 반찬통이 냉장고에 있어서 버텼어요.' : S.negMonths || S.ending === 'bankrupt' ? '통장이 바닥난 달도 있었어요. 그때 전화로 “밥은 먹었니” 물어봐 주신 게 제일 큰 투자였어요.' : '힘든 날도 많았지만, 엄마 아빠한테 전화하면 이상하게 다 괜찮아졌어요.';
-    const pt = Object.values(S.jobDone || {}).reduce((a, b) => a + b, 0) >= 6 ? '\n회사 자금이 바닥났을 땐 알바도 했어요. 카페, 매장, 촬영장… 그때 만난 사람들이 다 제 선생님이었어요.' : '';
-    const body = [LETTER_ORIGIN[o.id] || '', '', `스무 살에 「${S.brand}」를 시작하고 벌써 ${S.m >= 12 ? Math.floor(S.m / 12) + '년' : S.m + '개월'}이 지났어요. ${hard}${pt}`, '', LETTER_END[key] || '', '', love, '', '엄마 아빠, 저를 0단계에서 시작하게 해 줘서 고마워요.\n늘 건강하세요. 사랑해요.'].join('\n');
+    const ptBest = Object.keys(S.ptRank || {}).sort((a, b) => (S.ptRank[b] || 0) - (S.ptRank[a] || 0))[0];
+    const pt = Object.values(S.jobDone || {}).reduce((a, b) => a + b, 0) >= 6 ? `\n회사 자금이 바닥났을 땐 알바도 했어요. 카페, 매장, 촬영장… 그때 만난 사람들이 다 제 선생님이었어요.${ptBest && S.ptRank[ptBest] >= 1 ? ` ${ACTS[ptBest].name} 일은 「${PT_RANKS[ptBest][S.ptRank[ptBest]]}」까지 올라갔어요.` : ''}` : '';
+    const WHY_LT = { skin: '스무 살 겨울, 피부가 망가져서 울던 거 기억하세요? 그 겨울이 결국 제 회사가 됐어요.', smile: '거울 앞에서 웃는 사람을 보고 싶다고 했던 거 기억하세요? 요즘 매일 봐요.', name: '제 이름으로 된 걸 남기고 싶다고 했잖아요. 이제 간판에 우리 브랜드 이름이 걸려 있어요.', mom: '엄마 화장대의 그 긁힌 유리병, 아직 있어요? 이번엔 긁힌 데 하나 없는 병을 보내 드릴게요.' };
+    const why = S.why && WHY_LT[S.why] ? '\n' + WHY_LT[S.why] : '';
+    const sec = S.secGone != null && S.married !== 'colon' ? '\n함께 일하던 비서가 떠났어요. 제 실수였어요. 그 뒤론 일정표를 직접 써요. 덕분에 조금 어른이 됐어요.' : '';
+    const body = [LETTER_ORIGIN[o.id] || '', '', `스무 살에 「${S.brand}」를 시작하고 벌써 ${S.m >= 12 ? Math.floor(S.m / 12) + '년' : S.m + '개월'}이 지났어요. ${hard}${pt}${why}${sec}`, '', LETTER_END[key] || '', '', love, '', '엄마 아빠, 저를 0단계에서 시작하게 해 줘서 고마워요.\n늘 건강하세요. 사랑해요.'].join('\n');
     return `<div class="letter" role="article" aria-label="부모님께 쓰는 편지"><div class="lt-to">사랑하는 엄마 아빠께</div><div class="lt-body">${esc(body).replace(/\n/g, '<br>')}</div><div class="lt-from">${yearOf(S)}년 ${monthOf(S)}월, ${ageOf(S)}살의 ${esc(S.name)} 올림</div></div>`;
 }
 function finish() {
@@ -3158,6 +3657,7 @@ function finish() {
       ${S.married && S.stolen === S.married ? `<p>한서린에게서 빼앗은 사랑, ${LOVERS[S.married].name}. 결혼식 날 서린은 오지 않았지만 화환을 보냈다. 리본에는 “다음엔 내가 이겨요.”</p>` : ''}${S.married === 'colon' ? `<p>결혼식 사회는 콜론이 직접 짠 분 단위 식순대로 진행됐다. 신혼여행 첫날 그가 다이어리를 덮으며 말했다. “이제 일정은 같이 정해요, 여보.”</p>` : ''}${S.married && S.married !== 'colon' ? `<p>그리고 ${josa(LOVERS[S.married].name, '과', '와')} 결혼해, 주말마다 함께 새 처방을 실험한다.</p>` : (() => { if (S.married)
         return ''; const L = S.love || {}; const pid = Object.keys(L).find(i => L[i].stage >= 1); return pid ? `<p>${josa(LOVERS[pid].name, '과', '와')}는 여전히 연애 중이다.</p>` : ''; })()}
       ${key === 'exit' ? `<p><b>인수가 ${fmtMoney(S.exitValue)}원</b></p>` : ''}
+      ${epilogueHTML(S, key)}
       <div class="eyebrow" style="margin-top:14px">부모님께 보내는 편지</div>
       ${letterHTML(S, key)}
       <div class="report">
@@ -3342,7 +3842,7 @@ function renderLove() {
     $('#love').innerHTML = `${S.heartbreak > 0 ? `<p class="sheet-sub" style="color:#c93a66">💔 실연 중 (${S.heartbreak}개월 남음)</p>` : ''}<p class="sheet-sub">데이트 상대를 고르면 연애 탭 「데이트」에서 그 사람과 만나요. 호감도 60이면 고백, 90이면 프러포즈 이벤트가 생겨요.</p><div class="lv-list">${Object.entries(LOVERS).sort((x, y) => ((L[y[0]] ? 1 : 0) - (L[x[0]] ? 1 : 0)) || ((L[y[0]] || {}).aff || 0) - ((L[x[0]] || {}).aff || 0)).map(([id, lv]) => {
         const v = L[id];
         const known = !!v;
-        const st = !known ? '아직 모르는 사이' : v.stage === -8 ? '한서린의 약혼자' : v.stage === -9 ? '헤어짐' : v.taken ? '한서린의 연인 · 몰래 데이트' : v.stage === -1 ? '썸' : LOVE_STAGE[v.stage];
+        const st = !known ? '아직 모르는 사이' : v.stage === -8 ? '한서린의 약혼자' : v.stage === -9 ? (v.gone ? '떠나간 사람' : '헤어짐') : v.taken ? '한서린의 연인 · 몰래 데이트' : v.stage === -1 ? '썸' : LOVE_STAGE[v.stage];
         return `<div class="lv ${known ? '' : 'unknown'} ${tgt === id && known && v.stage !== -9 ? 'on' : ''}">
       <div class="ph"><img src="art/spr_lv_${id}.png" alt="${known ? esc(lv.name) : '아직 만나지 않은 사람'}"></div>
       <div style="min-width:0"><b>${known ? `${lv.name} · ${lv.age}세` : '??? '}</b> <span class="st">${st}</span>
@@ -3429,8 +3929,12 @@ document.addEventListener('click', e => {
         return;
     }
     if (e.target.closest('#btn-advice')) {
-        if (S && S.phase === 'plan')
-            monthIntro();
+        if (S && S.phase === 'plan') {
+            if (S.secGone != null)
+                note({ face: 'ceo', speaker: '빈 책상', text: '콜론의 자리는 비어 있다. 서랍 속 메모만 남았다.\n「대표님, 점심은 꼭 드세요. — 서진」' });
+            else
+                monthIntro();
+        }
         return;
     }
     if (e.target.closest('#portrait')) {
@@ -3529,35 +4033,47 @@ async function enterGame(isNew) {
     if (isNew) {
         busy = true;
         await say({ title: `${S.name} 대표님, 창업을 축하드려요`, text: `저는 비서 콜론이에요. 앞으로 10년, ${S.brand}의 모든 달을 함께할게요.\n우리 브랜드의 핵심은 진정이 아니라 “복원”. 일상의 마찰이 남긴 보이지 않는 미세 스크래치를 되돌리는 거예요.` });
+        await playEvent(PROLOGUE);
         await say({ title: '게임 방법', text: '매달 상순·중순·하순, 세 칸의 스케줄을 정해요.\n교육으로 대표의 능력을 키우고, 업무로 회사를 키우고, 휴식으로 체력과 스트레스를 관리하세요.\n자금이 3개월 연속 마이너스면 폐업이에요. 10년 뒤 서른 살이 되는 날, 대표의 미래가 결정됩니다.' });
         busy = false;
         save();
     }
     monthIntro();
 }
-function preloadArt() { for (const st of AGE_STAGES)
-    for (const m of ['ok', 'tired']) {
+function preloadArt() {
+    for (const st of AGE_STAGES)
+        for (const m of ['ok', 'tired']) {
+            const i = new Image();
+            i.src = `art/${st.key}_${m}.jpg`;
+        }
+    for (const id of Object.keys(ACTS)) {
         const i = new Image();
-        i.src = `art/${st.key}_${m}.jpg`;
-    } for (const id of Object.keys(ACTS)) {
-    const i = new Image();
-    i.src = S ? actSrc(S, id) : `art/act_${id}.jpg`;
-} for (const id of Object.keys(ACTS))
-    for (const f of ['a', 'b']) {
+        i.src = S ? actSrc(S, id) : `art/act_${id}.jpg`;
+    }
+    for (const id of Object.keys(ACTS))
+        for (const f of ['a', 'b']) {
+            const i = new Image();
+            i.src = `art/mini_${id}_${f}.png`;
+        }
+    for (const b of ['office1', 'office2', 'home', 'rooftop', 'meeting', 'street', 'hangang', 'amusement', 'gallery', 'restaurant', 'beach', 'ski', 'snow']) {
         const i = new Image();
-        i.src = `art/mini_${id}_${f}.png`;
-    } for (const b of ['office1', 'office2', 'home', 'rooftop', 'meeting', 'street', 'hangang', 'amusement', 'gallery', 'restaurant', 'beach', 'ski', 'snow']) {
-    const i = new Image();
-    i.src = `art/bg_${b}.jpg`;
-} for (const k of Object.keys(SPR)) {
-    const i = new Image();
-    i.src = SPR[k].src;
-} {
-    const i = new Image();
-    i.src = 'art/bg_cafe.jpg';
-    const j = new Image();
-    j.src = 'art/bg_rain.jpg';
-} }
+        i.src = `art/bg_${b}.jpg`;
+    }
+    for (const k of Object.keys(SPR)) {
+        const i = new Image();
+        i.src = SPR[k].src;
+    }
+    {
+        const i = new Image();
+        i.src = 'art/bg_cafe.jpg';
+        const j = new Image();
+        j.src = 'art/bg_rain.jpg';
+    }
+    setTimeout(() => { for (const k of CG_ALL) {
+        const i = new Image();
+        i.src = cgSrc(k);
+    } }, 3000);
+}
 function boot() {
     titleGlass();
     preloadArt();
