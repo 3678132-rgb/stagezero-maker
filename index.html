@@ -309,6 +309,19 @@ body.running .phone .bottom-area,body.running .phone .side-l,body.running .phone
 .dex-list{display:grid;gap:6px}
 .dex-list div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);padding:6px 0;font-size:13px}
 .dex-list .g{font-family:var(--f-display);font-weight:800;color:var(--serum)}
+.dex-list button.dx{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;width:100%;border-bottom:1px solid var(--line);padding:6px 0;font-size:13px;cursor:pointer}
+.dex-list button.dx img{width:38px;height:52px;object-fit:cover;border-radius:6px;flex:none;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.dex-list button.dx span:nth-of-type(1){flex:1;text-decoration:underline dotted rgba(0,0,0,.25);text-underline-offset:3px}
+.dex-list button.dx:active{background:rgba(31,59,179,.06)}
+.album button.tag{font:inherit;cursor:pointer}
+.endview{position:fixed;inset:0;z-index:9999;background:rgba(5,7,15,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));animation:cg-in .3s ease both;cursor:pointer}
+.endview[hidden]{display:none}
+.endview img{max-width:min(100%,420px);max-height:62vh;object-fit:contain;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.endview .ev-cap{max-width:420px;color:#fff;text-align:center}
+.endview .ev-cap small{display:block;color:#ffe08a;font-weight:800;letter-spacing:.2em;font-size:12px}
+.endview .ev-cap b{display:block;font-family:var(--f-display);font-size:20px;margin:4px 0 8px}
+.endview .ev-cap p{margin:0;font-size:13.5px;line-height:1.6;opacity:.88;max-height:22vh;overflow:auto}
+.endview .ev-cap em{display:block;margin-top:10px;font-style:normal;font-size:12px;opacity:.6}
 .phone .schedule .acts{grid-template-columns:repeat(2,minmax(0,1fr))}
 .phone .schedule .slots{display:none}
 
@@ -524,7 +537,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
       <div class="eyebrow">Canvas Labs · Derma Couture Simulation</div>
       <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
       <div class="glass-pane ornate"><div class="in"><img src="art/age20_ok.jpg" alt="레이스 재킷에 리본 블라우스를 입고 세럼 병을 든 20세 창업 1년차 대표"><svg id="title-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg></div></div>
-      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-M</span>
+      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-N</span>
       <div class="btn-row">
         <button class="btn" id="btn-new">새로 시작</button>
         <button class="btn ghost" id="btn-load" hidden>이어하기</button>
@@ -3749,6 +3762,32 @@ function letterHTML(S, key) {
         ps].filter(Boolean);
     return `<div class="letter" role="article" aria-label="부모님께 쓰는 편지"><div class="lt-to">사랑하는 엄마 아빠께</div><div class="lt-body">${paras.map(t => `<p>${esc(t).replace(/\n/g, '<br>')}</p>`).join('')}</div><div class="lt-from">${yearOf(S)}년 ${monthOf(S)}월, ${ageOf(S)}살의 ${esc(S.name)} 올림</div></div>`;
 }
+function showEnding(k) {
+    const e = ENDINGS[k];
+    if (!e)
+        return;
+    let v = document.getElementById('endview');
+    if (!v) {
+        v = document.createElement('div');
+        v.id = 'endview';
+        v.className = 'endview';
+        v.setAttribute('role', 'dialog');
+        v.setAttribute('aria-label', '엔딩 일러스트');
+        document.body.appendChild(v);
+        v.addEventListener('click', () => { v.hidden = true; });
+    }
+    v.innerHTML = `<img src="art/end_${k}.jpg" alt="엔딩 일러스트: ${esc(e.title)}"><div class="ev-cap"><small>엔딩 · ${e.grade}</small><b>${esc(e.title)}</b><p>${esc(e.text || '')}</p><em>화면을 누르면 닫혀요</em></div>`;
+    v.hidden = false;
+    if (typeof sfx === 'function')
+        try {
+            sfx('tap');
+        }
+        catch (_) { }
+}
+document.addEventListener('click', ev => { const b = ev.target.closest && ev.target.closest('[data-end]'); if (b) {
+    ev.preventDefault();
+    showEnding(b.dataset.end);
+} });
 function finish() {
     document.body.classList.remove('running');
     busy = false;
@@ -3788,7 +3827,7 @@ function finish() {
       <div class="eyebrow">10년의 기록</div>
       <div class="album">${S.album.length ? S.album.map(a => `<span class="tag on">${esc(a)}</span>`).join('') : '<span class="tag">기록 없음</span>'}</div>
       <div class="eyebrow" style="margin-top:18px">엔딩 도감 ${Object.keys(ENDINGS).filter(k => seenEnd[k]).length} / ${Object.keys(ENDINGS).length}</div>
-      <div class="album">${Object.entries(ENDINGS).map(([k, e]) => `<span class="tag ${k === key ? 'on' : ''}">${seenEnd[k] ? e.title : '？？？'}</span>`).join('')}</div>
+      <div class="album">${Object.entries(ENDINGS).map(([k, e]) => `${seenEnd[k] ? `<button class="tag ${k === key ? 'on' : ''}" data-end="${k}">${esc(e.title)}</button>` : `<span class="tag">？？？</span>`}`).join('')}</div>
       <div class="btn-row" style="justify-content:flex-start;margin-top:22px"><button class="btn" id="btn-again">다시 창업하기</button></div>
     </div>`;
     show('scr-ending');
@@ -3972,7 +4011,7 @@ function openSheet(name) {
     closeSheets();
     if (name === 'dex') {
         const seen = readEndings();
-        $('#dex').innerHTML = `<p class="sheet-sub">본 엔딩 ${Object.keys(ENDINGS).filter(k => seen[k]).length} / ${Object.keys(ENDINGS).length}</p><div class="dex-list">${Object.entries(ENDINGS).map(([k, e]) => `<div><span>${seen[k] ? esc(e.title) : '？？？'}</span><span class="g">${seen[k] ? e.grade : ''}</span></div>`).join('')}</div>`;
+        $('#dex').innerHTML = `<p class="sheet-sub">본 엔딩 ${Object.keys(ENDINGS).filter(k => seen[k]).length} / ${Object.keys(ENDINGS).length}</p><div class="dex-list">${Object.entries(ENDINGS).map(([k, e]) => (seen[k] ? `<button class="dx" data-end="${k}"><img src="art/end_${k}.jpg" alt="" loading="lazy"><span>${esc(e.title)}</span><span class="g">${e.grade}</span></button>` : `<div><span>？？？</span><span class="g"></span></div>`)).join('')}</div>`;
     }
     if (name === 'acts')
         renderSchedule();
