@@ -524,7 +524,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
       <div class="eyebrow">Canvas Labs · Derma Couture Simulation</div>
       <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
       <div class="glass-pane ornate"><div class="in"><img src="art/age20_ok.jpg" alt="레이스 재킷에 리본 블라우스를 입고 세럼 병을 든 20세 창업 1년차 대표"><svg id="title-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg></div></div>
-      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-K</span>
+      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-L</span>
       <div class="btn-row">
         <button class="btn" id="btn-new">새로 시작</button>
         <button class="btn ghost" id="btn-load" hidden>이어하기</button>
@@ -1727,9 +1727,15 @@ const EVENTS = [
             { label: '나가 본다', sub: '스트레스↓ 체력↓', run: S => { const ch = []; bump(S, 'stress', -18, ch); bump(S, 'hp', -4, ch); grow(S, 'net', 1, ch); return { text: pick(['상대가 우리 세럼을 쓰고 있었다. 이야기가 끝나지 않았다.', '대화는 즐거웠다. 하지만 머릿속엔 다음 주 출시 일정뿐.', '“대표님 얼굴이 제일 좋은 광고네요.” 괜히 웃음이 났다.']), chips: ch }; } },
             { label: '미안, 이번 주는 출시 준비야', sub: '경영↑ 스트레스↑', run: S => { const ch = []; grow(S, 'biz', 1, ch); bump(S, 'stress', 5, ch); return { text: '친구의 한숨 섞인 이모티콘이 도착했다.', chips: ch }; } },
         ] },
-    { id: 'parents', once: false, w: 2, cond: S => S.stress >= 30,
+    // 엄마는 딸이 힘들수록 자주 온다: 스트레스가 높을수록 확률↑·재방문 간격↓, 85 이상이면 반드시 온다
+    { id: 'parents', once: false, cond: S => S.stress >= 50,
+        w: S => S.stress >= 80 ? 14 : S.stress >= 65 ? 7 : 3,
+        cd: S => S.stress >= 80 ? 3 : S.stress >= 65 ? 5 : 8,
+        force: S => S.stress >= 85,
         face: 'ceo', speaker: 'PRIVATE', title: '엄마가 반찬을 싸 들고 올라왔다',
-        text: () => '“밥은 먹고 다니니.” 냉장고에 반찬통 열두 개가 들어갔다.',
+        text: S => S.stress >= 80 ? '연락도 없이 엄마가 문 앞에 서 있었다. “목소리가 너무 지쳐 있길래.” 내 얼굴을 보자마자 엄마 눈가가 붉어졌다.'
+            : S.stress >= 65 ? '“요즘 전화 목소리가 왜 그래.” 엄마가 반찬통을 하나씩 꺼내며 내 얼굴을 한참 들여다봤다.'
+                : '“밥은 먹고 다니니.” 냉장고에 반찬통 열두 개가 들어갔다.',
         choices: [
             { label: '하루 쉬고 같이 시간을 보낸다', sub: '체력·스트레스 회복', run: S => { const ch = []; bump(S, 'hp', 20, ch); bump(S, 'stress', -15, ch); return { text: '엄마가 우리 제품을 바르고 “피부가 좋아졌네”라고 했다. 어떤 리뷰보다 좋았다.', chips: ch }; } },
             { label: '사무실 구경만 시켜 드린다', sub: '리더십↑', run: S => { const ch = []; grow(S, 'lead', 1.5, ch); bump(S, 'stress', -5, ch); return { text: '팀원들이 엄마에게 박수를 쳐 줬다. 엄마는 돌아가는 길에 조금 울었다고 한다.', chips: ch }; } },
@@ -2485,17 +2491,18 @@ function fixedEvents(S) {
 function pickEvent(S) {
     const last = S.lastEv || (S.lastEv = {});
     // 반복 이벤트는 8개월 안에 다시 나오지 않는다
-    const ok = EVENTS.filter(e => !(e.once && S.seen[e.id]) && !(last[e.id] != null && S.m - last[e.id] < 8) && e.cond(S));
-    const forced = ok.find(e => e.force);
+    const val = (x, d) => x == null ? d : typeof x === 'function' ? x(S) : x;
+    const ok = EVENTS.filter(e => !(e.once && S.seen[e.id]) && !(last[e.id] != null && S.m - last[e.id] < val(e.cd, 8)) && e.cond(S));
+    const forced = ok.find(e => val(e.force, false));
     if (forced) {
         last[forced.id] = S.m;
         return forced;
     }
     if (!ok.length || R() > 0.4)
         return null;
-    let t = ok.reduce((a, e) => a + e.w, 0), r = R() * t;
+    let t = ok.reduce((a, e) => a + val(e.w, 1), 0), r = R() * t;
     for (const e of ok) {
-        r -= e.w;
+        r -= val(e.w, 1);
         if (r <= 0) {
             last[e.id] = S.m;
             return e;
@@ -4159,6 +4166,7 @@ setSound(SND.on);
 document.addEventListener('visibilitychange', () => { if (document.hidden && S && S.phase === 'plan' && !busy)
     save(); });
 </script>
+
 
 <div id="sw-bar" hidden></div>
 <script>
