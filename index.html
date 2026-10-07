@@ -492,8 +492,12 @@ body.running .phone .dialog{max-height:30%}
   .cg-cap{bottom:calc(8% + 18px + var(--sb))}
 }
 /* iOS 홈 화면 앱(standalone): innerHeight가 상태바만큼 짧게 잡히는 버그 → 실제 화면 높이로 맞춘다 */
-html.ios-app, html.ios-app body{background:#1b2140}
-html.ios-app .phone{bottom:auto;height:var(--appH,100vh)}
+html.ios-app{min-height:var(--appH,100vh)}
+html.ios-app body{min-height:var(--appH,100vh);box-sizing:border-box}
+html.ios-app body.game-mode{background:#1b2140}
+html.ios-app .title-screen{min-height:calc(var(--appH,100vh) - 60px)}
+html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
+.build-tag{display:block;margin-top:10px;font:600 10px/1 var(--f-mono,monospace);letter-spacing:.12em;color:var(--mute);opacity:.6}
 /* 태블릿 가로: 게임 화면은 세로 비율로 가운데에 (양옆은 배경) */
 @media (orientation:landscape) and (min-width:700px){
   body.game-mode{background:#1b2140 radial-gradient(80% 90% at 50% 40%,#3a4a8c 0%,#1b2140 70%)}
@@ -509,7 +513,7 @@ html.ios-app .phone{bottom:auto;height:var(--appH,100vh)}
       <div class="eyebrow">Canvas Labs · Derma Couture Simulation</div>
       <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
       <div class="glass-pane ornate"><div class="in"><img src="art/age20_ok.jpg" alt="레이스 재킷에 리본 블라우스를 입고 세럼 병을 든 20세 창업 1년차 대표"><svg id="title-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg></div></div>
-      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p>
+      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-B</span>
       <div class="btn-row">
         <button class="btn" id="btn-new">새로 시작</button>
         <button class="btn ghost" id="btn-load" hidden>이어하기</button>
@@ -3445,7 +3449,7 @@ function hideActor(leave) {
 }
 window.addEventListener('resize', placeActor);
 function fitApp() {
-    const ios = !!navigator.standalone;
+    const ios = !!navigator.standalone || (/iP(hone|ad|od)/.test(navigator.userAgent) && matchMedia('(display-mode: standalone)').matches);
     document.documentElement.classList.toggle('ios-app', ios);
     if (!ios)
         return;
@@ -4117,7 +4121,9 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && S &
 <script>
 if('serviceWorker' in navigator){
   const bar=document.getElementById('sw-bar');
-  navigator.serviceWorker.register('sw.js').then(reg=>{
+  const hadCtl=!!navigator.serviceWorker.controller; let reloaded=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(hadCtl && !reloaded){ reloaded=true; location.reload(); } });
+  navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>{ reg.update().catch(()=>{});
     if(!navigator.serviceWorker.controller){ bar.hidden=false; bar.textContent='오프라인용 그림을 내려받는 중이에요… (처음 한 번만)'; }
   }).catch(()=>{});
   navigator.serviceWorker.addEventListener('message',e=>{
