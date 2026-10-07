@@ -491,6 +491,9 @@ body.running .phone .dialog{max-height:30%}
   .sheet-card{padding-bottom:calc(18px + var(--sb))}
   .cg-cap{bottom:calc(8% + 18px + var(--sb))}
 }
+/* iOS 홈 화면 앱(standalone): innerHeight가 상태바만큼 짧게 잡히는 버그 → 실제 화면 높이로 맞춘다 */
+html.ios-app, html.ios-app body{background:#1b2140}
+html.ios-app .phone{bottom:auto;height:var(--appH,100vh)}
 /* 태블릿 가로: 게임 화면은 세로 비율로 가운데에 (양옆은 배경) */
 @media (orientation:landscape) and (min-width:700px){
   body.game-mode{background:#1b2140 radial-gradient(80% 90% at 50% 40%,#3a4a8c 0%,#1b2140 70%)}
@@ -3441,6 +3444,18 @@ function hideActor(leave) {
     } }, leave ? 1100 : 300);
 }
 window.addEventListener('resize', placeActor);
+function fitApp() {
+    const ios = !!navigator.standalone;
+    document.documentElement.classList.toggle('ios-app', ios);
+    if (!ios)
+        return;
+    const land = matchMedia('(orientation: landscape)').matches;
+    const sh = land ? Math.min(screen.width, screen.height) : Math.max(screen.width, screen.height);
+    document.documentElement.style.setProperty('--appH', Math.max(innerHeight, sh) + 'px');
+}
+fitApp();
+window.addEventListener('resize', fitApp);
+window.addEventListener('orientationchange', () => setTimeout(fitApp, 300));
 async function playEvent(ev) {
     S.seen[ev.id] = true;
     const prevBgm = SND.track;
