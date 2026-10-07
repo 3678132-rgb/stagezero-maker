@@ -522,7 +522,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
       <div class="eyebrow">Canvas Labs · Derma Couture Simulation</div>
       <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
       <div class="glass-pane ornate"><div class="in"><img src="art/age20_ok.jpg" alt="레이스 재킷에 리본 블라우스를 입고 세럼 병을 든 20세 창업 1년차 대표"><svg id="title-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg></div></div>
-      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-H</span>
+      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-I</span>
       <div class="btn-row">
         <button class="btn" id="btn-new">새로 시작</button>
         <button class="btn ghost" id="btn-load" hidden>이어하기</button>
@@ -2892,7 +2892,7 @@ function renderSchedule() {
         const dis = running || lock || poor;
         return `<button class="act ${a.cat === '연애' ? 'love' : ''}" data-act="${id}" ${dis ? 'disabled' : ''}>
         <b>${a.name}${PT_RANKS[id] ? ` · ${ptTitle(S, id)}` : ''}</b><span class="d">${typeof a.desc === 'function' ? a.desc(S) : a.desc}</span>
-        <span class="meta"><span class="c">${a.pay ? '+' + fmtMoney(ptPay(S, id)) + '원' : a.cost ? fmtMoney(a.cost) + '원' : '무료'}</span>${a.hp ? `<span>체력 −${a.hp}</span>` : ''}${a.stress ? `<span>스트레스 +${a.stress}</span>` : ''}<span>${a.eff}</span>${PT_RANKS[id] ? `<span class="pt-rank">${ptNext(S, id)}</span>` : ''}</span>
+        <span class="meta"><span class="c">${a.pay ? '+' + fmtMoney(ptPay(S, id)) + '원' : a.cost ? fmtMoney(a.cost) + '원' : '무료'}</span>${a.hp ? `<span>체력 −${a.hp}</span>` : ''}${a.stress ? `<span>스트레스 +${a.stress}</span>` : ''}<span>${a.eff}</span></span>
         ${span > 1 ? `<span class="lock" style="background:#fff2d6;color:#8a5a00">${span === 3 ? '한 달 전체 (3칸)' : '2칸 · 20일'}</span>` : ''}${a.cat === '교육' && S.lastEdu === id && S.m - ((_a = S.lastEduM) !== null && _a !== void 0 ? _a : -9) <= 1 && !lock ? `<span class="lock" style="background:#e8f7ec;color:#1e7a3c">연속 수강 +${Math.round(Math.min(S.eduStreak || 1, 5) * 10)}%</span>` : ''}
         ${lock ? `<span class="lock">${lock}</span>` : poor ? '<span class="lock">자금 부족</span>' : ''}
         ${id === 'hire' && !lock ? (() => { const nh = nextHire(S); return `<span class="lock" style="background:#eef3ff;color:var(--serum)">다음: ${nh.role.name}${nh.first ? ' (신규 직무)' : ' 증원'}</span>`; })() : ''}
