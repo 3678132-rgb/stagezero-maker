@@ -522,7 +522,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
       <div class="eyebrow">Canvas Labs · Derma Couture Simulation</div>
       <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
       <div class="glass-pane ornate"><div class="in"><img src="art/age20_ok.jpg" alt="레이스 재킷에 리본 블라우스를 입고 세럼 병을 든 20세 창업 1년차 대표"><svg id="title-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg></div></div>
-      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-F</span>
+      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-G</span>
       <div class="btn-row">
         <button class="btn" id="btn-new">새로 시작</button>
         <button class="btn ghost" id="btn-load" hidden>이어하기</button>
@@ -770,7 +770,7 @@ const ACTS = {
     rnd: { cat: '업무', name: '제형 개발', desc: 'OEM 랩에서 처방을 다듬는다. 진척 100%면 신제품 출시(생산비 500만).', cost: 150, hp: 12, stress: 10, eff: '개발 진척↑ 연구↑',
         run: (S, ch, out) => {
             grow(S, 'rnd', rand(1.2, 2), ch);
-            const gain = 16 + S.st.rnd * 0.32 + rand(0, 6);
+            const gain = (16 + S.st.rnd * 0.32 + rand(0, 6)) * (S.prods.length ? 1 : FIRST_BOOST); // 첫 제품은 창업 초기 집중 버프
             const before = S.prog;
             S.prog = Math.min(100, S.prog + gain);
             push(ch, '개발 진척', S.prog - before);
@@ -962,6 +962,15 @@ const ROUNDS = [
     { name: '-', amt: 0, aware: 999 },
 ];
 function seasonBoost(S) { return [3, 4].includes(monthOf(S)) ? 1.3 : 1; }
+// 첫 제품 마감: 창업 석 달 안에 출시하지 못하면 자금과 상관없이 폐업
+const LAUNCH_DEADLINE = 3, FIRST_BOOST = 1.5;
+function launchNeed(S) {
+    if (S.prods.length)
+        return null;
+    const per = (16 + S.st.rnd * 0.32 + 3) * FIRST_BOOST;
+    const n = Math.max(1, Math.ceil((100 - S.prog) / per));
+    return { n, left: LAUNCH_DEADLINE - S.m, prog: Math.round(S.prog) };
+}
 function launch(S) {
     if (S.prods.length >= 8) {
         const p = S.prods.reduce((a, b) => a.q < b.q ? a : b);
@@ -971,12 +980,13 @@ function launch(S) {
     }
     const q = Math.round(clamp(18 + S.st.rnd * 0.5 + S.st.aes * 0.28 + rand(0, 10), 10, 100));
     const name = PRODUCT_NAMES[S.prods.length];
+    const prodCost = S.prods.length ? 500 : 200; // 첫 제품은 소량 생산
     S.prods.push({ name, q, m: S.m });
-    S.cash -= 500;
+    S.cash -= prodCost;
     bump(S, 'aware', 4, null);
     bump(S, 'fan', 3, null);
     S.album.push(name + ' 출시');
-    return { name, q };
+    return { name, q, cost: prodCost };
 }
 // ---------- 연애: 썸남 5인 ----------
 const LOVERS = {
@@ -1354,6 +1364,12 @@ function settle(S) {
         S.negMonths = 0;
     if (S.negMonths >= 3)
         S.ending = 'bankrupt';
+    if (!S.ending && !S.prods.length && S.m >= LAUNCH_DEADLINE - 1)
+        S.ending = 'nolaunch';
+    if (!S.ending && !S.prods.length) {
+        const L = launchNeed(S);
+        notes.push(`첫 제품 마감까지 ${L.left - 1}개월 · 제형 개발 약 ${L.n}번 더`);
+    }
     return { rev, cogs, fixed, net, notes };
 }
 function partnerOf(S) { const L = S.love || {}; return Object.keys(L).find(i => L[i].stage >= 1 && !L[i].taken) || null; }
@@ -2286,7 +2302,7 @@ function grantEvents(S) {
 }
 // ---- 메인 스토리: 4개의 장 · 선택의 기억 · 콜론의 비밀 ----
 const CHAPTERS = {
-    0: { n: 1, name: '0단계', age: '20~22세', cg: 'ch1', goal: '첫 제품을 세상에 내놓자. 통장이 바닥나지 않게.' },
+    0: { n: 1, name: '0단계', age: '20~22세', cg: 'ch1', goal: '석 달 안에 첫 제품을 내놓자. 못 내면 돈이 있어도 폐업!' },
     36: { n: 2, name: '성장통', age: '23~25세', cg: 'ch2', goal: '팀을 꾸리고 브랜드를 알리자. 한서린이 지켜보고 있다.' },
     72: { n: 3, name: '시험대', age: '26~28세', cg: 'ch3', goal: '위기는 반드시 온다. 끝까지 지킬 것을 정하자.' },
     108: { n: 4, name: '선택', age: '29~30세', cg: 'ch4', goal: '서른까지 1년. 무엇을 남길지 고를 시간.' },
@@ -2485,6 +2501,7 @@ function pickEvent(S) {
     return ok[0];
 }
 const ENDINGS = {
+    nolaunch: { grade: 'F', title: '폐업: 세상에 나오지 못한 첫 병', text: '석 달 동안 제품 하나 내놓지 못했다. 투자자들은 더 기다려 주지 않았다. 통장에 돈은 남아 있었지만, 팔 것이 없는 회사는 회사가 아니었다. 다음엔 첫 달부터 랩으로 가자.' },
     bankrupt: { grade: 'F', title: '폐업: 긁힌 채로 멈춘 유리', text: '석 달 연속 통장이 마이너스였다. 마지막 재고를 지인들에게 나눠주며 사무실 열쇠를 반납했다. 그래도 그 세럼을 기억하는 사람들이 있다. 다음 창업은 현금흐름표부터 그리자.' },
     exit: { grade: 'S', title: '엑시트: 글로벌 그룹의 품으로', text: '글로벌 뷰티 그룹이 브랜드를 인수했다. 콜론 로고는 이제 40개국 매장에 걸린다. 대표는 계약상 2년간 브랜드 디렉터로 남아, 다음 0단계를 구상하고 있다.' },
     chair: { grade: 'S', title: 'K-더마 글로벌 그룹 회장', text: '세 개의 대륙에 법인을 세웠다. 경영과 리더십, 두 바퀴로 굴러간 회사는 이제 브랜드 하우스가 됐다. 사람들은 대표를 “K-더마의 에스티 로더”라고 부른다.' },
@@ -2524,7 +2541,7 @@ function partTimeEnding(S) {
     return hit ? hit[1] : null;
 }
 function computeEnding(S) {
-    if (S.ending === 'bankrupt' || S.ending === 'exit')
+    if (S.ending === 'bankrupt' || S.ending === 'exit' || S.ending === 'nolaunch')
         return S.ending;
     const st = S.st, v = valuation(S), ch = st.charm || 0;
     if (S.global && v >= 2000000 && st.lead >= 55 && st.biz >= 65)
@@ -3178,6 +3195,14 @@ const SEASON = {
     12: '연말 올영세일, 그리고 한 해 결산의 달이에요.',
 };
 function advice() {
+    {
+        const L = launchNeed(S);
+        if (L && L.left > 0) {
+            const tight = L.n > L.left * 3 ? ' 남은 칸을 전부 써도 모자랄 수 있어요. 지금 바로 전부 제형 개발로!' : L.n >= L.left * 3 - 0 && L.n > L.left * 2 ? ' 남은 칸을 전부 제형 개발로 채워야 해요!' : L.n > L.left * 2 ? ' 매달 두 칸 이상은 꼭 제형 개발로 채워 주세요.' : '';
+            const money = S.cash < 150 ? '\n개발비(1회 150만)가 모자라요. 「알바」로 먼저 한 칸 채우고 개발하세요.' : '';
+            return `⚠ 첫 제품 마감까지 ${L.left}개월 남았어요! 지금 개발 진척 ${L.prog}%라서 「업무 → 제형 개발」을 약 ${L.n}번 더 해야 출시돼요.${tight}${money}\n석 달 안에 제품을 못 내면 돈이 있어도 폐업이에요.`;
+        }
+    }
     if (S.love && S.love.colon && S.love.colon.stage >= 1 && R() < 0.35)
         return pick(['오늘 스케줄 끝나면… 저랑 저녁 드실래요? 이건 업무 아니에요.', '대표님, 커피 대신 오늘은 유자차예요. 목소리가 쉬셨어요.', '일정표 맨 아래에 제가 몰래 적어 둔 거 있어요. 「대표님 웃게 하기」.']);
     if (S.heartbreak > 0)
@@ -3301,7 +3326,7 @@ async function runMonth() {
         if (r.launch) {
             const L = r.launch;
             const lp = L.renew ? say({ speaker: 'NEW RELEASE', face: 'news', title: `${L.name} 리뉴얼`, text: `라인업이 꽉 찼다. 가장 약한 제품을 리뉴얼했다.\n품질 ${L.q}.`, chips: [{ label: '품질', d: L.dq }] })
-                : say({ speaker: 'NEW RELEASE', face: 'news', title: `신제품 「${L.name}」 출시`, text: `품질 ${L.q}. ${L.q >= 75 ? '랩 실장님이 “이건 물건”이라고 했다.' : L.q >= 50 ? '괜찮은 완성도. 시장 반응이 기대된다.' : '아쉬운 부분이 있지만 일단 세상에 내놓았다.'}`, chips: [{ label: '생산비', d: -500, money: true }, { label: '인지도', d: 4 }, { label: '팬덤', d: 3 }] });
+                : say({ speaker: 'NEW RELEASE', face: 'news', title: `신제품 「${L.name}」 출시`, text: `품질 ${L.q}. ${L.q >= 75 ? '랩 실장님이 “이건 물건”이라고 했다.' : L.q >= 50 ? '괜찮은 완성도. 시장 반응이 기대된다.' : '아쉬운 부분이 있지만 일단 세상에 내놓았다.'}`, chips: [{ label: '생산비', d: -(L.cost || 500), money: true }, { label: '인지도', d: 4 }, { label: '팬덤', d: 3 }] });
             setPlace('office');
             showActor('team');
             await lp;
@@ -3600,6 +3625,7 @@ const LETTER_ORIGIN = {
     civil: '평범하지만 다정한 집에서 배운 성실함이 제일 큰 밑천이었어요. 지칠 때마다 “하루씩만” 하던 말을 떠올렸어요.',
 };
 const LETTER_END = {
+    nolaunch: '회사를 접었어요. 석 달 안에 첫 제품을 못 냈거든요. 돈이 아니라 시간이 모자랐어요. 이번엔 제가 너무 느렸어요. 다음엔 첫날부터 실험실로 갈게요.',
     bankrupt: '회사는… 지키지 못했어요. 마지막 날 사무실 열쇠를 반납하면서 엄마 아빠 생각이 제일 많이 났어요. 그래도 저 무너지지 않았어요. 언젠가 다시 시작할게요.',
     exit: '회사가 글로벌 그룹에 인수됐어요. 우리 브랜드가 40개국 매장에 걸려요. 계약서에 사인하던 날, 손이 떨려서 펜을 두 번 떨어뜨렸어요.',
     chair: '이제 사람들이 저를 “회장님”이라고 불러요. 아직도 어색해요. 집에선 그냥 딸로 불러 주세요.',
@@ -4063,7 +4089,7 @@ async function enterGame(isNew) {
         busy = true;
         await say({ title: `${S.name} 대표님, 창업을 축하드려요`, text: `저는 비서 콜론이에요. 앞으로 10년, ${S.brand}의 모든 달을 함께할게요.\n우리 브랜드의 핵심은 진정이 아니라 “복원”. 일상의 마찰이 남긴 보이지 않는 미세 스크래치를 되돌리는 거예요.` });
         await playEvent(PROLOGUE);
-        await say({ title: '게임 방법', text: '매달 상순·중순·하순, 세 칸의 스케줄을 정해요.\n교육으로 대표의 능력을 키우고, 업무로 회사를 키우고, 휴식으로 체력과 스트레스를 관리하세요.\n자금이 3개월 연속 마이너스면 폐업이에요. 10년 뒤 서른 살이 되는 날, 대표의 미래가 결정됩니다.' });
+        await say({ title: '게임 방법', text: '매달 상순·중순·하순, 세 칸의 스케줄을 정해요.\n교육으로 대표의 능력을 키우고, 업무로 회사를 키우고, 휴식으로 체력과 스트레스를 관리하세요.\n자금이 3개월 연속 마이너스면 폐업이에요.\n그리고 창업 석 달 안에 첫 제품을 출시하지 못하면 돈이 있어도 폐업이에요! 업무 탭의 「제형 개발」을 3~4번 하면 첫 제품이 나와요. 10년 뒤 서른 살이 되는 날, 대표의 미래가 결정됩니다.' });
         busy = false;
         save();
     }
