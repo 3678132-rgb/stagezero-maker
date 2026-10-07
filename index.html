@@ -524,7 +524,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
       <div class="eyebrow">Canvas Labs · Derma Couture Simulation</div>
       <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
       <div class="glass-pane ornate"><div class="in"><img src="art/age20_ok.jpg" alt="레이스 재킷에 리본 블라우스를 입고 세럼 병을 든 20세 창업 1년차 대표"><svg id="title-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg></div></div>
-      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-J</span>
+      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-K</span>
       <div class="btn-row">
         <button class="btn" id="btn-new">새로 시작</button>
         <button class="btn ghost" id="btn-load" hidden>이어하기</button>
@@ -652,7 +652,9 @@ const SLOT_NAMES = ['상순', '중순', '하순'];
 const START_YEAR = 2027, TOTAL_MONTHS = 120, START_AGE = 20;
 // 10년 동안 2년마다 대표의 모습이 성숙해진다 (일러스트 단계)
 const AGE_STAGES = [{ from: 0, key: 'age20' }, { from: 24, key: 'age22' }, { from: 48, key: 'age25' }, { from: 72, key: 'age27' }, { from: 96, key: 'age30' }];
-const ageOf = S => START_AGE + Math.floor(S.m / 12);
+// 생일 달 = 프로필 별자리의 달. 그 달이 올 때마다 한 살씩 먹는다
+const birthMonth = S => { const z = ZODIACS.find(x => x.id === (S.prof && S.prof.zodiac)); return z ? z.bm : 1; };
+const ageOf = S => { const first = birthMonth(S) > 1 ? birthMonth(S) - 1 : 12; return START_AGE + (S.m < first ? 0 : Math.floor((S.m - first) / 12) + 1); };
 const stageOf = S => AGE_STAGES.reduce((a, st) => S.m >= st.from ? st : a, AGE_STAGES[0]);
 let R = Math.random;
 const rand = (a, b) => a + R() * (b - a);
@@ -687,12 +689,12 @@ const MBTI_FX = {
 };
 const MBTI_NICK = { ISTJ: '청렴결백한 논리주의자', ISFJ: '용감한 수호자', INFJ: '선의의 옹호자', INTJ: '용의주도한 전략가', ISTP: '만능 재주꾼', ISFP: '호기심 많은 예술가', INFP: '열정적인 중재자', INTP: '논리적인 사색가', ESTP: '모험을 즐기는 사업가', ESFP: '자유로운 영혼의 연예인', ENFP: '재기발랄한 활동가', ENTP: '뜨거운 논쟁을 즐기는 변론가', ESTJ: '엄격한 관리자', ESFJ: '사교적인 외교관', ENFJ: '정의로운 사회운동가', ENTJ: '대담한 통솔자' };
 const ZODIACS = [
-    { id: 'aries', name: '양자리', st: 'lead', d: '불꽃처럼 앞장서는 개척자' }, { id: 'taurus', name: '황소자리', st: 'biz', d: '끈기 있게 쌓아 올리는 실속파' },
-    { id: 'gemini', name: '쌍둥이자리', st: 'mkt', d: '말과 글로 사람을 사로잡는 소통가' }, { id: 'cancer', name: '게자리', st: 'net', d: '한번 맺은 인연을 오래 지키는 사람' },
-    { id: 'leo', name: '사자자리', st: 'charm', d: '무대 위에서 빛나는 주인공' }, { id: 'virgo', name: '처녀자리', st: 'rnd', d: '디테일을 놓치지 않는 분석가' },
-    { id: 'libra', name: '천칭자리', st: 'aes', d: '균형과 아름다움을 아는 미감' }, { id: 'scorpio', name: '전갈자리', st: 'mkt', d: '사람 마음을 꿰뚫는 통찰' },
-    { id: 'sagittarius', name: '사수자리', st: 'net', d: '세계를 누비는 자유로운 모험가' }, { id: 'capricorn', name: '염소자리', st: 'biz', d: '정상까지 묵묵히 오르는 야심가' },
-    { id: 'aquarius', name: '물병자리', st: 'rnd', d: '시대를 앞서가는 발명가' }, { id: 'pisces', name: '물고기자리', st: 'aes', d: '꿈과 감성을 그리는 예술가' },
+    { id: 'aries', bm: 4, range: '3.21~4.19', name: '양자리', st: 'lead', d: '불꽃처럼 앞장서는 개척자' }, { id: 'taurus', bm: 5, range: '4.20~5.20', name: '황소자리', st: 'biz', d: '끈기 있게 쌓아 올리는 실속파' },
+    { id: 'gemini', bm: 6, range: '5.21~6.21', name: '쌍둥이자리', st: 'mkt', d: '말과 글로 사람을 사로잡는 소통가' }, { id: 'cancer', bm: 7, range: '6.22~7.22', name: '게자리', st: 'net', d: '한번 맺은 인연을 오래 지키는 사람' },
+    { id: 'leo', bm: 8, range: '7.23~8.22', name: '사자자리', st: 'charm', d: '무대 위에서 빛나는 주인공' }, { id: 'virgo', bm: 9, range: '8.23~9.22', name: '처녀자리', st: 'rnd', d: '디테일을 놓치지 않는 분석가' },
+    { id: 'libra', bm: 10, range: '9.23~10.22', name: '천칭자리', st: 'aes', d: '균형과 아름다움을 아는 미감' }, { id: 'scorpio', bm: 11, range: '10.23~11.22', name: '전갈자리', st: 'mkt', d: '사람 마음을 꿰뚫는 통찰' },
+    { id: 'sagittarius', bm: 12, range: '11.23~12.21', name: '사수자리', st: 'net', d: '세계를 누비는 자유로운 모험가' }, { id: 'capricorn', bm: 1, range: '12.22~1.19', name: '염소자리', st: 'biz', d: '정상까지 묵묵히 오르는 야심가' },
+    { id: 'aquarius', bm: 2, range: '1.20~2.18', name: '물병자리', st: 'rnd', d: '시대를 앞서가는 발명가' }, { id: 'pisces', bm: 3, range: '2.19~3.20', name: '물고기자리', st: 'aes', d: '꿈과 감성을 그리는 예술가' },
 ];
 function profileMods(prof) {
     const st = {}, gb = {}, traits = [];
@@ -2456,9 +2458,9 @@ function storyExtra(S) { for (const x of STORY2) {
 function fixedEvents(S) {
     const out = [];
     const mo = monthOf(S);
-    if (mo === 1 && S.m > 0) {
+    if (mo === birthMonth(S) && S.m > 0) {
         const age = ageOf(S);
-        const stageMsg = AGE_STAGES.some(st => st.from === S.m) ? '\n거울 속 얼굴이 어딘가 달라졌다. 눈빛에 지난 시간이 담겨 있다.' : '';
+        const stageMsg = AGE_STAGES.some(st => st.from > 0 && st.from > S.m - 12 && st.from <= S.m) ? '\n거울 속 얼굴이 어딘가 달라졌다. 눈빛에 지난 시간이 담겨 있다.' : '';
         out.push({ id: 'bday', face: 'ceo', speaker: 'BIRTHDAY', title: `${age}번째 생일`, text: () => `오늘은 ${age}번째 생일. 창업 ${Math.floor(S.m / 12) + 1}년차가 시작된다.${stageMsg}\n오늘 하루는 어떻게 보낼까?`, choices: BDAY_CHOICES });
     }
     const st = STORY.find(x => x.m === S.m && !S.seen[x.id]);
@@ -3551,12 +3553,14 @@ const CG_MAP = { prologue: 'prologue', rival1: 'rival1', rival2: 'rival2', rival
     derma: 'lab', patent: 'lab', gov: 'lab', fashion: 'fashion', ma: 'ma', parents: 'parents', letter: 'letter', health: 'health',
     lv_anniv: 'date', lv_surprise: 'date', lv_visit: 'date', blind: 'date', lv_newlywed: 'date', lv_parents: 'date', lv_pet: 'pet', award: 'awards' };
 const CG_PREFIX = [['conf_', 'confess'], ['prop_', 'propose'], ['tri', 'triangle'], ['dump_', 'breakup'], ['after_', 'breakup'], ['grant_ad_', 'lab']];
-const CG_FX = { rain: ['breakup', 'rival3', 'colon_secret', 'monsoon', 'triangle', 'ch3', 'scandal'], snow: ['first_snow'], petal: ['sakura', 'ch1'], confetti: ['awards', 'party', 'promo', 'rival_final', 'workshop'], sparkle: ['confess', 'propose', 'date', 'prologue', 'bday', 'ch4', 'ch2', 'colon_open', 'letter', 'pet', 'fashion'] };
+const CG_FX = { rain: ['breakup', 'rival3', 'colon_secret', 'monsoon', 'triangle', 'ch3', 'scandal'], snow: ['first_snow'], petal: ['sakura', 'spring_fever', 'ch1'], confetti: ['awards', 'party', 'promo', 'rival_final', 'workshop', 'yearend'], sparkle: ['confess', 'propose', 'date', 'prologue', 'bday', 'ch4', 'ch2', 'colon_open', 'letter', 'pet', 'fashion'] };
+const SEASON_CG = ['sakura', 'spring_fever', 'monsoon', 'summer_vac', 'chuseok', 'autumn_dry', 'first_snow', 'yearend'];
 function cgKey(ev) { if (ev.cg)
-    return ev.cg; if (CG_MAP[ev.id])
+    return ev.cg; if (SEASON_CG.includes(ev.id) && S)
+    return `${ev.id}_${stageOf(S).key.slice(3)}`; if (CG_MAP[ev.id])
     return CG_MAP[ev.id]; const p = CG_PREFIX.find(([x]) => ev.id.startsWith(x)); return p ? p[1] : null; }
 const cgSrc = k => `art/cg_${k}.jpg`;
-const CG_ALL = ['prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final'];
+const CG_ALL = ['prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
 let cgFlip = false;
 function showCG(key, o = {}) {
     return new Promise(res => {
@@ -3572,7 +3576,8 @@ function showCG(key, o = {}) {
         void img.offsetWidth;
         img.style.animation = '';
         img.style.backgroundImage = `url('${cgSrc(key)}')`;
-        const fx = Object.keys(CG_FX).find(k => CG_FX[k].includes(key));
+        const base = key.replace(/_\d+$/, '');
+        const fx = Object.keys(CG_FX).find(k => CG_FX[k].includes(key) || CG_FX[k].includes(base));
         const box = $('#cg-fx');
         box.className = 'cg-fx' + (fx ? ' ' + fx : '');
         box.innerHTML = '';
@@ -3860,7 +3865,7 @@ function renderProfile() {
     const pm = profileMods(chosenProf);
     const tot = STAT_KEYS.map(k => `${STAT[k]} ${(o.st[k] || 0) + (pm.st[k] || 0)}${pm.st[k] ? `<b>(+${pm.st[k]})</b>` : ''}`).join(' · ');
     const z = ZODIACS.find(x => x.id === chosenProf.zodiac);
-    $('#pf-sum').innerHTML = `<div><b>${chosenProf.mbti}</b> ${MBTI_NICK[chosenProf.mbti] || ''} · <b>${BLOODS[chosenProf.blood].name}</b> ${BLOODS[chosenProf.blood].desc} · <b>${z.name}</b> ${z.d}</div>
+    $('#pf-sum').innerHTML = `<div><b>${chosenProf.mbti}</b> ${MBTI_NICK[chosenProf.mbti] || ''} · <b>${BLOODS[chosenProf.blood].name}</b> ${BLOODS[chosenProf.blood].desc} · <b>${z.name}</b> ${z.d} <span class="tr">(${z.range} · 생일은 ${z.bm}월)</span></div>
     <div>시작 능력치: ${tot}</div><div>시작 자금 ${fmtMoney(o.cash)}원</div><div class="tr">${pm.traits.map(t => '· ' + esc(t)).join('<br>')}</div>`;
 }
 document.addEventListener('click', e => {
