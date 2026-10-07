@@ -537,7 +537,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
       <div class="eyebrow">Canvas Labs · Derma Couture Simulation</div>
       <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
       <div class="glass-pane ornate"><div class="in"><img src="art/age20_ok.jpg" alt="레이스 재킷에 리본 블라우스를 입고 세럼 병을 든 20세 창업 1년차 대표"><svg id="title-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg></div></div>
-      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-N</span>
+      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-O</span>
       <div class="btn-row">
         <button class="btn" id="btn-new">새로 시작</button>
         <button class="btn ghost" id="btn-load" hidden>이어하기</button>
@@ -1082,7 +1082,9 @@ function dateTarget(S) {
         return null;
     if (S.dateWith && L[S.dateWith] && L[S.dateWith].stage > -8)
         return S.dateWith;
-    return ids.filter(i => L[i].stage > -8).sort((a, b) => L[b].aff - L[a].aff)[0] || null;
+    // 직접 고르지 않았으면: 연인/배우자 → 호감도 높은 썸 순. 라이벌의 연인은 직접 골랐을 때만 몰래 만난다
+    const ok = ids.filter(i => L[i].stage > -8 && !L[i].taken);
+    return ok.find(i => L[i].stage >= 1) || ok.sort((a, b) => L[b].aff - L[a].aff)[0] || null;
 }
 function addAff(S, id, d, ch) { const L = loveOf(S); const v = L[id]; if (!v)
     return; if (d > 0 && S.prof && (S.prof.mbti || '')[2] === 'F')
@@ -4001,7 +4003,7 @@ function renderLove() {
       <div class="ph"><img src="art/spr_lv_${id}.png" alt="${known ? esc(lv.name) : '아직 만나지 않은 사람'}"></div>
       <div style="min-width:0"><b>${known ? `${lv.name} · ${lv.age}세` : '??? '}</b> <span class="st">${st}</span>
         <div class="job">${known ? esc(lv.job) : '만나는 법: ' + esc(lv.meet)}</div>
-        ${known ? `<div class="per">${esc(lv.persona)}</div><div class="meta2"><span>좋아하는 능력: ${STAT[lv.likes]}</span><span>호감도 ${Math.round(v.aff)} · ${DATE_TIER_NAMES[dateTier(v.aff)].split(' · ')[0]}</span><span>다음 데이트: ${DATE_TIER_NAMES[dateTier(v.aff)].split(' · ')[1]}</span>${v.taken ? '<span style="color:#c93a66">75가 되면 뺏을 기회가 와요</span>' : ''}</div><div class="heartbar"><i style="width:${v.aff}%"></i></div>${v.stage !== -9 && v.stage !== -8 ? `<button class="pick" data-datewith="${id}">${tgt === id ? '♥ 데이트 상대' : '데이트 상대로'}</button>` : ''}` : ''}
+        ${known ? `<div class="per">${esc(lv.persona)}</div><div class="meta2"><span>좋아하는 능력: ${STAT[lv.likes]}</span><span>호감도 ${Math.round(v.aff)} · ${DATE_TIER_NAMES[dateTier(v.aff)].split(' · ')[0]}</span><span>다음 데이트: ${DATE_TIER_NAMES[dateTier(v.aff)].split(' · ')[1]}</span>${v.taken ? '<span style="color:#c93a66">75가 되면 뺏을 기회가 와요</span>' : ''}</div><div class="heartbar"><i style="width:${v.aff}%"></i></div>${v.stage !== -9 && v.stage !== -8 ? `<button class="pick" data-datewith="${id}">${tgt === id ? (v.taken ? '♥ 몰래 데이트 중' : '♥ 데이트 상대') : (v.taken ? '몰래 데이트 상대로' : '데이트 상대로')}</button>` : ''}` : ''}
       </div></div>`;
     }).join('')}</div>`;
 }
