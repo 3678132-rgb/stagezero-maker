@@ -346,7 +346,7 @@ body.running .phone .bottom-area,body.running .phone .side-l,body.running .phone
 @media (max-width:420px){.tb .ic{width:36px;height:36px;border-radius:12px}.tb{font-size:11px}}
 .letter{position:relative;margin:8px 0 14px;padding:22px 20px 18px;border-radius:6px;background:repeating-linear-gradient(180deg,#fffdf6 0 29px,#e9dfc6 29px 30px);border:1px solid #e3d3ad;box-shadow:0 6px 18px rgba(80,60,20,.15);font-family:'Nanum Pen Script','Nanum Myeongjo',cursive;color:#3b2f1e;transform:rotate(-.4deg)}
 .letter::before{content:"";position:absolute;top:-10px;left:50%;width:70px;height:20px;margin-left:-35px;background:rgba(201,154,60,.45);transform:rotate(2deg)}
-.letter .lt-to{font-size:24px;margin-bottom:6px}.letter .lt-body{font-size:21px;line-height:30px}.letter .lt-from{text-align:right;font-size:21px;margin-top:12px}
+.letter .lt-to{font-size:24px;margin-bottom:6px}.letter .lt-body{font-size:21px;line-height:30px}.letter .lt-body p{margin:0 0 30px;text-indent:1em}.letter .lt-body p:last-child{margin:0;text-indent:0;color:#7a5a2e}.letter .lt-from{text-align:right;font-size:21px;margin-top:12px}
 .tb.t-fit .ic{background:linear-gradient(180deg,#8fe08a,#2fb35a)}
 .tb.t-menu .ic{background:linear-gradient(180deg,#7ff0dc,#22c3ac)}
 .tb.home .ic{background:linear-gradient(180deg,#ff9cc0,#ff5c8a);box-shadow:0 4px 0 #c93a66}
@@ -524,7 +524,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
       <div class="eyebrow">Canvas Labs · Derma Couture Simulation</div>
       <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
       <div class="glass-pane ornate"><div class="in"><img src="art/age20_ok.jpg" alt="레이스 재킷에 리본 블라우스를 입고 세럼 병을 든 20세 창업 1년차 대표"><svg id="title-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg></div></div>
-      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-L</span>
+      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-M</span>
       <div class="btn-row">
         <button class="btn" id="btn-new">새로 시작</button>
         <button class="btn ghost" id="btn-load" hidden>이어하기</button>
@@ -1345,6 +1345,7 @@ function settle(S) {
             }
             else if (v.stage >= 3) {
                 S.stress = clamp(S.stress - 4, 0, 100);
+                v.aff = clamp(v.aff - 0.5, 0, 100);
             }
             else if (v.stage !== -9) {
                 v.aff = clamp(v.aff - 0.6, 0, 100);
@@ -1737,8 +1738,8 @@ const EVENTS = [
             : S.stress >= 65 ? '“요즘 전화 목소리가 왜 그래.” 엄마가 반찬통을 하나씩 꺼내며 내 얼굴을 한참 들여다봤다.'
                 : '“밥은 먹고 다니니.” 냉장고에 반찬통 열두 개가 들어갔다.',
         choices: [
-            { label: '하루 쉬고 같이 시간을 보낸다', sub: '체력·스트레스 회복', run: S => { const ch = []; bump(S, 'hp', 20, ch); bump(S, 'stress', -15, ch); return { text: '엄마가 우리 제품을 바르고 “피부가 좋아졌네”라고 했다. 어떤 리뷰보다 좋았다.', chips: ch }; } },
-            { label: '사무실 구경만 시켜 드린다', sub: '리더십↑', run: S => { const ch = []; grow(S, 'lead', 1.5, ch); bump(S, 'stress', -5, ch); return { text: '팀원들이 엄마에게 박수를 쳐 줬다. 엄마는 돌아가는 길에 조금 울었다고 한다.', chips: ch }; } },
+            { label: '하루 쉬고 같이 시간을 보낸다', sub: '체력·스트레스 회복', run: S => { const ch = []; S.momN = (S.momN || 0) + 1; bump(S, 'hp', 20, ch); bump(S, 'stress', -15, ch); return { text: '엄마가 우리 제품을 바르고 “피부가 좋아졌네”라고 했다. 어떤 리뷰보다 좋았다.', chips: ch }; } },
+            { label: '사무실 구경만 시켜 드린다', sub: '리더십↑', run: S => { const ch = []; S.momN = (S.momN || 0) + 1; grow(S, 'lead', 1.5, ch); bump(S, 'stress', -5, ch); return { text: '팀원들이 엄마에게 박수를 쳐 줬다. 엄마는 돌아가는 길에 조금 울었다고 한다.', chips: ch }; } },
         ] },
     { id: 'factory', once: false, w: 2, cond: S => S.prods.length >= 2,
         face: 'news', speaker: 'SCM', title: 'OEM 공장 납기 지연',
@@ -1895,7 +1896,15 @@ function awardsEvent(S) {
 }
 function breakUp(S, id, ch, dumped) {
     const L = loveOf(S);
+    const wasWife = S.married === id;
     L[id].stage = -9;
+    if (wasWife) {
+        S.married = null;
+        L[id].divorced = true;
+        S.divorced = id;
+        bump(S, 'stress', 10, ch);
+        S.album.push(`${josa(LOVERS[id].name, '과', '와')} 이혼`);
+    }
     L[id].aff = Math.min(L[id].aff, 20);
     if (S.dateWith === id)
         S.dateWith = null;
@@ -1907,7 +1916,8 @@ function breakUp(S, id, ch, dumped) {
         S.secGone = S.m;
         S.album.push('콜론의 사직');
     }
-    S.album.push(`${josa(LOVERS[id].name, '과', '와')} 이별`);
+    if (!wasWife)
+        S.album.push(`${josa(LOVERS[id].name, '과', '와')} 이별`);
 }
 const BREAKUPS = {
     playboy: { title: '도윤의 이별 통보', text: '“우리 너무 달라. 넌 매일 미래를 말하고, 난 오늘이 좋아.”\n그는 처음으로 웃지 않았다.' },
@@ -2068,6 +2078,20 @@ function loveEvent(S) {
                 { label: '보내 준다', sub: '이별', run: S => { const ch = []; breakUp(S, partner, ch, true); return { text: '“그동안 고마웠어.” 우산 없이 집까지 걸었다.', chips: ch }; } },
             ], leave: true };
     }
+    // 결혼 후 소홀하면 이혼 위기
+    if (partner && L[partner].stage >= 3 && L[partner].aff < 30 && !S.seen['divorce_' + S.m]) {
+        const lv = LOVERS[partner];
+        return { id: 'divorce_' + S.m, cg: 'breakup', face: 'ceo', speaker: 'HEARTBREAK', title: `${lv.name}의 이혼 서류`, place: 'rain', cast: { ask: 'lv_' + partner },
+            text: () => `식탁 위에 서류 봉투가 놓여 있었다. ${josa(lv.name, '이', '가')} 반지를 만지작거리며 말했다.\n“우린 같은 집에 사는데, 얼굴 본 게 언제인지 모르겠어.”`,
+            choices: [
+                { label: '다시 노력해 보자고 한다', sub: '매력 55 이상이면 회복', run: S => { const ch = []; if ((S.st.charm || 0) >= 55 && R() < 0.65) {
+                        addAff(S, partner, 30, ch);
+                        bump(S, 'stress', 5, ch);
+                        return { text: `${josa(lv.name, '이', '가')} 서류를 반으로 접었다. “이번 주말은 비워 둬. 둘이서만.”`, chips: ch };
+                    } breakUp(S, partner, ch, true); return { text: '도장을 찍는 손이 떨렸다. 결혼식 날보다 더 오래 걸렸다.', chips: ch }; } },
+                { label: '서로를 놓아준다', sub: '이혼', run: S => { const ch = []; breakUp(S, partner, ch, true); return { text: '“고마웠어. 정말로.” 반지를 빼니 손가락에 하얀 자국만 남았다.', chips: ch }; } },
+            ], leave: true };
+    }
     // 캐릭터별 위기
     if (partner && L[partner].stage === 1 && CRISES[partner] && !S.seen['crisis_' + partner] && S.m - (L[partner].since || 0) >= 6 && R() < 0.12) {
         const c = CRISES[partner];
@@ -2082,9 +2106,9 @@ function loveEvent(S) {
         const lv = LOVERS[conf];
         const lines = { colon: '“3년 동안 대표님 일정에 제 이름을 한 번도 안 넣었어요. …이제 넣어도 될까요? 제 본명은 이서진이에요.”', playboy: '“나 원래 이런 말 안 하는데. …너 말고는 재미가 없어.”', intern: '“대표님. 저, 대표님 좋아해요. 회사 그만둬도 좋으니까 대답해 주세요.”', vc: '“감정에 투자해 본 적이 없어서. 실사 없이 결정하는 건 당신이 처음이야.”', star: '“카메라 없는 데서 이렇게 떨린 거, 처음이에요. 저랑 만나 줄래요?”', ceo2: '“회사도 사랑도, 같이 키워 보고 싶어.”' };
         return { id: 'conf_' + conf, face: 'ceo', speaker: 'LOVE', title: `${lv.name}의 고백`, place: lv.place === 'office' ? 'rooftop' : lv.place, cast: { ask: 'lv_' + conf },
-            text: () => `${lines[conf]}${partner ? `\n(지금은 ${josa(LOVERS[partner].name, '과', '와')} 사귀는 중이다…)` : ''}`,
+            text: () => `${lines[conf]}${partner ? `\n(지금은 ${josa(LOVERS[partner].name, '과', '와')} ${L[partner].stage >= 3 ? '결혼한 사이다' : '사귀는 중이다'}…)` : ''}`,
             choices: [
-                { label: '고백을 받아들인다', sub: partner ? '지금 연인과는 헤어지게 돼요' : '연애 시작', run: S => { const ch = []; const L = loveOf(S); if (partner) {
+                { label: '고백을 받아들인다', sub: partner ? (L[partner].stage >= 3 ? '배우자와 이혼하게 돼요' : '지금 연인과는 헤어지게 돼요') : '연애 시작', run: S => { const ch = []; const L = loveOf(S); if (partner) {
                         breakUp(S, partner, ch, false);
                         S.heartbreak = 0;
                     } L[conf].stage = 1; L[conf].since = S.m; S.dateWith = conf; bump(S, 'stress', -15, ch); S.album.push(`${josa(lv.name, '과', '와')} 연애 시작`); return { text: `${lv.name}의 손을 잡았다. 오늘부터 1일.`, chips: ch }; } },
@@ -3559,15 +3583,15 @@ const CG_MAP = { prologue: 'prologue', rival1: 'rival1', rival2: 'rival2', rival
     olive: 'retail', homeshop: 'retail', hyundai: 'retail', scandal: 'scandal', blackcon: 'scandal', celeb: 'celeb', material: 'supply', factory: 'supply', fx: 'supply',
     derma: 'lab', patent: 'lab', gov: 'lab', fashion: 'fashion', ma: 'ma', parents: 'parents', letter: 'letter', health: 'health',
     lv_anniv: 'date', lv_surprise: 'date', lv_visit: 'date', blind: 'date', lv_newlywed: 'date', lv_parents: 'date', lv_pet: 'pet', award: 'awards' };
-const CG_PREFIX = [['conf_', 'confess'], ['prop_', 'propose'], ['tri', 'triangle'], ['dump_', 'breakup'], ['after_', 'breakup'], ['grant_ad_', 'lab']];
-const CG_FX = { rain: ['breakup', 'rival3', 'colon_secret', 'monsoon', 'triangle', 'ch3', 'scandal'], snow: ['first_snow'], petal: ['sakura', 'spring_fever', 'ch1'], confetti: ['awards', 'party', 'promo', 'rival_final', 'workshop', 'yearend'], sparkle: ['confess', 'propose', 'date', 'prologue', 'bday', 'ch4', 'ch2', 'colon_open', 'letter', 'pet', 'fashion'] };
+const CG_PREFIX = [['conf_', 'confess'], ['prop_', 'propose'], ['tri1_', 'triangle'], ['tri2_', 'triangle'], ['trip_summer', 'trip_summer'], ['trip_winter', 'trip_winter'], ['dump_', 'breakup'], ['after_', 'breakup'], ['grant_ad_', 'lab']];
+const CG_FX = { rain: ['breakup', 'rival3', 'colon_secret', 'monsoon', 'triangle', 'ch3', 'scandal'], snow: ['first_snow', 'trip_winter'], petal: ['sakura', 'spring_fever', 'ch1'], confetti: ['awards', 'party', 'promo', 'rival_final', 'workshop', 'yearend'], sparkle: ['trip_summer', 'confess', 'propose', 'date', 'prologue', 'bday', 'ch4', 'ch2', 'colon_open', 'letter', 'pet', 'fashion'] };
 const SEASON_CG = ['sakura', 'spring_fever', 'monsoon', 'summer_vac', 'chuseok', 'autumn_dry', 'first_snow', 'yearend'];
 function cgKey(ev) { if (ev.cg)
     return ev.cg; if (SEASON_CG.includes(ev.id) && S)
     return `${ev.id}_${stageOf(S).key.slice(3)}`; if (CG_MAP[ev.id])
     return CG_MAP[ev.id]; const p = CG_PREFIX.find(([x]) => ev.id.startsWith(x)); return p ? p[1] : null; }
 const cgSrc = k => `art/cg_${k}.jpg`;
-const CG_ALL = ['prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
+const CG_ALL = ['trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
 let cgFlip = false;
 function showCG(key, o = {}) {
     return new Promise(res => {
@@ -3677,6 +3701,8 @@ function epilogueHTML(S, key) {
         L.push('콜론의 책상은 아직 비어 있다. 가끔 그 자리에 대고 “오늘 일정은?” 하고 묻는다.');
     else if (S.colonExec)
         L.push('이서진 이사는 오늘도 내 일정표 맨 아래에 무언가를 몰래 적는다.');
+    if (S.divorced && LOVERS[S.divorced])
+        L.push(`${josa(LOVERS[S.divorced].name, '과', '와')}는 이혼했다. 가끔 신제품이 나오면 짧은 축하 문자가 온다. “여전히 멋지네.”`);
     if (S.recall === 'open')
         L.push('리콜을 먼저 공개했던 그날의 기자회견 영상은, 지금도 신입 교육 첫 시간에 틀어진다.');
     if (S.final === 'next')
@@ -3690,18 +3716,38 @@ function letterHTML(S, key) {
     const o = ORIGINS.find(x => x.id === S.origin) || ORIGINS[0];
     const L = S.love || {};
     const partner = S.married || Object.keys(L).find(i => L[i].stage >= 1);
-    const love = S.married ? (S.married === 'colon' ? '그리고… 소개할 사람이 있어요. 제 비서였던 이서진 씨랑 결혼했어요. 저보다 제 일정을 더 잘 아는 사람이에요. 다음 주말에 같이 인사 갈게요.' : `그리고 ${LOVERS[S.married].name} 씨랑 결혼했어요. 우리 둘 다 바빠서 신혼여행도 짧았지만, 매일이 여행 같아요.`)
-        : partner ? `요즘 만나는 사람이 있어요. ${LOVERS[partner].name} 씨예요. 아직은 비밀이니까 모르는 척해 주세요.`
-            : (S.heartbreak != null && Object.values(L).some(v => v.stage === -9)) ? '연애는 한 번 크게 아팠어요. 그래도 덕분에 조금 더 단단해졌어요. 너무 걱정 마세요.'
-                : '연애는… 아직이에요. 일이 애인이었다고 해 두죠. 잔소리는 다음 명절에 몰아서 들을게요.';
-    const hard = S.burnouts >= 2 ? '몇 번 쓰러지기도 했어요. 그때마다 말없이 보내 주신 반찬통이 냉장고에 있어서 버텼어요.' : S.negMonths || S.ending === 'bankrupt' ? '통장이 바닥난 달도 있었어요. 그때 전화로 “밥은 먹었니” 물어봐 주신 게 제일 큰 투자였어요.' : '힘든 날도 많았지만, 엄마 아빠한테 전화하면 이상하게 다 괜찮아졌어요.';
+    const yrs = S.m >= 12 ? Math.floor(S.m / 12) + '년' : S.m + '개월';
+    const open = '편지는 진짜 오랜만이죠. 문자로 하면 금방인데, 이건 꼭 손으로 쓰고 싶었어요. 글씨가 자꾸 삐뚤어지는 건… 쓰다가 몇 번 울어서 그래요. 모른 척해 주세요.';
+    const first = (S.prods || [])[0];
+    const prod = first ? `첫 제품 「${first.name}」${josa(first.name, '이', '가').slice(first.name.length)} 나온 날 기억하세요? 엄마는 택배 상자를 뜯기도 전에 동네 사람들한테 사진부터 돌렸잖아요. 그때 그 사진, 아직도 제 휴대폰 배경화면이에요.`
+        : '결국 제품 하나 세상에 내놓지 못했어요. 그런데도 엄마는 제가 만든 시제품 병을 화장대에 올려 두셨죠. 그게 얼마나 큰 힘이었는지 몰라요.';
+    const hard = S.burnouts >= 2 ? '사실 몇 번 쓰러졌어요. 병원 침대에 누워 천장을 보는데, 엄마가 싸 준 반찬통이 냉장고에 그대로 있을 생각을 하니까 그게 제일 서러웠어요. 그래서 다시 일어났어요.'
+        : (S.negMonths || key === 'bankrupt') ? '통장이 바닥난 달도 있었어요. 직원들 월급날이 다가오면 잠이 안 왔어요. 그럴 때 아빠가 전화로 “밥은 먹었니” 한마디 물어봐 주신 게, 어떤 투자보다 큰 투자였어요.'
+            : '힘든 날도 많았어요. 그런데 이상하죠. 엄마 아빠한테 전화만 하면, 아무 얘기도 안 했는데 다 괜찮아졌어요.';
+    const mom = (S.momN || 0) >= 3 ? `엄마가 반찬 싸 들고 올라온 게 ${S.momN}번이에요. 그때마다 사실 제가 한계였을 때였어요. 전화로는 늘 괜찮다고만 했는데, 어떻게 아셨어요?`
+        : (S.momN || 0) >= 1 ? '연락도 없이 반찬 싸 들고 올라오셨던 날, 사실 그날이 제일 힘든 날이었어요. 엄마는 다 알고 오신 거죠?' : '';
     const ptBest = Object.keys(S.ptRank || {}).sort((a, b) => (S.ptRank[b] || 0) - (S.ptRank[a] || 0))[0];
-    const pt = Object.values(S.jobDone || {}).reduce((a, b) => a + b, 0) >= 6 ? `\n회사 자금이 바닥났을 땐 알바도 했어요. 카페, 매장, 촬영장… 그때 만난 사람들이 다 제 선생님이었어요.${ptBest && S.ptRank[ptBest] >= 1 ? ` ${ACTS[ptBest].name} 일은 「${PT_RANKS[ptBest][S.ptRank[ptBest]]}」까지 올라갔어요.` : ''}` : '';
-    const WHY_LT = { skin: '스무 살 겨울, 피부가 망가져서 울던 거 기억하세요? 그 겨울이 결국 제 회사가 됐어요.', smile: '거울 앞에서 웃는 사람을 보고 싶다고 했던 거 기억하세요? 요즘 매일 봐요.', name: '제 이름으로 된 걸 남기고 싶다고 했잖아요. 이제 간판에 우리 브랜드 이름이 걸려 있어요.', mom: '엄마 화장대의 그 긁힌 유리병, 아직 있어요? 이번엔 긁힌 데 하나 없는 병을 보내 드릴게요.' };
-    const why = S.why && WHY_LT[S.why] ? '\n' + WHY_LT[S.why] : '';
-    const sec = S.secGone != null && S.married !== 'colon' ? '\n함께 일하던 비서가 떠났어요. 제 실수였어요. 그 뒤론 일정표를 직접 써요. 덕분에 조금 어른이 됐어요.' : '';
-    const body = [LETTER_ORIGIN[o.id] || '', '', `스무 살에 「${S.brand}」를 시작하고 벌써 ${S.m >= 12 ? Math.floor(S.m / 12) + '년' : S.m + '개월'}이 지났어요. ${hard}${pt}${why}${sec}`, '', LETTER_END[key] || '', '', love, '', '엄마 아빠, 저를 0단계에서 시작하게 해 줘서 고마워요.\n늘 건강하세요. 사랑해요.'].join('\n');
-    return `<div class="letter" role="article" aria-label="부모님께 쓰는 편지"><div class="lt-to">사랑하는 엄마 아빠께</div><div class="lt-body">${esc(body).replace(/\n/g, '<br>')}</div><div class="lt-from">${yearOf(S)}년 ${monthOf(S)}월, ${ageOf(S)}살의 ${esc(S.name)} 올림</div></div>`;
+    const pt = Object.values(S.jobDone || {}).reduce((a, b) => a + b, 0) >= 6 ? `회사 자금이 바닥났을 땐 알바도 했어요. 카페, 매장, 촬영장… 그때 만난 사람들이 다 제 선생님이었어요.${ptBest && S.ptRank[ptBest] >= 1 ? ` ${ACTS[ptBest].name} 일은 「${PT_RANKS[ptBest][S.ptRank[ptBest]]}」까지 올라갔어요. 아빠 닮아서 성실하대요.` : ''}` : '';
+    const WHY_LT = { skin: '스무 살 겨울, 피부가 망가져서 방에서 안 나오던 거 기억하세요? 엄마가 문 앞에 죽을 두고 가셨잖아요. 그 겨울이 결국 제 회사가 됐어요.', smile: '거울 앞에서 웃는 사람을 보고 싶다고 했던 거 기억하세요? 요즘 매일 봐요. 리뷰마다 “거울 보는 게 좋아졌어요”라고 써 있어요.', name: '제 이름으로 된 걸 남기고 싶다고 했잖아요. 이제 간판에 우리 브랜드 이름이 걸려 있어요. 그 이름 지을 때 아빠가 같이 밤새 고민해 주셨죠.', mom: '엄마 화장대의 그 긁힌 유리병, 아직 있어요? 이번엔 긁힌 데 하나 없는 병을 보내 드릴게요. 제가 직접 만든 거예요.' };
+    const why = S.why && WHY_LT[S.why] ? WHY_LT[S.why] : '';
+    const sec = S.secGone != null && S.married !== 'colon' ? '함께 일하던 비서가 떠났어요. 제 실수였어요. 그 뒤론 일정표를 직접 써요. 덕분에 조금 어른이 됐어요.' : '';
+    const dv = S.divorced && LOVERS[S.divorced] ? `그리고… 말씀드리기 제일 무서웠던 얘기예요. ${LOVERS[S.divorced].name} 씨와 이혼했어요. 누구 한 사람 잘못이 아니라, 둘 다 너무 바빴어요. 그 사람을 미워하지 않기로 했어요. 엄마 아빠도 그래 주세요.` : '';
+    const love = S.married ? (S.married === 'colon' ? '그리고 소개할 사람이 있어요. 제 비서였던 이서진 씨랑 결혼했어요. 저보다 제 일정을 더 잘 아는 사람이에요. 다음 주말에 같이 인사 갈게요. 아빠, 이번엔 무섭게 하지 마세요.' : `${LOVERS[S.married].name} 씨랑은 잘 지내요. 둘 다 바빠서 신혼여행도 짧았지만, 퇴근길에 같이 장 보는 날이 제일 좋아요. 엄마가 알려 준 된장찌개, 그 사람이 더 잘 끓여요.`)
+        : partner ? `${dv ? '그리고 새로 ' : '요즘 '}만나는 사람이 있어요. ${LOVERS[partner].name} 씨예요. 아직은 비밀이니까, 다음에 데려가면 처음 듣는 척해 주세요.`
+            : dv ? '' : Object.values(L).some(v => v.stage === -9) ? '연애는 한 번 크게 아팠어요. 그날 밤 엄마한테 전화하려다 말았어요. 걱정하실까 봐요. 그래도 덕분에 조금 더 단단해졌어요.'
+                : '연애는… 아직이에요. 일이 애인이었다고 해 두죠. 잔소리는 다음 명절에 몰아서 들을게요.';
+    const PS = { nolaunch: 'P.S. 시제품 병 하나 남은 거, 엄마 화장대에 올려 둘게요. 다음엔 진짜 제품으로 바꿔 드릴게요.',
+        bankrupt: 'P.S. 반찬통은 다음에 갈 때 꼭 가져갈게요. 이번엔 깨끗이 비워서요.',
+        burnout: 'P.S. 이번 달엔 집에서 좀 쉬다 갈게요. 제 방 그대로 있죠?' };
+    const ps = PS[key] || `P.S. 엄마 화장대에 「${S.brand}」 신제품 하나 몰래 올려 뒀어요. 바르고 나서 “피부 좋아졌네” 한 번만 더 말해 주세요. 그 말이 제일 좋은 리뷰예요.`;
+    const paras = [open, LETTER_ORIGIN[o.id] || '',
+        `스무 살에 「${S.brand}」를 시작한 지 벌써 ${yrs}이 지났어요. ${prod}`,
+        [hard, mom].filter(Boolean).join(' '),
+        [pt, why, sec].filter(Boolean).join('\n'),
+        LETTER_END[key] || '', [dv, love].filter(Boolean).join('\n'),
+        `엄마 아빠, 저를 0단계에서 시작하게 해 줘서 고마워요. 넘어질 때마다 “괜찮아, 다시 하면 돼”라고 해 주셔서, 정말 다시 할 수 있었어요.\n${ageOf(S)}살이 된 지금도 저는 여전히 엄마 아빠 딸이에요. 다음 달엔 꼭 집에 갈게요. 늘 건강하세요. 사랑해요.`,
+        ps].filter(Boolean);
+    return `<div class="letter" role="article" aria-label="부모님께 쓰는 편지"><div class="lt-to">사랑하는 엄마 아빠께</div><div class="lt-body">${paras.map(t => `<p>${esc(t).replace(/\n/g, '<br>')}</p>`).join('')}</div><div class="lt-from">${yearOf(S)}년 ${monthOf(S)}월, ${ageOf(S)}살의 ${esc(S.name)} 올림</div></div>`;
 }
 function finish() {
     document.body.classList.remove('running');
@@ -3911,7 +3957,7 @@ function renderLove() {
     $('#love').innerHTML = `${S.heartbreak > 0 ? `<p class="sheet-sub" style="color:#c93a66">💔 실연 중 (${S.heartbreak}개월 남음)</p>` : ''}<p class="sheet-sub">데이트 상대를 고르면 연애 탭 「데이트」에서 그 사람과 만나요. 호감도 60이면 고백, 90이면 프러포즈 이벤트가 생겨요.</p><div class="lv-list">${Object.entries(LOVERS).sort((x, y) => ((L[y[0]] ? 1 : 0) - (L[x[0]] ? 1 : 0)) || ((L[y[0]] || {}).aff || 0) - ((L[x[0]] || {}).aff || 0)).map(([id, lv]) => {
         const v = L[id];
         const known = !!v;
-        const st = !known ? '아직 모르는 사이' : v.stage === -8 ? '한서린의 약혼자' : v.stage === -9 ? (v.gone ? '떠나간 사람' : '헤어짐') : v.taken ? '한서린의 연인 · 몰래 데이트' : v.stage === -1 ? '썸' : LOVE_STAGE[v.stage];
+        const st = !known ? '아직 모르는 사이' : v.stage === -8 ? '한서린의 약혼자' : v.stage === -9 ? (v.divorced ? '이혼' : v.gone ? '떠나간 사람' : '헤어짐') : v.taken ? '한서린의 연인 · 몰래 데이트' : v.stage === -1 ? '썸' : LOVE_STAGE[v.stage];
         return `<div class="lv ${known ? '' : 'unknown'} ${tgt === id && known && v.stage !== -9 ? 'on' : ''}">
       <div class="ph"><img src="art/spr_lv_${id}.png" alt="${known ? esc(lv.name) : '아직 만나지 않은 사람'}"></div>
       <div style="min-width:0"><b>${known ? `${lv.name} · ${lv.age}세` : '??? '}</b> <span class="st">${st}</span>
