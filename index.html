@@ -439,11 +439,11 @@ body.running .phone .dialog{max-height:30%}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 /* ---------- 이벤트 CG (큰 일러스트 + 켄번스 연출) ---------- */
 .cg{position:absolute;inset:0;z-index:40;background:#05070f;overflow:hidden;cursor:pointer;animation:cg-in .45s ease both}
-.cg-img{position:absolute;inset:-6%;background:#05070f center/cover no-repeat;animation:cg-kb 10s ease-out both;will-change:transform}
+.cg-img{position:absolute;inset:0;background:#05070f 50% 30%/cover no-repeat;animation:cg-kb 10s ease-out both;will-change:transform;transform-origin:50% 35%}
 .cg.v2 .cg-img{animation-name:cg-kb2}
-.cg::before,.cg::after{content:"";position:absolute;left:0;right:0;height:8%;background:#000;z-index:3;animation:cg-bar .8s ease both}
+.cg::before,.cg::after{content:"";position:absolute;left:0;right:0;height:3%;background:#000;z-index:3;animation:cg-bar .8s ease both}
 .cg::before{top:0}.cg::after{bottom:0}
-.cg-cap{position:absolute;left:0;right:0;bottom:calc(8% + 18px);z-index:4;padding:56px 20px 0;color:#fff;display:grid;gap:4px;text-shadow:0 2px 10px rgba(0,0,0,.85);background:linear-gradient(180deg,transparent,rgba(0,0,0,.55) 45%);animation:cg-cap .9s .35s ease both}
+.cg-cap{position:absolute;left:0;right:0;bottom:calc(3% + 18px);z-index:4;padding:56px 20px 0;color:#fff;display:grid;gap:4px;text-shadow:0 2px 10px rgba(0,0,0,.85);background:linear-gradient(180deg,transparent,rgba(0,0,0,.55) 45%);animation:cg-cap .9s .35s ease both}
 .cg-cap small{font-size:11px;font-weight:800;letter-spacing:.22em;color:#ffe08a}
 .cg-cap b{font-family:var(--f-display);font-size:21px;line-height:1.3;font-weight:800}
 .cg-cap span{font-size:13px;opacity:.92;white-space:pre-line}
@@ -459,8 +459,8 @@ body.running .phone .dialog{max-height:30%}
 .cg-fx.petal i{width:10px;height:7px;border-radius:70% 0 70% 0;background:#ffc3d8;animation-duration:6s}
 .cg-fx.confetti i{width:7px;height:11px;animation-duration:3.4s}
 .cg-fx.sparkle i{top:auto;width:5px;height:5px;border-radius:50%;background:#fff6c8;box-shadow:0 0 10px 3px rgba(255,236,160,.8);animation:cg-twinkle 2.4s ease-in-out infinite}
-@keyframes cg-kb{from{transform:scale(1.14) translate(2%,3%)}to{transform:scale(1) translate(0,0)}}
-@keyframes cg-kb2{from{transform:scale(1) translate(-2%,1%)}to{transform:scale(1.14) translate(1%,-2%)}}
+@keyframes cg-kb{from{transform:scale(1.06)}to{transform:scale(1)}}
+@keyframes cg-kb2{from{transform:scale(1)}to{transform:scale(1.05)}}
 @keyframes cg-bar{from{height:0}}
 @keyframes cg-in{from{opacity:0}}
 @keyframes cg-out{to{opacity:0}}
@@ -489,7 +489,7 @@ body.running .phone .dialog{max-height:30%}
   .bottom-area{bottom:calc(84px + var(--sb))}
   .tabbar{height:calc(78px + var(--sb));padding-bottom:var(--sb);box-sizing:border-box}
   .sheet-card{padding-bottom:calc(18px + var(--sb))}
-  .cg-cap{bottom:calc(8% + 18px + var(--sb))}
+  .cg-cap{bottom:calc(3% + 18px + var(--sb))}
 }
 /* 상단 상태창: 날짜·이름은 항상 한 줄 (10월·11월·12월에 줄바꿈되어 자원 줄과 겹치던 문제) */
 .hud-line{flex-wrap:nowrap;min-width:0}
@@ -522,7 +522,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
       <div class="eyebrow">Canvas Labs · Derma Couture Simulation</div>
       <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
       <div class="glass-pane ornate"><div class="in"><img src="art/age20_ok.jpg" alt="레이스 재킷에 리본 블라우스를 입고 세럼 병을 든 20세 창업 1년차 대표"><svg id="title-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg></div></div>
-      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-G</span>
+      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-H</span>
       <div class="btn-row">
         <button class="btn" id="btn-new">새로 시작</button>
         <button class="btn ghost" id="btn-load" hidden>이어하기</button>
