@@ -491,6 +491,8 @@ body.running .phone .dialog{max-height:30%}
   .sheet-card{padding-bottom:calc(18px + var(--sb))}
   .cg-cap{bottom:calc(8% + 18px + var(--sb))}
 }
+/* 세로로 긴 초상화(9:16): 화면 위아래를 그림으로 꽉 채운다 */
+.phone .scene .pimg.tall{left:-12.5%;right:auto;top:-11%;bottom:auto;width:125%;height:125%;object-position:50% 45%;-webkit-mask-image:none;mask-image:none}
 /* iOS 홈 화면 앱(standalone): innerHeight가 상태바만큼 짧게 잡히는 버그 → 실제 화면 높이로 맞춘다 */
 html.ios-app{min-height:var(--appH,100vh)}
 html.ios-app body{min-height:var(--appH,100vh);box-sizing:border-box}
@@ -513,7 +515,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
       <div class="eyebrow">Canvas Labs · Derma Couture Simulation</div>
       <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
       <div class="glass-pane ornate"><div class="in"><img src="art/age20_ok.jpg" alt="레이스 재킷에 리본 블라우스를 입고 세럼 병을 든 20세 창업 1년차 대표"><svg id="title-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg></div></div>
-      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-C</span>
+      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-D</span>
       <div class="btn-row">
         <button class="btn" id="btn-new">새로 시작</button>
         <button class="btn ghost" id="btn-load" hidden>이어하기</button>
@@ -2735,10 +2737,11 @@ function moodOf(S) {
 const ACT_AGED = ['vacation', 'pt_cafe', 'pt_hb', 'pt_clinic', 'pt_mua', 'pt_model', 'pt_lecture', 'pt_host', 'pt_consult', 'yoga', 'running', 'weight', 'diet', 'academy', 'art', 'growth', 'mba', 'acting', 'rnd', 'shoot', 'seed', 'live', 'popup', 'ir', 'hire', 'expo', 'rest', 'spa', 'pilates', 'party'];
 function actSrc(S, id) { const k = stageOf(S).key; const band = k === 'age25' ? '_mid' : (k === 'age27' || k === 'age30') ? '_late' : ''; return `art/act_${id}${band && ACT_AGED.includes(id) ? band : ''}.jpg`; }
 function seasonKey(S) { const mo = monthOf(S); return mo >= 3 && mo <= 5 ? 'spring' : mo >= 6 && mo <= 8 ? 'summer' : mo >= 9 && mo <= 11 ? 'autumn' : 'winter'; }
+function portraitTallSrc(S) { const m = moodOf(S); return m === 'tired' || m === 'sick' ? `art/${stageOf(S).key}_tired_t.jpg` : `art/${stageOf(S).key}_${seasonKey(S)}_t.jpg`; }
 function portraitSrc(S) { const m = moodOf(S); return m === 'tired' || m === 'sick' ? `art/${stageOf(S).key}_tired.jpg` : `art/${stageOf(S).key}_${seasonKey(S)}.jpg`; }
 function portraitSVG(S) {
     const op = (0.75 * (1 - restoreRate(S))).toFixed(3);
-    return `<img class="pimg" src="${portraitSrc(S)}" alt="${esc(S.name)} 대표 초상화, ${TIERS[tierOf(S)]}, ${moodLabel()}">
+    return `<img class="pimg tall" src="${portraitTallSrc(S)}" alt="${esc(S.name)} 대표 초상화, ${TIERS[tierOf(S)]}, ${moodLabel()}">
     <svg class="scr" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true">
       <g opacity="${op}">${scratches(300, 400, 46, hashStr(S.brand), '#ffffff')}</g>
       <g opacity="${(op * 0.5).toFixed(3)}">${scratches(300, 400, 22, hashStr(S.name) + 3, '#14181B')}</g>
