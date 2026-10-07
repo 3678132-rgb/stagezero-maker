@@ -4260,7 +4260,13 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && S &
 if('serviceWorker' in navigator){
   const bar=document.getElementById('sw-bar');
   const hadCtl=!!navigator.serviceWorker.controller; let reloaded=false;
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(hadCtl && !reloaded){ reloaded=true; location.reload(); } });
+  // 새 버전이 와도 한 달이 진행 중이면 기다렸다가, 다음 달 계획 화면(자동 저장 직후)에서만 새로고침한다
+  const safeNow=()=>{ try{ return typeof S==='undefined' || !S || (S.phase==='plan' && !busy) || S.phase==='end'; }catch(e){ return true; } };
+  const doReload=()=>{ try{ if(typeof S!=='undefined' && S && S.phase==='plan' && typeof save==='function') save(); }catch(e){} location.reload(); };
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(!hadCtl || reloaded) return; reloaded=true;
+    if(safeNow()) return doReload();
+    bar.hidden=false; bar.textContent='새 버전이 준비됐어요. 이번 달이 끝나면 자동으로 적용돼요.';
+    const t=setInterval(()=>{ if(safeNow()){ clearInterval(t); doReload(); } },1500); });
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>{ reg.update().catch(()=>{});
     if(!navigator.serviceWorker.controller){ bar.hidden=false; bar.textContent='오프라인용 그림을 내려받는 중이에요… (처음 한 번만)'; }
   }).catch(()=>{});
