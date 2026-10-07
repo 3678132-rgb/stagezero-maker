@@ -491,6 +491,13 @@ body.running .phone .dialog{max-height:30%}
   .sheet-card{padding-bottom:calc(18px + var(--sb))}
   .cg-cap{bottom:calc(8% + 18px + var(--sb))}
 }
+/* 상단 상태창: 날짜·이름은 항상 한 줄 (10월·11월·12월에 줄바꿈되어 자원 줄과 겹치던 문제) */
+.hud-line{flex-wrap:nowrap;min-width:0}
+.hud-line b{white-space:nowrap;flex:none}
+.hud-line span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hud-res{flex-wrap:nowrap;gap:5px}
+.hud-res .res{flex:none;padding:3px 8px 3px 4px}
+@media (max-width:380px){ .hud-line b{font-size:15px} .hud-line span{font-size:11px} .hud-res .res{font-size:11px;padding:2px 7px 2px 3px} }
 /* 세로로 긴 초상화(9:16): 화면 위아래를 그림으로 꽉 채운다 */
 .phone .scene .pimg.tall{left:-12.5%;right:auto;top:-3%;bottom:auto;width:125%;height:125%;object-position:50% 45%;-webkit-mask-image:none;mask-image:none}
 /* iOS 홈 화면 앱(standalone): innerHeight가 상태바만큼 짧게 잡히는 버그 → 실제 화면 높이로 맞춘다 */
@@ -515,7 +522,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
       <div class="eyebrow">Canvas Labs · Derma Couture Simulation</div>
       <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
       <div class="glass-pane ornate"><div class="in"><img src="art/age20_ok.jpg" alt="레이스 재킷에 리본 블라우스를 입고 세럼 병을 든 20세 창업 1년차 대표"><svg id="title-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg></div></div>
-      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-E</span>
+      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-F</span>
       <div class="btn-row">
         <button class="btn" id="btn-new">새로 시작</button>
         <button class="btn ghost" id="btn-load" hidden>이어하기</button>
