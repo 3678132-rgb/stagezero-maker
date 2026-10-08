@@ -537,7 +537,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
       <div class="eyebrow">Canvas Labs · Derma Couture Simulation</div>
       <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
       <div class="glass-pane ornate"><div class="in"><img src="art/age20_ok.jpg" alt="레이스 재킷에 리본 블라우스를 입고 세럼 병을 든 20세 창업 1년차 대표"><svg id="title-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg></div></div>
-      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.07-P</span>
+      <p class="title-copy">스무 살 창업부터 서른 살까지 10년, 360번의 스케줄. 뷰티 브랜드 대표를 키워 긁힌 유리를 투명한 유리로 되돌려 보세요.</p><span class="build-tag">BUILD 2026.10.08-Q</span>
       <div class="btn-row">
         <button class="btn" id="btn-new">새로 시작</button>
         <button class="btn ghost" id="btn-load" hidden>이어하기</button>
@@ -670,6 +670,10 @@ const birthMonth = S => { const z = ZODIACS.find(x => x.id === (S.prof && S.prof
 const ageOf = S => { const first = birthMonth(S) > 1 ? birthMonth(S) - 1 : 12; return START_AGE + (S.m < first ? 0 : Math.floor((S.m - first) / 12) + 1); };
 const stageOf = S => AGE_STAGES.reduce((a, st) => S.m >= st.from ? st : a, AGE_STAGES[0]);
 let R = Math.random;
+// 달마다 같은 씨앗으로 굴리는 난수: 같은 계획으로 다시 실행하면 결과도 같다 (앱이 꺼져도 결과가 다시 뽑히지 않게)
+function seededRand(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function seedMonth(S) { if (!S.seed)
+    S.seed = (Math.random() * 4294967295) >>> 0 || 1; R = seededRand((S.seed ^ Math.imul(S.m + 1, 2654435761)) >>> 0); }
 const rand = (a, b) => a + R() * (b - a);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const pick = arr => arr[Math.floor(R() * arr.length)];
@@ -3307,6 +3311,8 @@ function monthIntro() {
     const c = CHAPTERS[S.m];
     if (c && !S.seen['chap_' + c.n]) {
         S.seen['chap_' + c.n] = true;
+        if (c.n > 1)
+            track('chapter', { chapter: c.n, month: S.m, prods: S.prods.length });
         busy = true;
         $('#dialog').hidden = true;
         showCG(c.cg, { chapter: c }).then(() => { busy = false; save(); monthIntro(); });
@@ -3346,7 +3352,7 @@ function playMini(id, a, i, span = 1) {
                 sfx('tick');
                 const f = document.createElement('span');
                 f.className = 'fx';
-                f.textContent = pick(MINI_FX[k]);
+                f.textContent = MINI_FX[k][Math.floor(Math.random() * MINI_FX[k].length)];
                 f.style.left = (15 + Math.random() * 65) + '%';
                 f.style.top = (30 + Math.random() * 35) + '%';
                 st.appendChild(f);
@@ -3363,6 +3369,8 @@ function playMini(id, a, i, span = 1) {
 async function runMonth() {
     if (busy)
         return;
+    seedMonth(S);
+    save(); // 계획까지 저장해 두면, 중간에 앱이 꺼져도 같은 계획·같은 결과로 이어서 할 수 있다
     busy = true;
     S.phase = 'run';
     document.body.classList.add('running');
@@ -3623,14 +3631,15 @@ const CG_MAP = { prologue: 'prologue', rival1: 'rival1', rival2: 'rival2', rival
     derma: 'lab', patent: 'lab', gov: 'lab', fashion: 'fashion', ma: 'ma', parents: 'parents', letter: 'letter', health: 'health',
     lv_anniv: 'date', lv_surprise: 'date', lv_visit: 'date', blind: 'date', lv_newlywed: 'date', lv_parents: 'date', lv_pet: 'pet', award: 'awards' };
 const CG_PREFIX = [['conf_', 'confess'], ['prop_', 'propose'], ['tri1_', 'triangle'], ['tri2_', 'triangle'], ['trip_summer', 'trip_summer'], ['trip_winter', 'trip_winter'], ['dump_', 'breakup'], ['after_', 'breakup'], ['grant_ad_', 'lab']];
-const CG_FX = { rain: ['breakup', 'rival3', 'colon_secret', 'monsoon', 'triangle', 'ch3', 'scandal'], snow: ['first_snow', 'trip_winter'], petal: ['sakura', 'spring_fever', 'ch1'], confetti: ['awards', 'party', 'promo', 'rival_final', 'workshop', 'yearend'], sparkle: ['trip_summer', 'confess', 'propose', 'date', 'prologue', 'bday', 'ch4', 'ch2', 'colon_open', 'letter', 'pet', 'fashion'] };
+const CG_FX = { rain: ['breakup', 'rival3', 'colon_secret', 'monsoon', 'triangle', 'ch3', 'scandal'], snow: ['first_snow', 'trip_winter'], petal: ['sakura', 'spring_fever', 'ch1'], confetti: ['awards', 'party', 'promo', 'rival_final', 'workshop', 'yearend'], sparkle: ['confess_playboy', 'confess_intern', 'confess_vc', 'confess_star', 'confess_ceo2', 'confess_colon', 'propose_playboy', 'propose_intern', 'propose_vc', 'propose_star', 'propose_ceo2', 'propose_colon', 'trip_summer', 'confess', 'propose', 'date', 'prologue', 'bday', 'ch4', 'ch2', 'colon_open', 'letter', 'pet', 'fashion'] };
 const SEASON_CG = ['sakura', 'spring_fever', 'monsoon', 'summer_vac', 'chuseok', 'autumn_dry', 'first_snow', 'yearend'];
 function cgKey(ev) { if (ev.cg)
-    return ev.cg; if (SEASON_CG.includes(ev.id) && S)
+    return ev.cg; const lm = /^(conf|prop)_([a-z0-9]+)$/.exec(ev.id); if (lm && LOVERS[lm[2]])
+    return (lm[1] === 'conf' ? 'confess_' : 'propose_') + lm[2]; if (SEASON_CG.includes(ev.id) && S)
     return `${ev.id}_${stageOf(S).key.slice(3)}`; if (CG_MAP[ev.id])
     return CG_MAP[ev.id]; const p = CG_PREFIX.find(([x]) => ev.id.startsWith(x)); return p ? p[1] : null; }
 const cgSrc = k => `art/cg_${k}.jpg`;
-const CG_ALL = ['trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
+const CG_ALL = [...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
 let cgFlip = false;
 function showCG(key, o = {}) {
     return new Promise(res => {
@@ -3802,7 +3811,10 @@ function showEnding(k) {
         document.body.appendChild(v);
         v.addEventListener('click', () => { v.hidden = true; });
     }
-    v.innerHTML = `<img src="art/end_${k}.jpg" alt="엔딩 일러스트: ${esc(e.title)}"><div class="ev-cap"><small>엔딩 · ${e.grade}</small><b>${esc(e.title)}</b><p>${esc(e.text || '')}</p><em>화면을 누르면 닫혀요</em></div>`;
+    v.innerHTML = `<img src="art/end_${k}.jpg" alt="엔딩 일러스트: ${esc(e.title)}"><div class="ev-cap"><small>엔딩 · ${e.grade}</small><b>${esc(e.title)}</b><p>${esc(e.text || '')}</p><div class="btn-row" style="justify-content:center;margin-top:12px"><button class="btn" type="button" data-share-end="${k}">엔딩 카드 공유</button></div><em>화면을 누르면 닫혀요</em></div>`;
+    const sb = v.querySelector('[data-share-end]');
+    if (sb)
+        sb.onclick = e => { e.stopPropagation(); v.hidden = true; shareEnding(k, ''); };
     v.hidden = false;
     if (typeof sfx === 'function')
         try {
@@ -3814,6 +3826,170 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
     ev.preventDefault();
     showEnding(b.dataset.end);
 } });
+// ---------- 플레이 통계 ----------
+// 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
+const STATS_URL = '';
+const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
+const BUILD_TAG = '2026.10.08-Q';
+function playerId() { try {
+    let id = localStorage.getItem('sz_pid');
+    if (!id) {
+        id = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+        localStorage.setItem('sz_pid', id);
+    }
+    return id;
+}
+catch (e) {
+    return 'anon';
+} }
+function platformTag() { try {
+    if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone)
+        return 'app';
+}
+catch (e) { } return /github\.io/.test(location.host) ? 'web' : (window.claude ? 'claude' : 'other'); }
+function track(type, data) {
+    if (!STATS_URL)
+        return;
+    try {
+        const body = JSON.stringify(Object.assign({ type, pid: playerId(), plat: platformTag(), build: BUILD_TAG, ts: new Date().toISOString() }, data));
+        if (navigator.sendBeacon && navigator.sendBeacon(STATS_URL, new Blob([body], { type: 'text/plain' })))
+            return;
+        fetch(STATS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body, keepalive: true }).catch(() => { });
+    }
+    catch (e) { }
+}
+function loverSummary(S) { const L = S.love || {}; const cur = Object.keys(L).find(i => L[i].stage >= 1 && !L[i].taken); return { married: S.married || '', partner: cur || '', divorced: S.divorced || '', met: Object.keys(L).join(',') }; }
+// ---------- 엔딩 공유 카드 ----------
+function loadImg(src) { return new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; }); }
+function wrapLines(ctx, text, maxW) { const out = []; let line = ''; for (const ch of text) {
+    const t = line + ch;
+    if (ctx.measureText(t).width > maxW && line) {
+        out.push(line);
+        line = ch.trim() ? ch : '';
+    }
+    else
+        line = t;
+} if (line)
+    out.push(line); return out; }
+async function makeShareCard(key, who) {
+    const E = ENDINGS[key];
+    const W = 1080, H = 1920;
+    const c = document.createElement('canvas');
+    c.width = W;
+    c.height = H;
+    const g = c.getContext('2d');
+    try {
+        await document.fonts.ready;
+    }
+    catch (e) { }
+    const serif = "'Nanum Myeongjo', serif", sans = "'IBM Plex Sans KR', system-ui, sans-serif";
+    g.fillStyle = '#0b0e1a';
+    g.fillRect(0, 0, W, H);
+    try {
+        const im = await loadImg(`art/end_${key}.jpg`);
+        const sc = Math.max(W / im.width, H / im.height);
+        const dw = im.width * sc, dh = im.height * sc;
+        g.drawImage(im, (W - dw) / 2, (H - dh) / 2, dw, dh);
+    }
+    catch (e) { }
+    let gr = g.createLinearGradient(0, 0, 0, 360);
+    gr.addColorStop(0, 'rgba(5,7,15,.75)');
+    gr.addColorStop(1, 'rgba(5,7,15,0)');
+    g.fillStyle = gr;
+    g.fillRect(0, 0, W, 360);
+    gr = g.createLinearGradient(0, H * 0.52, 0, H);
+    gr.addColorStop(0, 'rgba(5,7,15,0)');
+    gr.addColorStop(.35, 'rgba(5,7,15,.82)');
+    gr.addColorStop(1, 'rgba(5,7,15,.96)');
+    g.fillStyle = gr;
+    g.fillRect(0, H * 0.52, W, H * 0.48);
+    g.textBaseline = 'alphabetic';
+    g.fillStyle = '#ffffff';
+    g.font = `800 44px ${serif}`;
+    g.fillText('STAGE:ZERO MAKER', 72, 118);
+    g.fillStyle = 'rgba(255,255,255,.75)';
+    g.font = `500 30px ${sans}`;
+    g.fillText('스테이지 제로 메이커 · 나의 엔딩', 72, 166);
+    // 등급 배지
+    const gc = { S: '#ffd24d', A: '#ff8fb3', B: '#8fd0ff', C: '#c9c9d6', F: '#9aa0ad' }[E.grade] || '#fff';
+    g.beginPath();
+    g.arc(W - 150, 128, 78, 0, Math.PI * 2);
+    g.fillStyle = 'rgba(5,7,15,.6)';
+    g.fill();
+    g.lineWidth = 6;
+    g.strokeStyle = gc;
+    g.stroke();
+    g.fillStyle = gc;
+    g.font = `800 88px ${serif}`;
+    g.textAlign = 'center';
+    g.fillText(E.grade, W - 150, 158);
+    g.textAlign = 'left';
+    let y = H - 640;
+    g.fillStyle = '#ffe08a';
+    g.font = `800 32px ${sans}`;
+    g.fillText(`ENDING · ${E.grade}등급`, 72, y);
+    y += 78;
+    g.fillStyle = '#ffffff';
+    g.font = `800 70px ${serif}`;
+    for (const ln of wrapLines(g, E.title, W - 144).slice(0, 3)) {
+        g.fillText(ln, 72, y);
+        y += 88;
+    }
+    y += 6;
+    g.fillStyle = 'rgba(255,255,255,.85)';
+    g.font = `500 34px ${sans}`;
+    for (const ln of wrapLines(g, E.text || '', W - 144).slice(0, 4)) {
+        g.fillText(ln, 72, y);
+        y += 52;
+    }
+    if (who) {
+        y += 18;
+        g.fillStyle = '#ffffff';
+        g.font = `700 36px ${sans}`;
+        g.fillText(who, 72, y);
+    }
+    g.fillStyle = 'rgba(255,255,255,.18)';
+    g.fillRect(72, H - 170, W - 144, 2);
+    g.fillStyle = '#ffffff';
+    g.font = `700 34px ${sans}`;
+    g.fillText('나는 어떤 대표가 될까? 지금 플레이하기', 72, H - 108);
+    g.fillStyle = '#ffe08a';
+    g.font = `500 30px ${sans}`;
+    g.fillText(GAME_URL.replace(/^https:\/\//, ''), 72, H - 60);
+    return c;
+}
+async function shareEnding(key, who) {
+    toast('엔딩 카드를 만드는 중…');
+    const c = await makeShareCard(key, who);
+    const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+    const name = `stagezero_ending_${key}.png`, text = `스테이지 제로 메이커에서 「${ENDINGS[key].title}」 엔딩을 봤어요! ${GAME_URL}`;
+    track('share', { ending: key });
+    try {
+        const f = new File([blob], name, { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [f] })) {
+            await navigator.share({ files: [f], text });
+            return;
+        }
+    }
+    catch (e) {
+        if (e && e.name === 'AbortError')
+            return;
+    }
+    // 공유를 못 쓰는 환경: 미리보기를 띄우고 길게 눌러 저장 / 다운로드
+    const url = URL.createObjectURL(blob);
+    let v = document.getElementById('sharecard');
+    if (!v) {
+        v = document.createElement('div');
+        v.id = 'sharecard';
+        v.className = 'endview';
+        document.body.appendChild(v);
+        v.addEventListener('click', e => { if (e.target === v)
+            v.hidden = true; });
+    }
+    v.innerHTML = `<img src="${url}" alt="엔딩 공유 카드" style="max-height:70vh"><div class="ev-cap"><p>이미지를 길게 눌러 저장하거나 아래 버튼으로 내려받으세요.</p><div class="btn-row" style="justify-content:center;margin-top:10px"><a class="btn" href="${url}" download="${name}">이미지 저장</a> <button class="btn ghost" type="button" data-close-share style="color:#fff;border-color:#fff">닫기</button></div></div>`;
+    v.querySelector('[data-close-share]').onclick = () => { v.hidden = true; };
+    v.hidden = false;
+}
 function finish() {
     document.body.classList.remove('running');
     busy = false;
@@ -3854,10 +4030,13 @@ function finish() {
       <div class="album">${S.album.length ? S.album.map(a => `<span class="tag on">${esc(a)}</span>`).join('') : '<span class="tag">기록 없음</span>'}</div>
       <div class="eyebrow" style="margin-top:18px">엔딩 도감 ${Object.keys(ENDINGS).filter(k => seenEnd[k]).length} / ${Object.keys(ENDINGS).length}</div>
       <div class="album">${Object.entries(ENDINGS).map(([k, e]) => `${seenEnd[k] ? `<button class="tag ${k === key ? 'on' : ''}" data-end="${k}">${esc(e.title)}</button>` : `<span class="tag">？？？</span>`}`).join('')}</div>
-      <div class="btn-row" style="justify-content:flex-start;margin-top:22px"><button class="btn" id="btn-again">다시 창업하기</button></div>
+      <div class="btn-row" style="justify-content:flex-start;margin-top:22px"><button class="btn" id="btn-share">엔딩 카드 공유</button> <button class="btn ghost" id="btn-again">다시 창업하기</button></div>
     </div>`;
     show('scr-ending');
     $('#btn-again').onclick = () => { S = null; boot(); };
+    const who = `${S.name} 대표 · 「${S.brand}」`;
+    $('#btn-share').onclick = () => shareEnding(key, who);
+    track('ending', Object.assign({ ending: key, grade: E.grade, month: S.m, origin: S.origin, why: S.why || '', prods: S.prods.length, value: Math.round(valuation(S)) }, loverSummary(S)));
 }
 // ---------- 저장·불러오기 ----------
 let modalMode = null, pending = null;
@@ -4184,6 +4363,7 @@ $('#btn-start').onclick = () => {
     const name = $('#in-name').value.trim() || '대표', brand = $('#in-brand').value.trim() || 'STAGE:ZERO';
     S = newGame(name, brand, chosenOrigin, Object.assign({}, chosenProf));
     enterGame(true);
+    track('start', { origin: chosenOrigin, mbti: (chosenProf && chosenProf.mbti) || '', zodiac: (chosenProf && chosenProf.zodiac) || '' });
 };
 $('#btn-title').onclick = () => { if (busy)
     return; save(); boot(); };
