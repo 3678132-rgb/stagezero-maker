@@ -514,7 +514,7 @@ body.running .phone .dialog{max-height:30%}
 /* 타이틀·설정·엔딩 화면도 노치/상태바·홈바 영역을 피한다 */
 body:not(.game-mode){padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));padding-left:calc(16px + env(safe-area-inset-left,0px));padding-right:calc(16px + env(safe-area-inset-right,0px))}
 /* 세로로 긴 초상화(9:16): 화면 위아래를 그림으로 꽉 채운다 */
-.phone .scene .pimg.tall{left:-12.5%;right:auto;top:-3%;bottom:auto;width:125%;height:125%;object-position:50% 45%;-webkit-mask-image:none;mask-image:none}
+.phone .scene .pimg.tall{left:0;right:0;top:0;bottom:auto;width:100%;height:100%;max-width:none;max-height:none;transform:translateY(-3%) scale(1.25);transform-origin:50% 0;object-position:50% 45%;-webkit-mask-image:none;mask-image:none}
 /* iOS 홈 화면 앱(standalone): innerHeight가 상태바만큼 짧게 잡히는 버그 → 실제 화면 높이로 맞춘다 */
 html.ios-app{min-height:var(--appH,100vh)}
 html.ios-app body{min-height:var(--appH,100vh);box-sizing:border-box}
@@ -537,7 +537,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
       <div class="eyebrow">Canvas Labs · Derma Couture Simulation</div>
       <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
       <div class="glass-pane ornate"><div class="in"><img src="art/age20_ok.jpg" alt="레이스 재킷에 리본 블라우스를 입고 세럼 병을 든 20세 창업 1년차 대표"><svg id="title-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg></div></div>
-      <p class="title-copy">스무 살, 작은 원룸에서 시작한 화장품 회사. 서른 살이 될 때까지 10년, 당신의 손으로 뷰티 브랜드를 키워 보세요.</p><span class="build-tag">BUILD 2026.10.08-R</span>
+      <p class="title-copy">스무 살, 작은 원룸에서 시작한 화장품 회사. 서른 살이 될 때까지 10년, 당신의 손으로 뷰티 브랜드를 키워 보세요.</p><span class="build-tag">BUILD 2026.10.08-S</span>
       <div class="btn-row">
         <button class="btn" id="btn-new">새로 시작</button>
         <button class="btn ghost" id="btn-load" hidden>이어하기</button>
@@ -3929,7 +3929,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.10.08-R';
+const BUILD_TAG = '2026.10.08-S';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
