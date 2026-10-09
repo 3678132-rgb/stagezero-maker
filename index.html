@@ -578,7 +578,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-I</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-J</span>
       </div>
     </div>
   </section>
@@ -1203,13 +1203,44 @@ function relNewsEvent(S) {
             { label: '아무 말도 하지 않는다', sub: '그대로 감수 · 스트레스↑', run: S => { const ch = []; apply(S, 1, ch); bump(S, 'stress', 4, ch); return { text: '휴대폰을 엎어 두고 일만 했다. 이것도 지나가겠지.', chips: ch }; } },
         ] };
 }
+// 헤어진 사람에게 다시 연락: 매력이 높을수록 다시 만날 확률↑ (결혼 중이면 몰래 만나는 썸이 된다)
+function recallChance(S, id) { const v = (S.love || {})[id]; if (!v)
+    return 0; return clamp(0.08 + (S.st.charm || 0) / 110 + v.aff / 300 - (v.divorced ? 0.12 : 0) - (S.married ? 0.05 : 0), 0.05, 0.9); }
+const RECALL_OK = { playboy: '“이 번호, 아직 안 지웠어.” 강도윤이 웃었다. “어디로 갈까?”', intern: '“대표님…! 저 기다리고 있었어요.” 서하준의 답장이 3초 만에 왔다.', vc: '“…시간 비워 둘게.” 윤재현답게 짧은 답장. 그런데 1분 뒤 레스토랑 예약 링크가 왔다.', star: '“스케줄 하나 뺐어요.” 차이안이 모자를 눌러쓴 셀카를 보냈다.', ceo2: '“나도 연락하고 싶었어. 먼저 해 줘서 고마워.” 백승우의 답장.', colon: '“일정 확인해 보니… 대표님 시간은 비어 있네요.” 콜론다운 답장이었다.' };
+function recallLover(S, id) {
+    const L = loveOf(S), v = L[id], lv = LOVERS[id], ch = [];
+    v.recallM = S.m;
+    if (R() < recallChance(S, id)) {
+        v.stage = -1;
+        v.aff = Math.max(v.aff, 40);
+        v.closed = false;
+        v.gone = false;
+        v.taken = false;
+        v.reunited = (v.reunited || 0) + 1;
+        S.dateWith = id;
+        if (S.married && S.married !== id) {
+            v.tempt = true;
+            if (!S.affair) {
+                S.affair = id;
+                S.affairAt = S.m;
+            }
+        }
+        push(ch, `${lv.name} 호감`, 0.1);
+        bump(S, 'stress', -6, ch);
+        S.album.push(`${josa(lv.name, '과', '와')} 다시 연락`);
+        return { ok: true, title: `${lv.name}에게서 답장이 왔다`, text: (RECALL_OK[id] || '답장이 왔다.') + `\n다시 썸이 시작됐다.${S.married && S.married !== id ? ' (결혼 중이라 들키면 위험해요)' : ''} 연애 탭 「데이트」로 만나요.`, chips: ch };
+    }
+    bump(S, 'stress', 4, ch);
+    addAff(S, id, 1, ch);
+    return { ok: false, title: '읽음 표시만 떴다', text: `${lv.name}의 메시지 창에 ‘읽음’만 떠 있다. 답장은 오지 않았다.\n매력을 더 키우면 다음엔 다를지도 몰라.`, chips: ch };
+}
 // 결혼하면 다른 썸·연인 관계는 조용히 정리된다 (라이벌의 남자친구는 그쪽 사람으로 돌아간다)
 function settleOnMarriage(S, ch) {
     if (!S.married)
         return [];
     const L = loveOf(S), done = [];
     for (const i of Object.keys(L)) {
-        if (i === S.married || i === S.affair)
+        if (i === S.married || i === S.affair || L[i].tempt)
             continue;
         const v = L[i];
         if (v.taken) {
@@ -2103,17 +2134,20 @@ const BDAY_GIFTS = {
     ceo2: '사무실용 에스프레소 머신 (리본 포함)',
     colon: '1년치 일정표 사이에 끼운 압화 책갈피',
 };
+function bdayExes(S) { const L = S.love || {}; return Object.keys(L).filter(i => LOVERS[i] && L[i].stage === -9 && !L[i].gone); }
 function bdayGivers(S) { const L = S.love || {}; return Object.keys(L).filter(i => LOVERS[i] && (L[i].stage === -1 || L[i].stage >= 1) && !(i === 'colon' && S.secGone != null && L[i].stage < 1)); }
 function bdayGiftText(S) {
     const g = bdayGivers(S);
-    if (!g.length)
+    if (!g.length && !bdayExes(S).length)
         return '';
     const lines = g.map(i => `🎁 ${LOVERS[i].name}: ${BDAY_GIFTS[i] || '작은 꽃다발'}${(S.love[i].taken ? ' (몰래)' : '')}`);
-    return `\n\n아침부터 선물이 도착했다.\n${lines.join('\n')}${g.length >= 3 ? '\n…책상 위에 자리가 모자란다.' : ''}`;
+    const ex = bdayExes(S).map(i => `💌 ${LOVERS[i].name}: “생일 축하해.” 짧은 메시지`);
+    return `\n\n아침부터 선물이 도착했다.\n${lines.join('\n')}${ex.length ? '\n' + ex.join('\n') : ''}${g.length >= 3 ? '\n…책상 위에 자리가 모자란다.' : ''}`;
 }
 function applyBdayGifts(S, ch) { const g = bdayGivers(S); for (const i of g) {
     addAff(S, i, 4, ch);
-} if (g.length) {
+} for (const i of bdayExes(S))
+    addAff(S, i, 1, null); if (g.length) {
     bump(S, 'stress', -3 * Math.min(g.length, 4), ch);
     if (g.length >= 2)
         grow(S, 'charm', 1, ch);
@@ -3037,7 +3071,8 @@ function fixedEvents(S) {
         const base = hasStaff(S) ? BDAY_CHOICES : [{ label: '친구들과 생일 파티', sub: '매력↑ 스트레스↓', run: S => { const ch = []; grow(S, 'charm', 1.5, ch); bump(S, 'stress', -12, ch); return { text: '대학 동기들이 원룸에 몰려와 케이크에 초를 꽂았다. “사장님 생일 축하합니다~”', chips: ch }; } }, ...BDAY_CHOICES.slice(1)];
         const gifts = bdayGiftText(S);
         out.push({ id: 'bday', face: 'ceo', speaker: 'BIRTHDAY', title: `${age}번째 생일`, text: () => `오늘은 ${age}번째 생일. 창업 ${Math.floor(S.m / 12) + 1}년차가 시작된다.${stageMsg}${gifts}\n오늘 하루는 어떻게 보낼까?`,
-            choices: base.map(c => (Object.assign(Object.assign({}, c), { run: S => { const r = c.run(S); applyBdayGifts(S, r.chips); return r; } }))) });
+            choices: base.map(c => (Object.assign(Object.assign({}, c), { run: S => { const r = c.run(S); const gl = bdayGivers(S).map(i => LOVERS[i].name); applyBdayGifts(S, r.chips); if (gl.length)
+                    r.text += `\n🎁 ${gl.join('·')}의 선물을 하나씩 풀어 보며 하루 종일 웃었다.`; return r; } }))) });
     }
     const st = STORY.find(x => x.m === S.m && !S.seen[x.id]);
     if (st)
@@ -4369,7 +4404,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.10.09-I';
+const BUILD_TAG = '2026.10.09-J';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
@@ -4770,7 +4805,7 @@ function renderLove() {
       <div class="ph"><img src="art/spr_lv_${id}.png" alt="${known ? esc(lv.name) : '아직 만나지 않은 사람'}"></div>
       <div style="min-width:0"><b>${known ? `${lv.name} · ${lv.age}세` : '??? '}</b> <span class="st">${st}</span>
         <div class="job">${known ? esc(lv.job) : '만나는 법: ' + esc(lv.meet)}</div>
-        ${known ? `<div class="per">${esc(lv.persona)}</div><div class="meta2"><span>좋아하는 능력: ${STAT[lv.likes]}</span><span>호감도 ${Math.round(v.aff)} · ${DATE_TIER_NAMES[dateTier(v.aff)].split(' · ')[0]}</span><span>다음 데이트: ${DATE_TIER_NAMES[dateTier(v.aff)].split(' · ')[1]}</span>${v.taken ? '<span style="color:#c93a66">75가 되면 뺏을 기회가 와요</span>' : ''}</div><div class="heartbar"><i style="width:${v.aff}%"></i></div>${v.stage !== -9 && v.stage !== -8 ? `<button class="pick" data-datewith="${id}">${tgt === id ? (v.taken ? '♥ 몰래 데이트 중' : '♥ 데이트 상대') : (v.taken ? '몰래 데이트 상대로' : '데이트 상대로')}</button>` : ''}` : ''}
+        ${known ? `<div class="per">${esc(lv.persona)}</div><div class="meta2"><span>좋아하는 능력: ${STAT[lv.likes]}</span><span>호감도 ${Math.round(v.aff)} · ${DATE_TIER_NAMES[dateTier(v.aff)].split(' · ')[0]}</span><span>다음 데이트: ${DATE_TIER_NAMES[dateTier(v.aff)].split(' · ')[1]}</span>${v.taken ? '<span style="color:#c93a66">75가 되면 뺏을 기회가 와요</span>' : ''}</div><div class="heartbar"><i style="width:${v.aff}%"></i></div>${v.stage === -9 ? (v.recallM === S.m ? '<button class="pick" disabled>이번 달엔 이미 연락했어요</button>' : `<button class="pick recall" data-recall="${id}">📱 다시 연락하기 · 성공 ${Math.round(recallChance(S, id) * 100)}%</button>`) : ''}${v.stage !== -9 && v.stage !== -8 ? `<button class="pick" data-datewith="${id}">${tgt === id ? (v.taken ? '♥ 몰래 데이트 중' : '♥ 데이트 상대') : (v.taken ? '몰래 데이트 상대로' : '데이트 상대로')}</button>` : ''}` : ''}
       </div></div>`;
     }).join('')}</div>`;
 }
@@ -4798,6 +4833,20 @@ document.addEventListener('click', e => {
     const st = e.target.closest('.side-tab');
     if (st) {
         setSideTab(st.dataset.side);
+        return;
+    }
+    const rc = e.target.closest('[data-recall]');
+    if (rc && S) {
+        if (S.phase !== 'plan' || busy) {
+            toast('이번 달이 끝나면 연락할 수 있어요');
+            return;
+        }
+        const r = recallLover(S, rc.dataset.recall);
+        sfx(r.ok ? 'select' : 'click');
+        note({ face: 'ceo', speaker: 'LOVE', title: r.title, text: r.text, chips: r.chips });
+        renderLove();
+        render();
+        save();
         return;
     }
     const dw = e.target.closest('[data-datewith]');
