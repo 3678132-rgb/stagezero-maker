@@ -578,7 +578,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-J</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-K</span>
       </div>
     </div>
   </section>
@@ -1023,11 +1023,21 @@ const ACTS = {
             }
             return pick(['새벽 세 시까지 춤췄다. 다 잊었다.', '음악에 몸을 맡기니 머리가 비워졌다.']);
         } },
-    blind: { cat: '연애', name: '소개팅', desc: '친구가 주선한 소개팅에 나간다.', cost: 50, hp: 6, stress: -6, eff: '만남 매력↑',
+    blind: { cat: '연애', name: '소개팅', desc: S => partnerOf(S) ? '친구가 주선한 소개팅… 애인이 있는데 나가도 될까? 들키면 호감도가 크게 떨어져요.' : '친구가 주선한 소개팅에 나간다.', cost: 50, hp: 6, stress: -6, eff: '만남 매력↑',
         run: (S, ch, out) => {
             grow(S, 'charm', rand(1, 1.8), ch);
             const L = loveOf(S);
             out.place = 'cafe';
+            const pt = partnerOf(S);
+            if (pt) {
+                const wife = L[pt].stage >= 3;
+                addAff(S, pt, wife ? -15 : -12, ch);
+                bump(S, 'stress', 8, ch);
+                out.lover = pt;
+                S.blindCaught = (S.blindCaught || 0) + 1;
+                const lv = LOVERS[pt];
+                return `카페 문이 열리고 ${josa(lv.name, '이', '가')} 들어왔다. 테이블 위 소개팅 상대의 명함을 내려다봤다.\n${BLIND_CAUGHT[pt] || '“어떻게 그럴 수 있어?”'}\n${wife ? '반지 낀 손으로 소개팅이라니. 오늘 밤 집 공기가 차갑다.' : '소개팅 상대는 눈치껏 먼저 일어났다.'}`;
+            }
             if (!L.star && (S.st.charm || 0) >= 35 && R() < 0.55) {
                 out.lover = 'star';
                 return meetLover(S, 'star', ch);
@@ -1638,6 +1648,14 @@ function settle(S) {
     }
     return { rev, cogs, fixed, net, notes };
 }
+const BLIND_CAUGHT = {
+    playboy: '“와… 나한테 이러기야? 어떻게 그럴 수 있어?” 늘 웃던 강도윤의 얼굴에서 웃음이 사라졌다.',
+    intern: '“대표님… 어떻게 그럴 수 있어요?” 서하준의 눈가가 금세 빨개졌다.',
+    vc: '“어떻게 그럴 수 있지?” 윤재현이 안경을 벗었다. “리스크 관리가 안 되는 사람인 줄은 몰랐네.”',
+    star: '“어떻게 그럴 수 있어요? 나 오늘 촬영도 빼고 왔는데.” 마스크 너머로 차이안의 목소리가 떨렸다.',
+    ceo2: '“어떻게 그럴 수 있어? 우리 둘 다 바쁜 거 알면서, 이건 아니잖아.” 백승우가 커피를 그대로 두고 나갔다.',
+    colon: '“…어떻게 그럴 수 있어요. 이 일정은 제가 모르는 일정이네요.” 콜론이 조용히 수첩을 덮었다.',
+};
 function partnerOf(S) { const L = S.love || {}; return Object.keys(L).find(i => L[i].stage >= 1 && !L[i].taken) || null; }
 function anyStaff(S, pref) { const st = staffOf(S); const ids = Object.keys(st).filter(k => st[k] > 0); const p = (pref || []).find(k => st[k]); const id = p || ids[Math.floor(R() * ids.length)]; return ROLES.find(r => r.id === id) || ROLES[0]; }
 // 연인 캐릭터별 말투 한 줄
@@ -2126,26 +2144,45 @@ const STORY = [
             { label: '“마지막 어워즈에서 봬요.”', sub: '모든 능력 소폭↑', run: S => { const ch = []; STAT_KEYS.forEach(k => grow(S, k, 0.8, ch)); S.rival = (S.rival || 0) + 1; return { text: '그녀가 웃었다. “그래야 당신답죠.”', chips: ch }; } },
         ] },
 ];
+// 생일 선물: 호감도 단계(lo<40 · mid<75 · hi)별로, 해마다 다른 선물
 const BDAY_GIFTS = {
-    playboy: '청담 레스토랑을 통째로 비운 생일 디너 초대장',
-    intern: '손편지와 밤새 직접 구운 미니 케이크',
-    vc: '각인된 만년필과 “다음 라운드도 같이” 메모',
-    star: '아직 발표 안 한 자작곡 음원 파일',
-    ceo2: '사무실용 에스프레소 머신 (리본 포함)',
-    colon: '1년치 일정표 사이에 끼운 압화 책갈피',
+    playboy: { lo: ['편의점 케이크에 꽂은 초 하나', '클럽 VIP 입장 팔찌', '본인 믹스테이프 USB', '칵테일 쿠폰 한 장'],
+        mid: ['청담 레스토랑 창가 자리 디너', '직접 만든 생일 플레이리스트', '빈티지 LP 한 장', '루프탑 바 대관 한 시간'],
+        hi: ['레스토랑을 통째로 비운 생일 디너와 라이브 디제잉', '내 이름을 붙인 시그니처 칵테일', '파리행 비행기 티켓 두 장', '손으로 쓴 노래 가사와 장미 100송이'] },
+    intern: { lo: ['아메리카노 기프티콘', '손글씨 생일 카드', '사무실 책상 위 작은 다육이', '회사 로고 스티커'],
+        mid: ['밤새 직접 구운 미니 케이크', '대표님 사진으로 만든 포토북', '수제 쿠키 한 상자', '첫 출근 날 사진이 든 액자'],
+        hi: ['손편지 열 장과 직접 구운 3단 케이크', '1년 동안 모은 “대표님 어록” 다이어리', '월급을 모아 산 커플 반지', '회사 사람들 몰래 준비한 깜짝 파티'] },
+    vc: { lo: ['짧은 “생일 축하합니다.” 문자', '업계 리포트 한 부', '고급 커피 원두', '명함 지갑'],
+        mid: ['각인된 만년필과 “다음 라운드도 같이” 메모', '경제 서적 초판본', '미슐랭 레스토랑 예약', '가죽 다이어리'],
+        hi: ['스위스 시계와 “너의 시간에 투자할게” 카드', '둘만의 요트 디너', '10년 뒤 회사 비전을 그린 액자', '한정판 와인과 손편지'] },
+    star: { lo: ['사인 CD', '팬미팅 초대권', '친필 사인 폴라로이드', '촬영장 간식차 인증샷'],
+        mid: ['아직 발표 안 한 자작곡 음원 파일', '드라마 대본에 몰래 쓴 생일 축하', '촬영지에서 산 스노우볼', '둘만 아는 라이브 영상'],
+        hi: ['나만을 위한 생일 축가 라이브', '내 이름을 제목으로 한 신곡', '스케줄 다 빼고 떠나는 제주 여행', '무대 위에서 보낸 생일 메시지'] },
+    ceo2: { lo: ['회사 굿즈 세트', '스타트업 대표 모임 초대장', '에너지 드링크 한 박스', '경영서 한 권'],
+        mid: ['사무실용 에스프레소 머신 (리본 포함)', '노이즈캔슬링 헤드폰', '같이 들을 MBA 특강 수강권', '한강 야경 드라이브'],
+        hi: ['고향 바다가 보이는 숙소와 손편지', '둘의 회사 로고를 새긴 커플 시계', '캘린더에 박아 둔 “평생 매달 데이트”', '커플 사진으로 만든 회사 앱 테마'] },
+    colon: { lo: ['생일이 표시된 정리된 일정표', '책상 위 비타민 한 통', '생일 반차 결재 완료', '따뜻한 핫팩 묶음'],
+        mid: ['1년치 일정표 사이에 끼운 압화 책갈피', '대표님 취향 원두 정기배송', '손글씨 업무 노트 한 권', '좋아하는 꽃으로 꾸민 책상'],
+        hi: ['10년 치 일정 중 “대표님 생일”만 모은 앨범', '처음 만난 날부터 쓴 비밀 일기', '휴가 결재: 「서진이랑 바다」', '안경을 벗고 건넨 반지 상자'] },
 };
+function giftTier(aff) { return aff >= 75 ? 'hi' : aff >= 40 ? 'mid' : 'lo'; }
+function giftOf(S, i) { const g = BDAY_GIFTS[i]; if (!g)
+    return '작은 꽃다발'; const v = S.love[i]; const t = giftTier(v.aff); const yr = Math.floor(S.m / 12); const arr = g[t]; return arr[(yr + i.length) % arr.length]; }
 function bdayExes(S) { const L = S.love || {}; return Object.keys(L).filter(i => LOVERS[i] && L[i].stage === -9 && !L[i].gone); }
 function bdayGivers(S) { const L = S.love || {}; return Object.keys(L).filter(i => LOVERS[i] && (L[i].stage === -1 || L[i].stage >= 1) && !(i === 'colon' && S.secGone != null && L[i].stage < 1)); }
 function bdayGiftText(S) {
     const g = bdayGivers(S);
     if (!g.length && !bdayExes(S).length)
         return '';
-    const lines = g.map(i => `🎁 ${LOVERS[i].name}: ${BDAY_GIFTS[i] || '작은 꽃다발'}${(S.love[i].taken ? ' (몰래)' : '')}`);
+    const lines = g.map(i => `${{ hi: '💝', mid: '🎁', lo: '🎀' }[giftTier(S.love[i].aff)]} ${LOVERS[i].name}: ${giftOf(S, i)}${(S.love[i].taken ? ' (몰래)' : '')}`);
     const ex = bdayExes(S).map(i => `💌 ${LOVERS[i].name}: “생일 축하해.” 짧은 메시지`);
     return `\n\n아침부터 선물이 도착했다.\n${lines.join('\n')}${ex.length ? '\n' + ex.join('\n') : ''}${g.length >= 3 ? '\n…책상 위에 자리가 모자란다.' : ''}`;
 }
 function applyBdayGifts(S, ch) { const g = bdayGivers(S); for (const i of g) {
-    addAff(S, i, 4, ch);
+    const t = giftTier(S.love[i].aff);
+    addAff(S, i, { lo: 2, mid: 4, hi: 6 }[t], ch);
+    if (t === 'hi')
+        bump(S, 'stress', -3, ch);
 } for (const i of bdayExes(S))
     addAff(S, i, 1, null); if (g.length) {
     bump(S, 'stress', -3 * Math.min(g.length, 4), ch);
@@ -4404,7 +4441,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.10.09-J';
+const BUILD_TAG = '2026.10.09-K';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
