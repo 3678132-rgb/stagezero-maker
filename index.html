@@ -177,9 +177,11 @@ button:focus-visible{outline:2px solid var(--serum);outline-offset:2px}
 .slot.active{box-shadow:inset 0 0 0 1px var(--serum);border-color:var(--serum)}
 .slot.running{border-color:var(--serum);background:var(--serum-soft)}
 .tabs{display:flex;gap:4px;margin-bottom:8px;border-bottom:1px solid var(--line)}
+.tabs{overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tabs .tab{white-space:nowrap;flex:1 0 auto}
 .tab{border:0;background:transparent;padding:6px 12px;font-weight:600;font-size:13px;color:var(--mute);border-bottom:2px solid transparent;margin-bottom:-1px}
 .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
 .acts{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.shop-note{grid-column:1/-1;font-size:12px;color:var(--mute);margin:4px 2px 0}
 .act{border:1px solid var(--line);background:var(--glass-solid);border-radius:var(--r);padding:9px 10px;text-align:left;display:grid;gap:3px;min-width:0}
 .act:hover:not(:disabled){border-color:var(--ink);background:#fff}
 .act:disabled{opacity:.45;cursor:not-allowed}
@@ -574,7 +576,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-G</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-H</span>
       </div>
     </div>
   </section>
@@ -693,6 +695,48 @@ var _a, _b, _c, _d, _e, _f, _g, _h;
 // ==ENGINE==
 const STAT = { rnd: '연구', aes: '감각', mkt: '마케팅', biz: '경영', lead: '리더십', net: '인맥', charm: '매력' };
 const STAT_KEYS = Object.keys(STAT);
+// 쇼핑: 나이가 들수록 살 수 있는 물건이 늘어난다. 한 번 사면 능력치가 영구히 오르고 스트레스가 풀린다
+const SHOP = [
+    { id: 'cosme', name: '신상 화장품 하울', icon: '💄', age: 20, price: 30, st: { aes: 2, charm: 1 }, stress: 6, line: '경쟁사 신상까지 전부 발라 봤다. 이건 공부다.' },
+    { id: 'iphone', name: '최신 아이폰', icon: '📱', age: 20, price: 150, st: { mkt: 3, net: 1 }, stress: 8, line: '카메라가 좋아지니 릴스 퀄리티가 달라졌다.' },
+    { id: 'macbook', name: '맥북 프로', icon: '💻', age: 21, price: 350, st: { biz: 3, rnd: 2 }, stress: 8, line: '엑셀이 더 이상 멈추지 않는다. 야근이 한 시간 줄었다.' },
+    { id: 'tweed', name: '명품 트위드 재킷', icon: '🧥', age: 22, price: 600, st: { charm: 4, aes: 2 }, stress: 12, line: 'IR 미팅에서 심사역이 재킷 브랜드부터 물었다.' },
+    { id: 'bag', name: '명품 가방', icon: '👜', age: 24, price: 900, st: { net: 3, charm: 3 }, stress: 12, line: '대표 모임에서 첫 마디가 “그 가방 어디 거예요?”였다.' },
+    { id: 'watch', name: '클래식 명품 시계', icon: '⌚', age: 25, price: 1500, st: { lead: 3, biz: 2 }, stress: 10, line: '시간을 보는 게 아니라, 시간을 쓰는 사람이 된 기분.' },
+    { id: 'car', name: '전기 SUV', icon: '🚗', age: 25, price: 7000, st: { net: 4, lead: 2 }, stress: 18, line: '출장 동선이 반으로 줄었다. 차 안이 제2의 회의실이 됐다.' },
+    { id: 'officetel', name: '한강뷰 오피스텔', icon: '🏙️', age: 27, price: 35000, st: { lead: 3, biz: 3, aes: 2 }, stress: 22, line: '원룸을 떠나던 날, 첫 시제품 병을 창가에 올려 두었다.' },
+    { id: 'penthouse', name: '성수동 펜트하우스', icon: '🏡', age: 29, price: 120000, st: { rnd: 2, aes: 2, mkt: 2, biz: 2, lead: 2, net: 2, charm: 2 }, stress: 30, line: '테라스에서 회사 간판이 보인다. 스무 살의 나에게 보여 주고 싶다.' },
+];
+function shopHTML(S) {
+    const own = S.owned || {}, age = ageOf(S);
+    return SHOP.map(it => {
+        const has = own[it.id] != null, lockAge = age < it.age, poor = !has && !lockAge && S.cash < it.price;
+        const eff = Object.entries(it.st).map(([k, v]) => `${STAT[k]}+${v}`).join(' ');
+        return `<button class="act shop" data-buy="${it.id}" ${has || lockAge || poor ? 'disabled' : ''}><b>${it.icon} ${it.name}</b><span class="d">${it.line}</span>
+      <span class="meta"><span class="c">${fmtMoney(it.price)}원</span><span>스트레스 −${it.stress}</span><span>${eff} (영구)</span></span>
+      ${has ? '<span class="lock" style="background:#e8f7ec;color:#1e7a3c">보유 중</span>' : lockAge ? `<span class="lock">${it.age}살부터 살 수 있어요</span>` : poor ? '<span class="lock">자금 부족</span>' : ''}</button>`;
+    }).join('')
+        + '<p class="shop-note">쇼핑은 스케줄 칸을 쓰지 않아요. 바로 결제되고, 산 물건의 능력치는 영구히 남아요.</p>';
+}
+function buyItem(S, id) {
+    const it = SHOP.find(x => x.id === id);
+    if (!it)
+        return null;
+    const own = S.owned || (S.owned = {});
+    if (own[id] != null || ageOf(S) < it.age || S.cash < it.price)
+        return null;
+    const ch = [];
+    bump(S, 'cash', -it.price, ch);
+    bump(S, 'stress', -it.stress, ch);
+    for (const [k, v] of Object.entries(it.st)) {
+        const b = S.st[k];
+        S.st[k] = clamp(b + v, 0, 100);
+        push(ch, STAT[k], S.st[k] - b);
+    }
+    own[id] = S.m;
+    S.album.push(`${it.name} 구매`);
+    return { text: `${it.icon} ${josa(it.name, '을', '를')} 샀다!\n${it.line}`, chips: ch };
+}
 const SLOT_NAMES = ['상순', '중순', '하순'];
 const START_YEAR = 2027, TOTAL_MONTHS = 120, START_AGE = 20;
 // 10년 동안 2년마다 대표의 모습이 성숙해진다 (일러스트 단계)
@@ -1063,7 +1107,7 @@ function settleOnMarriage(S, ch) {
         return [];
     const L = loveOf(S), done = [];
     for (const i of Object.keys(L)) {
-        if (i === S.married)
+        if (i === S.married || i === S.affair)
             continue;
         const v = L[i];
         if (v.taken) {
@@ -1656,7 +1700,7 @@ const EVENTS = [
             { label: '함께 요리한다', sub: '스트레스↓↓ 호감↑', run: S => { const ch = []; addAff(S, S.married, 4, ch); bump(S, 'stress', -12, ch); return { text: '파스타는 불었고 소스는 짰다. 그래도 최고의 저녁이었다.', chips: ch }; } },
             { label: '내년 계획을 같이 세운다', sub: '경영↑ 호감↑', run: S => { const ch = []; addAff(S, S.married, 3, ch); grow(S, 'biz', 1, ch); return { text: '화이트보드에 「우리 집 OKR」을 썼다. 1번: 한 달에 한 번은 여행.', chips: ch }; } },
         ] },
-    { id: 'sakura', once: false, w: 4, place: 'street', cond: S => [3, 4].includes(monthOf(S)),
+    { id: 'sakura', once: false, w: 4, place: 'street', cond: S => [3, 4].includes(monthOf(S)) && hasStaff(S),
         face: 'ceo', speaker: '봄', title: '벚꽃이 흩날리는 출근길',
         text: () => '회사 앞 가로수가 하룻밤 새 분홍색이 됐다. 팀원들이 창밖만 보고 있다.',
         choices: [
@@ -1677,7 +1721,7 @@ const EVENTS = [
             { label: '방수 포장으로 전량 교체', sub: '돈이 들지만 팬덤↑', run: S => { const ch = []; bump(S, 'cash', -200, ch); bump(S, 'fan', 3, ch); return { text: '“비 오는 날에도 뽀송하게 왔어요” 후기가 올라왔다.', chips: ch }; } },
             { label: '빗소리 들으며 기획서 쓰기', sub: '연구↑', run: S => { const ch = []; grow(S, 'rnd', 1.3, ch); bump(S, 'stress', -3, ch); return { text: '창밖 빗소리에 생각이 정리됐다. 다음 제품의 키워드: 「장벽」.', chips: ch }; } },
         ] },
-    { id: 'summer_vac', once: false, w: 3, place: 'beach', cond: S => [8].includes(monthOf(S)) && !tripPartner(S),
+    { id: 'summer_vac', once: false, w: 3, place: 'beach', cond: S => [8].includes(monthOf(S)) && !tripPartner(S) && hasStaff(S),
         face: 'ceo', speaker: '여름', title: '팀원들이 휴가 계획을 묻는다',
         text: () => '“대표님은 올여름 어디 가세요?” …생각해 본 적도 없다.',
         choices: [
@@ -1698,7 +1742,7 @@ const EVENTS = [
             { label: '보습 캠페인을 바로 띄운다', sub: '인지도↑', run: S => { const ch = []; bump(S, 'aware', 5, ch); grow(S, 'mkt', 1, ch); bump(S, 'stress', 4, ch); return { text: '「가을 속건조 SOS」 캠페인이 하루 만에 세팅됐다.', chips: ch }; } },
             { label: '제형 개선부터 한다', sub: '제품 품질↑', run: S => { const ch = []; S.prods.forEach(p => p.q = clamp(p.q + 2, 10, 100)); push(ch, '평균 품질', 2); grow(S, 'rnd', 1, ch); return { text: '세라마이드 함량을 올렸다. 겨울까지 버틸 크림이 됐다.', chips: ch }; } },
         ] },
-    { id: 'first_snow', once: false, w: 4, place: 'snow', cond: S => [12, 1].includes(monthOf(S)),
+    { id: 'first_snow', once: false, w: 4, place: 'snow', cond: S => [12, 1].includes(monthOf(S)) && hasStaff(S),
         face: 'ceo', speaker: '겨울', title: '첫눈이 내린다',
         text: S => { const p = Object.keys(S.love || {}).find(i => S.love[i].stage >= 1); return p ? `첫눈. ${LOVERS[p].name}에게서 메시지가 왔다. “눈 와. 보고 싶다.”` : '퇴근길에 첫눈이 내렸다. 누군가에게 연락하고 싶어졌다.'; },
         choices: [
@@ -1708,7 +1752,7 @@ const EVENTS = [
                     grow(S, 'charm', 1, ch); return { text: '눈이 어깨에 쌓이는 줄도 몰랐다. 올해도 수고했어, 나.', chips: ch }; } },
             { label: '사무실에 남아 연말 정산', sub: '경영↑', run: S => { const ch = []; grow(S, 'biz', 1.3, ch); bump(S, 'stress', 3, ch); return { text: '창밖의 눈을 등지고 엑셀을 정리했다. 숫자는 정직하다.', chips: ch }; } },
         ] },
-    { id: 'yearend', once: false, w: 4, place: 'office', cast: { ask: 'team' }, cond: S => [12].includes(monthOf(S)) && S.emp >= 1,
+    { id: 'yearend', once: false, w: 4, place: 'office', cast: { ask: 'team' }, cond: S => [12].includes(monthOf(S)) && hasStaff(S),
         face: 'ceo', speaker: '연말', title: '팀 송년회',
         text: () => '고깃집 2층을 통째로 빌렸다. 막내가 마이크를 잡았다. “대표님 한 말씀!”',
         choices: [
@@ -1949,6 +1993,29 @@ const STORY = [
             { label: '“마지막 어워즈에서 봬요.”', sub: '모든 능력 소폭↑', run: S => { const ch = []; STAT_KEYS.forEach(k => grow(S, k, 0.8, ch)); S.rival = (S.rival || 0) + 1; return { text: '그녀가 웃었다. “그래야 당신답죠.”', chips: ch }; } },
         ] },
 ];
+const BDAY_GIFTS = {
+    playboy: '청담 레스토랑을 통째로 비운 생일 디너 초대장',
+    intern: '손편지와 밤새 직접 구운 미니 케이크',
+    vc: '각인된 만년필과 “다음 라운드도 같이” 메모',
+    star: '아직 발표 안 한 자작곡 음원 파일',
+    ceo2: '사무실용 에스프레소 머신 (리본 포함)',
+    colon: '1년치 일정표 사이에 끼운 압화 책갈피',
+};
+function bdayGivers(S) { const L = S.love || {}; return Object.keys(L).filter(i => LOVERS[i] && (L[i].stage === -1 || L[i].stage >= 1) && !(i === 'colon' && S.secGone != null && L[i].stage < 1)); }
+function bdayGiftText(S) {
+    const g = bdayGivers(S);
+    if (!g.length)
+        return '';
+    const lines = g.map(i => `🎁 ${LOVERS[i].name}: ${BDAY_GIFTS[i] || '작은 꽃다발'}${(S.love[i].taken ? ' (몰래)' : '')}`);
+    return `\n\n아침부터 선물이 도착했다.\n${lines.join('\n')}${g.length >= 3 ? '\n…책상 위에 자리가 모자란다.' : ''}`;
+}
+function applyBdayGifts(S, ch) { const g = bdayGivers(S); for (const i of g) {
+    addAff(S, i, 4, ch);
+} if (g.length) {
+    bump(S, 'stress', -3 * Math.min(g.length, 4), ch);
+    if (g.length >= 2)
+        grow(S, 'charm', 1, ch);
+} }
 const BDAY_CHOICES = [
     { label: '팀원들과 회식', sub: '리더십↑ 스트레스↓', run: S => { const ch = []; grow(S, 'lead', 2, ch); bump(S, 'stress', -12, ch); return { text: '노래방에서 막내가 회사 로고송을 만들어 불렀다.', chips: ch }; } },
     { label: '혼자 조용히 여행', sub: '체력·스트레스 회복, 감각↑', run: S => { const ch = []; bump(S, 'hp', 20, ch); bump(S, 'stress', -20, ch); grow(S, 'aes', 1.5, ch); bump(S, 'cash', -100, ch); return { text: '바닷가 숙소에서 지난 1년을 노트에 적어 내려갔다.', chips: ch }; } },
@@ -1997,6 +2064,7 @@ const SEC2 = {
     daon: { name: '강다온', age: 25, img: 'art/sec2_daon.jpg', bio: '스타트업 운영팀 출신. 포스트잇 부자에 인싸 기질.', stat: 'mkt', pick: '“대표님! 오늘 할 일 세 개만 고르세요. 나머진 제가 할게요!”' },
 };
 const noSec = S => S.secGone != null && !S.sec2;
+const hasStaff = S => (S.emp || 0) >= 1;
 const secName = S => S.secGone != null ? (S.sec2 && SEC2[S.sec2] ? SEC2[S.sec2].name : '') : '콜론';
 function breakUp(S, id, ch, dumped) {
     const L = loveOf(S);
@@ -2078,6 +2146,7 @@ function fixRivalLover(S) {
         S.dateWith = S.stealMode ? RIVAL_LOVER : null;
 }
 function loveEvent(S) {
+    var _a;
     const L = loveOf(S);
     const partner = Object.keys(L).find(i => L[i].stage >= 1);
     // ---- 비서 콜론 루트 열기 ----
@@ -2241,6 +2310,70 @@ function loveEvent(S) {
                 { label: '서로를 놓아준다', sub: '이혼', run: S => { const ch = []; breakUp(S, partner, ch, true); return { text: '“고마웠어. 정말로.” 반지를 빼니 손가락에 하얀 자국만 남았다.', chips: ch }; } },
             ], leave: true };
     }
+    // 결혼 중 새 썸: 흔들림 → 남편과 썸남의 신경전
+    if (S.married && L[S.married] && L[S.married].stage >= 3) {
+        const hus = S.married, hv = LOVERS[hus];
+        const af = S.affair && L[S.affair] && L[S.affair].stage === -1 ? S.affair : null;
+        if (af && S.m - (S.affairAt || 0) >= 2 && !S.seen['wed_clash_' + S.m] && (R() < 0.45 || S.m - (S.affairAt || 0) >= 4)) {
+            const av = LOVERS[af];
+            return { id: 'wed_clash_' + S.m, cg: 'triangle', face: 'ceo', speaker: 'LOVE', title: `${hv.name} vs ${av.name}`, place: 'rain', cast: { ask: 'lv_' + af },
+                text: () => `비 오는 회사 앞. 우산을 들고 데리러 온 ${josa(hv.name, '과', '와')}, 꽃다발을 든 ${josa(av.name, '이', '가')} 동시에 멈춰 섰다.\n${hv.name}: “제 아내한테 무슨 볼일이시죠?”\n${av.name}: “그건 그 사람이 정할 일 아닌가요.”\n두 사람의 시선이 동시에 나에게 꽂혔다.`,
+                choices: [
+                    { label: `${hv.name}의 우산 아래로 들어간다`, sub: '결혼을 지킨다 · 남편 호감 하락', run: S => {
+                            const ch = [];
+                            const L = loveOf(S);
+                            L[af].stage = -9;
+                            L[af].closed = true;
+                            L[af].endedAt = S.m;
+                            L[af].aff = Math.min(L[af].aff, 10);
+                            S.affair = null;
+                            addAff(S, hus, -8, ch);
+                            bump(S, 'stress', 8, ch);
+                            S.album.push(`${josa(av.name, '과', '와')}의 마지막 인사`);
+                            return { text: `${josa(av.name, '이', '가')} 꽃다발을 내려놓고 돌아섰다. 집에 오는 길, ${josa(hv.name, '은', '는')} 한마디도 하지 않았다. 대신 우산은 끝까지 내 쪽으로 기울어 있었다.`, chips: ch };
+                        } },
+                    { label: `${av.name}에게 걸어간다`, sub: '이혼 · 새 연애 시작', run: S => {
+                            const ch = [];
+                            const L = loveOf(S);
+                            breakUp(S, hus, ch, false);
+                            L[af].stage = 1;
+                            L[af].since = S.m;
+                            L[af].tempt = false;
+                            S.affair = null;
+                            S.album.push(`${josa(av.name, '과', '와')} 새 출발`);
+                            return { text: `빗속에서 ${josa(hv.name, '이', '가')} 반지를 빼 내 손바닥에 올려놓았다. “행복해.” ${josa(av.name, '이', '가')} 내 어깨에 재킷을 덮었다.`, chips: ch };
+                        } },
+                    { label: '“둘 다 그만해요.” 혼자 떠난다', sub: '이혼 · 둘 다 정리 · 스트레스 크게↑', run: S => {
+                            const ch = [];
+                            const L = loveOf(S);
+                            breakUp(S, hus, ch, false);
+                            L[af].stage = -9;
+                            L[af].closed = true;
+                            L[af].endedAt = S.m;
+                            S.affair = null;
+                            grow(S, 'aes', 2, ch);
+                            grow(S, 'lead', 1, ch);
+                            return { text: '택시 문을 닫자 빗소리만 남았다. 처음으로, 누구의 아내도 누구의 썸도 아닌 나로 돌아왔다.', chips: ch };
+                        } },
+                ], leave: true };
+        }
+        const cands = Object.keys(LOVERS).filter(i => i !== hus && (!L[i] || (L[i].stage === -9 && !L[i].divorced && !L[i].gone)) && !(i === 'colon' && S.secGone != null));
+        if (!S.affair && cands.length && S.m - (S.marriedAt || 0) >= 6 && S.m - ((_a = S.lastTempt) !== null && _a !== void 0 ? _a : -99) >= 12 && R() < 0.12) {
+            const c = pick(cands), cv = LOVERS[c];
+            S.lastTempt = S.m;
+            return { id: 'wed_tempt_' + S.m, face: 'ceo', speaker: 'LOVE', title: `${cv.name}의 고백`, place: cv.place || 'cafe', cast: { ask: 'lv_' + c },
+                text: () => `${L[c] ? '오랜만에 연락이 온' : '행사장에서 처음 만난'} ${josa(cv.name, '이', '가')} 커피 잔을 내려놓았다.\n“결혼한 거 알아요. 그래도 말 안 하면 평생 후회할 것 같아서요.”`,
+                choices: [
+                    { label: '“저는 결혼했어요.” 선을 긋는다', sub: `${hv.name} 호감↑ 스트레스↓`, run: S => { const ch = []; const L = loveOf(S); L[c] = Object.assign(Object.assign({}, (L[c] || {})), { aff: Math.min((L[c] || {}).aff || 10, 15), stage: -9, closed: true, endedAt: S.m }); addAff(S, hus, 6, ch); bump(S, 'stress', -3, ch); return { text: `${josa(cv.name, '은', '는')} “역시요.” 하고 웃었다. 그날 밤 ${hv.name}에게 괜히 먼저 전화를 걸었다.`, chips: ch }; } },
+                    { label: '“…커피 한 잔만 더 해요.” 흔들린다', sub: '새 썸 시작 · 들키면 위험', run: S => { const ch = []; const L = loveOf(S); L[c] = Object.assign(Object.assign({}, (L[c] || {})), { aff: 45, stage: -1, tempt: true, closed: false }); S.affair = c; S.affairAt = S.m; push(ch, '새 인연', 1); bump(S, 'stress', 6, ch); grow(S, 'charm', 1, ch); return { text: `잔이 비어도 일어나지 못했다. 휴대폰 화면에 ${hv.name}의 이름이 떠 있었다.`, chips: ch }; } },
+                    { label: `${hv.name}에게 솔직하게 털어놓는다`, sub: '매력 50 이상이면 부부 사이↑', run: S => { const ch = []; const L = loveOf(S); L[c] = Object.assign(Object.assign({}, (L[c] || {})), { aff: Math.min((L[c] || {}).aff || 10, 15), stage: -9, closed: true, endedAt: S.m }); if ((S.st.charm || 0) >= 50) {
+                            addAff(S, hus, 12, ch);
+                            bump(S, 'stress', -6, ch);
+                            return { text: `${josa(hv.name, '이', '가')} 한참 듣더니 내 손을 잡았다. “말해 줘서 고마워. 그 사람보다 내가 더 잘할게.”`, chips: ch };
+                        } addAff(S, hus, -6, ch); bump(S, 'stress', 6, ch); return { text: `${josa(hv.name, '이', '가')} 말없이 베란다로 나갔다. 오늘 밤은 길 것 같다.`, chips: ch }; } },
+                ] };
+        }
+    }
     // 캐릭터별 위기
     if (partner && L[partner].stage === 1 && CRISES[partner] && !S.seen['crisis_' + partner] && S.m - (L[partner].since || 0) >= 6 && R() < 0.12) {
         const c = CRISES[partner];
@@ -2316,7 +2449,7 @@ function loveEvent(S) {
         return { id: 'prop_' + partner, face: 'ceo', speaker: 'LOVE', title: `${lv.name}의 프러포즈`, place: 'rooftop', cast: { ask: 'lv_' + partner },
             text: () => partner === 'colon' ? `콜론이 다이어리를 펼쳤다. 10년 치 일정표 맨 마지막 칸에 적혀 있었다.\n「대표님께 청혼하기」\n반지 안쪽에는 콜론(:)이 새겨져 있다. “제 남은 일정, 전부 대표님 거예요.”` : `야경 앞에서 ${josa(lv.name, '이', '가')} 작은 상자를 열었다. 반지 안쪽에 콜론(:)이 새겨져 있다.\n“네 0단계부터 함께하고 싶어.”`,
             choices: [
-                { label: '“응.”', sub: '결혼', run: S => { const ch = []; loveOf(S)[partner].stage = 3; S.married = partner; bump(S, 'stress', -25, ch); bump(S, 'hp', 15, ch); S.album.push(`${josa(lv.name, '과', '와')} 결혼`); const gone = settleOnMarriage(S, ch); return { text: '눈물이 났다. 반지는 꼭 맞았다.' + (gone.length ? `\n결혼 소식을 들은 ${gone.map(i => LOVERS[i].name).join(', ')}에게서 짧은 축하 메시지가 왔다. 마음 한쪽을 조용히 정리했다.` : ''), chips: ch }; } },
+                { label: '“응.”', sub: '결혼', run: S => { const ch = []; loveOf(S)[partner].stage = 3; S.married = partner; S.marriedAt = S.m; bump(S, 'stress', -25, ch); bump(S, 'hp', 15, ch); S.album.push(`${josa(lv.name, '과', '와')} 결혼`); const gone = settleOnMarriage(S, ch); return { text: '눈물이 났다. 반지는 꼭 맞았다.' + (gone.length ? `\n결혼 소식을 들은 ${gone.map(i => LOVERS[i].name).join(', ')}에게서 짧은 축하 메시지가 왔다. 마음 한쪽을 조용히 정리했다.` : ''), chips: ch }; } },
                 { label: '조금만 더 기다려 줘', sub: '회사가 먼저', run: S => { const ch = []; addAff(S, partner, -10, ch); grow(S, 'biz', 1, ch); return { text: '그는 반지를 다시 주머니에 넣었다. “평생 기다릴 수도 있어.”', chips: ch }; } },
             ] };
     }
@@ -2760,13 +2893,13 @@ const STORY2 = [
                 { label: '“넌 영원히 내 비서야.”', sub: '스트레스↓ 콜론 호감↑', run: S => { const ch = []; bump(S, 'stress', -15, ch); addAff(S, 'colon', 10, ch); return { text: '“…그 말, 계약서보다 좋네요.” 그가 계약서를 반으로 접었다.', chips: ch }; } },
             ] }) },
     // 선택의 기억(콜백)
-    { id: 'cb_intern', when: S => pickOf(S, 'intern') && pickOf(S, 'intern').k === 0 && S.m >= pickOf(S, 'intern').m + 30, make: S => ({ id: 'cb_intern', face: 'news', speaker: 'MEMORY', title: '그때 그 인턴이 팀장이 됐다', cg: 'intern_lead',
+    { id: 'cb_intern', when: S => hasStaff(S) && pickOf(S, 'intern') && pickOf(S, 'intern').k === 0 && S.m >= pickOf(S, 'intern').m + 30, make: S => ({ id: 'cb_intern', face: 'news', speaker: 'MEMORY', title: '그때 그 인턴이 팀장이 됐다', cg: 'intern_lead',
             text: () => '손글씨 자기소개서를 들고 왔던 인턴이, 오늘 투자자들 앞에서 직접 피칭을 했다. 질문 세례에도 흔들리지 않는다.\n“대표님이 그때 뽑아 주셔서 여기까지 왔어요.”',
             choices: [
                 { label: '“이제 네가 이 회사의 0단계야.”', sub: '리더십↑ 투자금 +1,000만', run: S => { const ch = []; grow(S, 'lead', 2, ch); bump(S, 'cash', 1000, ch); S.album.push('인턴이 팀장으로'); return { text: '후속 투자가 확정됐다. 회의실 화분의 이름표는 아직 그대로다.', chips: ch }; } },
                 { label: '박수만 크게 쳐 준다', sub: '스트레스↓', run: S => { const ch = []; bump(S, 'stress', -12, ch); return { text: '가장 큰 박수는 맨 뒷줄에서 나왔다. 그게 나였다.', chips: ch }; } },
             ] }) },
-    { id: 'cb_idea', when: S => pickOf(S, 'staff_idea') && pickOf(S, 'staff_idea').k === 0 && S.m >= pickOf(S, 'staff_idea').m + 10 && S.prods.length > 0, make: S => ({ id: 'cb_idea', face: 'news', speaker: 'MEMORY', title: '그때 그 아이디어가 터졌다', cg: 'staff_viral',
+    { id: 'cb_idea', when: S => hasStaff(S) && pickOf(S, 'staff_idea') && pickOf(S, 'staff_idea').k === 0 && S.m >= pickOf(S, 'staff_idea').m + 10 && S.prods.length > 0, make: S => ({ id: 'cb_idea', face: 'news', speaker: 'MEMORY', title: '그때 그 아이디어가 터졌다', cg: 'staff_viral',
             text: () => '예전에 팀원이 조심스럽게 내밀었던 기획. 그걸로 만든 라인이 입소문을 탔다.\n기획서 첫 장엔 아직도 “고객 리뷰 300개 분석”이라고 적혀 있다.',
             choices: [{ label: '공을 팀원에게 돌린다', sub: '인지도·팬덤·리더십↑', run: S => { const ch = []; bump(S, 'aware', 5, ch); bump(S, 'fan', 3, ch); grow(S, 'lead', 1.5, ch); return { text: '전체 회의에서 그 이름을 세 번 불렀다. 팀원의 귀가 빨개졌다.', chips: ch }; } }] }) },
     { id: 'cb_blackcon', when: S => pickOf(S, 'blackcon') && pickOf(S, 'blackcon').k === 1 && S.m >= pickOf(S, 'blackcon').m + 12, make: S => ({ id: 'cb_blackcon', face: 'news', speaker: 'MEMORY', title: '그 민원인이 돌아왔다', cg: 'scandal',
@@ -2799,7 +2932,10 @@ function fixedEvents(S) {
     if (mo === birthMonth(S) && S.m > 0) {
         const age = ageOf(S);
         const stageMsg = AGE_STAGES.some(st => st.from > 0 && st.from > S.m - 12 && st.from <= S.m) ? '\n거울 속 얼굴이 어딘가 달라졌다. 눈빛에 지난 시간이 담겨 있다.' : '';
-        out.push({ id: 'bday', face: 'ceo', speaker: 'BIRTHDAY', title: `${age}번째 생일`, text: () => `오늘은 ${age}번째 생일. 창업 ${Math.floor(S.m / 12) + 1}년차가 시작된다.${stageMsg}\n오늘 하루는 어떻게 보낼까?`, choices: BDAY_CHOICES });
+        const base = hasStaff(S) ? BDAY_CHOICES : [{ label: '친구들과 생일 파티', sub: '매력↑ 스트레스↓', run: S => { const ch = []; grow(S, 'charm', 1.5, ch); bump(S, 'stress', -12, ch); return { text: '대학 동기들이 원룸에 몰려와 케이크에 초를 꽂았다. “사장님 생일 축하합니다~”', chips: ch }; } }, ...BDAY_CHOICES.slice(1)];
+        const gifts = bdayGiftText(S);
+        out.push({ id: 'bday', face: 'ceo', speaker: 'BIRTHDAY', title: `${age}번째 생일`, text: () => `오늘은 ${age}번째 생일. 창업 ${Math.floor(S.m / 12) + 1}년차가 시작된다.${stageMsg}${gifts}\n오늘 하루는 어떻게 보낼까?`,
+            choices: base.map(c => (Object.assign(Object.assign({}, c), { run: S => { const r = c.run(S); applyBdayGifts(S, r.chips); return r; } }))) });
     }
     const st = STORY.find(x => x.m === S.m && !S.seen[x.id]);
     if (st)
@@ -3238,13 +3374,13 @@ function renderSchedule() {
     go.classList.toggle('ready', full);
     go.disabled = running;
     $('#acts-title').textContent = `${monthOf(S)}월 ${SLOT_NAMES[activeSlot]} · ${tab}`;
-    const cats = ['교육', '업무', '알바', '운동', '휴식', '연애'];
+    const cats = ['교육', '업무', '알바', '운동', '휴식', '연애', '쇼핑'];
     const avail = S.cash - planCost(activeSlot);
     el.innerHTML = `
     <h3><span>${monthOf(S)}월 스케줄</span><span>${running ? '진행 중' : '칸을 고르고 활동을 선택'}</span></h3>
     <div class="slots">${S.plan.map((id, i) => `<button class="slot ${id ? 'filled' : ''} ${!running && i === activeSlot ? 'active' : ''} ${running && i === S.runIdx ? 'running' : ''}" data-slot="${i}" ${running ? 'disabled' : ''}><small>${SLOT_NAMES[i]}</small><b>${slotLabel(id, i) || '비어 있음'}</b></button>`).join('')}</div>
     <div class="tabs" role="tablist">${cats.map(c => `<button class="tab" role="tab" aria-selected="${c === tab}" data-tab="${c}">${c}</button>`).join('')}</div>
-    <div class="acts">${Object.entries(ACTS).filter(([, a]) => a.cat === tab).map(([id, a]) => {
+    <div class="acts">${tab === '쇼핑' ? shopHTML(S) : Object.entries(ACTS).filter(([, a]) => a.cat === tab).map(([id, a]) => {
         var _a;
         const span = spanOf(id);
         const lock = (a.req ? a.req(S) : null) || (activeSlot + span > 3 ? (span === 3 ? '한 달 전체: 상순 칸에서 고르세요' : '2칸 필요: 상순·중순 칸에서 고르세요') : null);
@@ -4128,7 +4264,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.10.09-G';
+const BUILD_TAG = '2026.10.09-H';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
@@ -4659,6 +4795,16 @@ document.addEventListener('click', e => {
         }
         activeSlot = i;
         openSheet('acts');
+        return;
+    }
+    if (t.dataset.buy) {
+        const r = buyItem(S, t.dataset.buy);
+        if (r) {
+            sfx('select');
+            note({ text: r.text, chips: r.chips });
+            render();
+            save();
+        }
         return;
     }
     if (t.dataset.act) {
