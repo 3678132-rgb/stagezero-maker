@@ -583,7 +583,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-O</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-P</span>
       </div>
     </div>
   </section>
@@ -1246,6 +1246,48 @@ const REUNION = {
     ceo2: { ok: '백승우가 컵라면 두 개를 들고 한강에 나타났다. “국룰 기억하지?”\n김이 오르는 컵라면 너머로 그가 말했다. “경쟁도 사랑도 다시 해 보자. 이번엔 같은 편으로.”', ng: '“네 회사 잘되는 거 보면 좋더라. 그걸로 충분한 것 같아.”\n백승우가 빈 컵을 정리하고 먼저 일어났다.' },
     colon: { ok: '콜론이 수첩을 펼쳐 보였다. 헤어진 뒤에도 내 일정이 빼곡히 적혀 있었다.\n“습관이 안 고쳐지더라고요.” 안경을 벗은 서진이 웃었다.\n“…다시, 대표님 일정 관리해도 될까요?”', ng: '“대표님 일정에 제가 없는 게, 대표님한테 더 좋은 일정이에요.”\n콜론이 안경을 고쳐 쓰고 고개를 숙였다.' },
 };
+const NO_CONTACT = {
+    playboy: '“나 원래 뒤 안 돌아보는 사람이야. 이번이 처음이자 마지막이었어. 이제 연락하지 마.”',
+    intern: '“대표님… 저 이번엔 진짜 놓을게요. 제발, 이제 연락하지 마세요.”',
+    vc: '“같은 실수에 두 번 투자하지 않아. 번호 지울게. 너도 지워.”',
+    star: '“다음에 TV에서 나 보면 그냥 채널 돌려요. 이제 연락하지 마요.”',
+    ceo2: '“우리 둘 다 바쁘잖아. 서로 시간 낭비하지 말자. 이제 연락하지 마.”',
+    colon: '“대표님 연락처, 오늘부로 제 일정표에서 지울게요. …연락하지 마세요.”',
+};
+function blockLover(S, id) { const v = loveOf(S)[id]; if (!v)
+    return; v.stage = -9; v.blocked = true; v.gone = true; v.recall = false; v.recallUsed = true; v.secret = false; v.probe = null; v.aff = 0; v.endedAt = S.m; if (S.dateWith === id)
+    S.dateWith = null; S.album.push(`${josa(LOVERS[id].name, '과', '와')} 완전히 끝`); }
+// 다시 만났어도, 몇 달 안에 애정도·매력이 모자라면 상대가 먼저 끝을 말한다
+function probeEvent(S) {
+    const L = S.love || {};
+    const id = Object.keys(L).find(i => LOVERS[i] && L[i].probe != null && L[i].stage === -1 && S.m - L[i].probe >= 1);
+    if (!id)
+        return null;
+    const v = L[id], lv = LOVERS[id];
+    const keep = clamp(0.15 + v.aff / 110 + (S.st.charm || 0) / 220, 0.1, 0.95);
+    if (R() < keep) {
+        if (S.m - v.probe >= 3)
+            v.probe = null;
+        return null;
+    }
+    return { id: 'probe_' + id + '_' + S.m, cg: 'breakup', face: 'ceo', speaker: 'HEARTBREAK', title: `${lv.name}의 마지막 메시지`, place: 'rain', cast: { ask: 'lv_' + id },
+        text: () => `다시 만난 지 ${S.m - v.probe}달. ${josa(lv.name, '이', '가')} 보낸 긴 메시지가 와 있었다.\n“다시 만나 보니까 알겠더라. 우린 예전이랑 똑같아.”\n${NO_CONTACT[id] || '“이제 연락하지 마.”'}`,
+        choices: [
+            { label: '전화를 걸어 붙잡는다', sub: '매력 70 이상 · 애정도 60 이상이면 희박한 기회', run: S => {
+                    const ch = [];
+                    if ((S.st.charm || 0) >= 70 && v.aff >= 60 && R() < 0.4) {
+                        v.probe = null;
+                        addAff(S, id, -10, ch);
+                        bump(S, 'stress', 10, ch);
+                        return { text: `신호가 한참 가다 ${josa(lv.name, '이', '가')} 받았다. 긴 침묵 끝에 한숨 섞인 목소리. “…한 번만 더야. 진짜 마지막.”`, chips: ch };
+                    }
+                    blockLover(S, id);
+                    bump(S, 'stress', 15, ch);
+                    return { text: '“지금 거신 번호는 수신이 차단된…” 안내 음성만 들렸다.\n(완전히 끝났어요. 다시 연락할 수 없어요.)', chips: ch };
+                } },
+            { label: '“…알겠어. 잘 지내.”', sub: '완전히 끝 · 스트레스↑', run: S => { const ch = []; blockLover(S, id); bump(S, 'stress', 10, ch); grow(S, 'lead', 0.5, ch); return { text: '답장 대신 대화방을 나왔다. 이번엔 정말 끝이다.', chips: ch }; } },
+        ], leave: true };
+}
 function recallLover(S, id) {
     const L = loveOf(S), v = L[id], lv = LOVERS[id], ch = [];
     v.recallM = S.m;
@@ -1266,6 +1308,7 @@ function reunionDate(S, id, ch, out) {
     out.place = lv.place || 'cafe';
     const R_ = REUNION[id] || { ok: '다시 만났다.', ng: '역시 우린 아니었다.' };
     if (R() < reunionChance(S, id)) {
+        v.probe = S.m;
         v.stage = -1;
         v.aff = Math.max(v.aff + 10, 45);
         v.closed = false;
@@ -1284,11 +1327,9 @@ function reunionDate(S, id, ch, out) {
         S.album.push(`${josa(lv.name, '과', '와')} 재회`);
         return `💞 재회\n${R_.ok}${v.secret ? '\n(지금 만나는 사람이 있어서 몰래 만나는 사이가 됐어요. 들키면 큰일나요.)' : ''}`;
     }
-    addAff(S, id, 2, ch);
-    bump(S, 'stress', 5, ch);
-    if (S.dateWith === id)
-        S.dateWith = null;
-    return `🥀 재회 실패\n${R_.ng}`;
+    bump(S, 'stress', 10, ch);
+    blockLover(S, id);
+    return `🥀 재회 실패\n${R_.ng}\n…헤어지기 전, 마지막으로 한마디를 덧붙였다.\n${NO_CONTACT[id] || '“이제 연락하지 마.”'}\n(${lv.name}과는 완전히 끝났어요. 다시 연락할 수 없어요.)`;
 }
 // ==== 연애 규칙 (정리판) ====
 // 단계: 모름 → 썸(-1) → 연인(1) → 약혼(2) → 배우자(3) · 이별(-9, 재연락 1회) · 떠남(gone) · 한서린의 연인(taken: 윤재현만)
@@ -2687,7 +2728,7 @@ function loveEvent(S) {
     }
     // 재회: 헤어지고 1년(떠나간 사람은 1년 반)이 지나면, 연인이 없을 때 우연히 다시 만난다
     if (!partner) {
-        const ex = Object.keys(L).find(i => LOVERS[i] && L[i].stage === -9 && !S.seen['reunion_' + i] && S.m - (L[i].endedAt != null ? L[i].endedAt : S.m - 12) >= (L[i].gone ? 18 : 12));
+        const ex = Object.keys(L).find(i => LOVERS[i] && L[i].stage === -9 && !L[i].blocked && !S.seen['reunion_' + i] && S.m - (L[i].endedAt != null ? L[i].endedAt : S.m - 12) >= (L[i].gone ? 18 : 12));
         if (ex && R() < 0.3) {
             const lv = LOVERS[ex], v = L[ex];
             const how = { playboy: '청담 골목, 문 닫은 줄 알았던 그 바에서 익숙한 음악이 흘러나왔다. DJ 부스의 도윤이 헤드폰을 벗었다.',
@@ -2709,6 +2750,7 @@ function loveEvent(S) {
                                 v.gone = false;
                                 v.taken = false;
                                 v.reunited = (v.reunited || 0) + 1;
+                                v.probe = S.m;
                                 S.dateWith = ex;
                                 bump(S, 'stress', -12, ch);
                                 S.album.push(`${josa(lv.name, '과', '와')} 재회`);
@@ -2716,6 +2758,10 @@ function loveEvent(S) {
                                 return { text: `${josa(lv.name, '이', '가')} 한참 웃다가 말했다. “사실 나도 그 말 기다렸어.”\n이번에는 천천히 가기로 했다. 호감도 60이 되면 다시 고백할 기회가 와요.`, chips: ch };
                             }
                             bump(S, 'stress', 8, ch);
+                            if ((v.aff || 0) < 25 && (S.st.charm || 0) < 45) {
+                                blockLover(S, ex);
+                                return { text: `${josa(lv.name, '이', '가')} 차갑게 말했다.\n${NO_CONTACT[ex] || '“이제 연락하지 마.”'}\n(${lv.name}과는 완전히 끝났어요.)`, chips: ch };
+                            }
                             return { text: `${josa(lv.name, '은', '는')} 미안한 얼굴로 고개를 저었다. “좋은 사람 만났으면 좋겠어. 진심이야.”`, chips: ch };
                         } },
                     { label: '좋은 추억으로 남긴다', sub: '마음 정리 · 리더십↑ 스트레스↓', run: S => { const ch = []; grow(S, 'lead', 1.5, ch); bump(S, 'stress', -10, ch); return { text: '“잘 지내.” 이번엔 웃으면서 말할 수 있었다.', chips: ch }; } },
@@ -2853,6 +2899,7 @@ function triChoose(S, w, l) {
     if (L[w].stage === -1) {
         L[w].stage = 1;
         L[w].since = S.m;
+        L[w].probe = null;
         S.album.push(`${josa(LOVERS[w].name, '과', '와')} 연애 시작`);
     }
     S.dateWith = w;
@@ -3282,6 +3329,11 @@ function fixedEvents(S) {
     const tr = teamResultEvent(S);
     if (tr && out.length < 3)
         out.push(tr);
+    {
+        const pe = probeEvent(S);
+        if (pe && out.length < 3)
+            out.push(pe);
+    }
     if (!out.some(e => e.id.startsWith('confront_'))) {
         const cf = confrontEvent(S);
         if (cf)
@@ -4602,7 +4654,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.10.09-O';
+const BUILD_TAG = '2026.10.09-P';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
@@ -5006,13 +5058,13 @@ function renderLove() {
     $('#love').innerHTML = `${loveSummaryHTML(S)}${S.heartbreak > 0 ? `<p class="sheet-sub" style="color:#c93a66">💔 실연 중 (${S.heartbreak}개월 남음)</p>` : ''}<p class="sheet-sub">데이트 상대를 고르면 연애 탭 「데이트」에서 그 사람과 만나요. 호감도 60이면 고백, 90이면 프러포즈. 공식 관계는 한 명뿐이고, 몰래 만나면 의심도가 쌓여요.</p><div class="lv-list">${Object.entries(LOVERS).sort((x, y) => ((L[y[0]] ? 1 : 0) - (L[x[0]] ? 1 : 0)) || ((L[y[0]] || {}).aff || 0) - ((L[x[0]] || {}).aff || 0)).map(([id, lv]) => {
         const v = L[id];
         const known = !!v;
-        const st = !known ? '아직 모르는 사이' : v.stage === -8 ? '한서린의 약혼자' : v.stage === -9 ? (v.divorced ? '이혼' : v.gone ? '떠나간 사람' : v.closed ? '정리한 사이' : '헤어짐') : v.taken ? '한서린의 연인 · 몰래' : v.secret ? '몰래 만나는 사이' : v.stage === -1 ? '썸' : LOVE_STAGE[v.stage];
+        const st = !known ? '아직 모르는 사이' : v.stage === -8 ? '한서린의 약혼자' : v.stage === -9 ? (v.blocked ? '완전히 끝' : v.divorced ? '이혼' : v.gone ? '떠나간 사람' : v.closed ? '정리한 사이' : '헤어짐') : v.taken ? '한서린의 연인 · 몰래' : v.secret ? '몰래 만나는 사이' : v.stage === -1 ? '썸' : LOVE_STAGE[v.stage];
         const kind = !known ? 'none' : (v.stage === -9 || v.stage === -8) ? 'ended' : (v.taken || v.secret) ? 'secret' : v.stage >= 1 ? 'official' : 'sseom';
         return `<div class="lv ${known ? '' : 'unknown'} ${tgt === id && known && (v.stage !== -9 || v.recall) ? 'on' : ''}">
       <div class="ph"><img src="art/spr_lv_${id}.png" alt="${known ? esc(lv.name) : '아직 만나지 않은 사람'}"></div>
       <div style="min-width:0"><b>${known ? `${lv.name} · ${lv.age}세` : '??? '}</b> <span class="st st-${kind}">${st}</span>
         <div class="job">${known ? esc(lv.job) : '만나는 법: ' + esc(lv.meet)}</div>
-        ${known ? `<div class="per">${esc(lv.persona)}</div><div class="meta2"><span>좋아하는 능력: ${STAT[lv.likes]}</span><span>호감도 ${Math.round(v.aff)} · ${DATE_TIER_NAMES[dateTier(v.aff)].split(' · ')[0]}</span><span>다음 데이트: ${DATE_TIER_NAMES[dateTier(v.aff)].split(' · ')[1]}</span>${v.taken ? '<span style="color:#c93a66">75가 되면 뺏을 기회가 와요</span>' : ''}</div><div class="heartbar"><i style="width:${v.aff}%"></i></div>${v.stage === -9 ? (v.recall ? `<button class="pick" data-datewith="${id}">${tgt === id ? '♥ 재회 데이트 약속됨' : '재회 데이트 상대로'}</button>` : v.recallUsed ? '<button class="pick" disabled>이미 한 번 연락했어요 · 더는 연락할 수 없어요</button>' : `<button class="pick recall" data-recall="${id}">📱 연락해서 데이트 신청 · 답장 ${Math.round(recallChance(S, id) * 100)}%</button>`) : ''}${v.stage !== -9 && v.stage !== -8 ? `<button class="pick" data-datewith="${id}">${tgt === id ? (v.taken ? '♥ 몰래 데이트 중' : '♥ 데이트 상대') : (v.taken ? '몰래 데이트 상대로' : '데이트 상대로')}</button>` : ''}` : ''}
+        ${known ? `<div class="per">${esc(lv.persona)}</div><div class="meta2"><span>좋아하는 능력: ${STAT[lv.likes]}</span><span>호감도 ${Math.round(v.aff)} · ${DATE_TIER_NAMES[dateTier(v.aff)].split(' · ')[0]}</span><span>다음 데이트: ${DATE_TIER_NAMES[dateTier(v.aff)].split(' · ')[1]}</span>${v.taken ? '<span style="color:#c93a66">75가 되면 뺏을 기회가 와요</span>' : ''}</div><div class="heartbar"><i style="width:${v.aff}%"></i></div>${v.stage === -9 && v.blocked ? '<button class="pick" disabled>“이제 연락하지 마.” · 연락할 수 없어요</button>' : v.stage === -9 ? (v.recall ? `<button class="pick" data-datewith="${id}">${tgt === id ? '♥ 재회 데이트 약속됨' : '재회 데이트 상대로'}</button>` : v.recallUsed ? '<button class="pick" disabled>이미 한 번 연락했어요 · 더는 연락할 수 없어요</button>' : `<button class="pick recall" data-recall="${id}">📱 연락해서 데이트 신청 · 답장 ${Math.round(recallChance(S, id) * 100)}%</button>`) : ''}${v.stage !== -9 && v.stage !== -8 ? `<button class="pick" data-datewith="${id}">${tgt === id ? (v.taken ? '♥ 몰래 데이트 중' : '♥ 데이트 상대') : (v.taken ? '몰래 데이트 상대로' : '데이트 상대로')}</button>` : ''}` : ''}
       </div></div>`;
     }).join('')}</div>`;
 }
