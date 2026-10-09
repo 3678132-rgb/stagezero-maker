@@ -578,7 +578,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-M</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-N</span>
       </div>
     </div>
   </section>
@@ -2218,6 +2218,67 @@ function bdayBeats(S) {
         return { actor: 'lv_' + i, speaker: LOVERS[i].name, text: `${(BDAY_VISIT[i] || {})[t] || `${LOVERS[i].name}이 찾아왔다. “생일 축하해.”`}${S.love[i].taken ? '\n(한서린 몰래 왔다고 했다.)' : ''}\n${ic} ${giftOf(S, i)}` };
     });
 }
+// 생일에 몰래 만나는 사람이 찾아오면 들킬 수 있다
+function bdaySecret(S) {
+    const L = S.love || {}, g = bdayGivers(S);
+    const main = S.married || g.find(i => L[i].stage >= 1 && !L[i].taken) || null;
+    const sec = g.find(i => i !== main && (L[i].taken || (main && L[i].stage === -1) || (S.married && i !== S.married)));
+    return sec ? { main, sec } : null;
+}
+function bdayCaughtEvent(S) {
+    const x = bdaySecret(S);
+    if (!x || R() > 0.75)
+        return null;
+    const L = loveOf(S), sv = LOVERS[x.sec];
+    if (x.main) {
+        const mv = LOVERS[x.main], wife = S.married === x.main;
+        return { id: 'bday_caught_' + S.m, cg: 'triangle', face: 'ceo', speaker: 'BIRTHDAY', title: '생일 케이크 앞의 두 사람', place: 'home', cast: { ask: 'lv_' + x.main },
+            beats: [{ actor: 'lv_' + x.sec, speaker: sv.name, text: `초인종이 다시 울렸다. 문 앞에 선 ${josa(sv.name, '이', '가')} 꽃다발을 든 채 굳었다.\n거실 소파에는 ${josa(mv.name, '이', '가')} 케이크를 자르고 있었다.` },
+                { actor: 'lv_' + x.main, speaker: mv.name, text: `${josa(mv.name, '이', '가')} 칼을 내려놓았다.\n“…${sv.name} 씨가 왜 ${wife ? '우리 집' : '네 생일'}에 꽃을 들고 와? 설명해 봐.”` }],
+            text: () => `꺼지지 않은 초가 흔들린다. 두 사람의 시선이 동시에 나에게 꽂혔다.`,
+            choices: [
+                { label: `${josa(sv.name, '을', '를')} 돌려보낸다`, sub: `${mv.name} 호감 하락 · ${sv.name}과는 끝`, run: S => { const ch = []; const v = loveOf(S)[x.sec]; if (v.taken) {
+                        addAff(S, x.sec, -20, ch);
+                    }
+                    else {
+                        v.stage = -9;
+                        v.closed = true;
+                        v.endedAt = S.m;
+                        v.recallUsed = false;
+                        v.aff = Math.min(v.aff, 15);
+                        if (S.affair === x.sec)
+                            S.affair = null;
+                        if (S.dateWith === x.sec)
+                            S.dateWith = null;
+                    } addAff(S, x.main, wife ? -12 : -10, ch); bump(S, 'stress', 10, ch); return { text: `${josa(sv.name, '이', '가')} 꽃다발을 문 앞에 내려놓고 돌아섰다. ${josa(mv.name, '은', '는')} 그날 밤 케이크에 손도 대지 않았다.`, chips: ch }; } },
+                { label: `${sv.name}의 손을 잡는다`, sub: `${wife ? '이혼' : '이별'} · ${sv.name}과 연애 시작`, run: S => { const ch = []; breakUp(S, x.main, ch, false); const v = loveOf(S)[x.sec]; v.taken = false; v.tempt = false; v.stage = 1; v.since = S.m; S.affair = null; S.dateWith = x.sec; S.heartbreak = 0; addAff(S, x.sec, 10, ch); return { text: `${josa(mv.name, '이', '가')} 말없이 코트를 집어 들었다. 문이 닫히고, ${josa(sv.name, '이', '가')} 꺼진 초에 다시 불을 붙였다.`, chips: ch }; } },
+                { label: '“둘 다 미안해.” 진심으로 사과한다', sub: '매력 60 이상이면 겨우 수습', run: S => { const ch = []; if ((S.st.charm || 0) >= 60) {
+                        addAff(S, x.main, -8, ch);
+                        addAff(S, x.sec, -8, ch);
+                        bump(S, 'stress', 8, ch);
+                        return { text: '긴 침묵 끝에 두 사람 다 자리를 떴다. 그래도… 문을 쾅 닫지는 않았다.', chips: ch };
+                    } addAff(S, x.main, -20, ch); addAff(S, x.sec, -15, ch); bump(S, 'stress', 16, ch); return { text: '사과는 아무것도 막지 못했다. 생일 케이크 위로 촛농만 뚝뚝 떨어졌다.', chips: ch }; } },
+            ] };
+    }
+    // 애인은 없고, 한서린의 남자친구가 몰래 찾아왔다
+    return { id: 'bday_caught_' + S.m, face: 'ceo', speaker: 'RIVAL', title: '생일에 찾아온 한서린', place: 'home', cast: { ask: 'rival_angry' },
+        beats: [{ actor: 'lv_' + x.sec, speaker: sv.name, text: `${josa(sv.name, '이', '가')} 선물을 건네는 순간, 휴대폰이 울렸다. 발신자: 한서린.` }],
+        text: () => `“재현 씨 지금 거기 있지? 위치 공유 켜져 있는 거 몰랐나 봐.”\n10분 뒤, 한서린이 현관 앞에 서 있었다.`,
+        choices: [
+            { label: '“그냥 생일 축하하러 온 거예요.”', sub: `라이벌 관계 악화 · ${sv.name} 호감 하락`, run: S => { const ch = []; S.rival = (S.rival || 0) + 1; addAff(S, x.sec, -10, ch); bump(S, 'stress', 12, ch); return { text: `한서린이 ${sv.name}의 팔을 잡아끌었다. “다음 시상식에서 봐요, 대표님.”`, chips: ch }; } },
+            { label: `“${sv.name} 씨 마음은 본인이 정하는 거예요.”`, sub: '매력 55 이상이면 그가 나를 고른다', run: S => { const ch = []; S.rival = (S.rival || 0) + 2; if ((S.st.charm || 0) >= 55) {
+                    const v = loveOf(S)[x.sec];
+                    v.taken = false;
+                    v.stage = 1;
+                    v.since = S.m;
+                    S.dateWith = x.sec;
+                    addAff(S, x.sec, 10, ch);
+                    bump(S, 'stress', 8, ch);
+                    S.album.push(`생일에 ${josa(sv.name, '과', '와')} 연애 시작`);
+                    return { text: `${josa(sv.name, '이', '가')} 한서린의 손을 조용히 놓았다. “미안, 서린아. 나 여기 있을게.”`, chips: ch };
+                } addAff(S, x.sec, -15, ch); bump(S, 'stress', 16, ch); return { text: `${josa(sv.name, '이', '가')} 고개를 숙이고 한서린을 따라 나갔다. 생일 케이크만 남았다.`, chips: ch }; } },
+        ] };
+}
 function applyBdayGifts(S, ch) { const g = bdayGivers(S); for (const i of g) {
     const t = giftTier(S.love[i].aff);
     addAff(S, i, { lo: 2, mid: 4, hi: 6 }[t], ch);
@@ -3152,6 +3213,9 @@ function fixedEvents(S) {
         out.push({ id: 'bday', face: 'ceo', speaker: 'BIRTHDAY', title: `${age}번째 생일`, beats, text: () => `오늘은 ${age}번째 생일. 창업 ${Math.floor(S.m / 12) + 1}년차가 시작된다.${stageMsg}${nv ? `\n${nv >= 3 ? '찾아온 사람들의 선물로 책상 위가 가득 찼다.' : '받은 선물을 책상 위에 나란히 올려 두었다.'}` : ''}\n오늘 하루는 어떻게 보낼까?`,
             choices: base.map(c => (Object.assign(Object.assign({}, c), { run: S => { const r = c.run(S); const gl = bdayGivers(S).map(i => LOVERS[i].name); applyBdayGifts(S, r.chips); if (gl.length)
                     r.text += `\n🎁 ${gl.join('·')}의 선물을 하나씩 풀어 보며 하루 종일 웃었다.`; return r; } }))) });
+        const bc = bdayCaughtEvent(S);
+        if (bc)
+            out.push(bc);
     }
     const st = STORY.find(x => x.m === S.m && !S.seen[x.id]);
     if (st)
@@ -4483,7 +4547,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.10.09-M';
+const BUILD_TAG = '2026.10.09-N';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
