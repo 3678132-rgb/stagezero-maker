@@ -574,7 +574,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-F</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-G</span>
       </div>
     </div>
   </section>
@@ -1057,9 +1057,39 @@ const LOVE_STAGE = ['썸', '연애 중', '약혼', '결혼'];
 function josa(w, a, b) { const c = w.charCodeAt(w.length - 1); const has = c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 !== 0; return w + (has ? a : b); }
 function loveOf(S) { if (!S.love)
     S.love = {}; return S.love; }
+// 결혼하면 다른 썸·연인 관계는 조용히 정리된다 (라이벌의 남자친구는 그쪽 사람으로 돌아간다)
+function settleOnMarriage(S, ch) {
+    if (!S.married)
+        return [];
+    const L = loveOf(S), done = [];
+    for (const i of Object.keys(L)) {
+        if (i === S.married)
+            continue;
+        const v = L[i];
+        if (v.taken) {
+            v.taken = false;
+            v.stage = -8;
+            done.push(i);
+            continue;
+        }
+        if (v.stage === -1 || (v.stage >= 1 && v.stage < 3)) {
+            v.stage = -9;
+            v.endedAt = S.m;
+            v.closed = true;
+            v.aff = Math.min(v.aff, 15);
+            done.push(i);
+        }
+    }
+    if (S.dateWith && S.dateWith !== S.married)
+        S.dateWith = null;
+    S.stealMode = false;
+    if (done.length && ch)
+        push(ch, '정리한 인연', done.length);
+    return done;
+}
 function meetLover(S, id, ch) {
     const L = loveOf(S);
-    if (L[id])
+    if (L[id] || S.married)
         return null;
     L[id] = { aff: 10, stage: -1 };
     if (ch)
@@ -1451,6 +1481,19 @@ const EVENTS = [
         choices: [
             { label: '채택한다. 네가 리드해 봐', sub: '개발 진척↑ 리더십↑', run: S => { const ch = []; S.prog = clamp(S.prog + 18, 0, 100); push(ch, '개발 진척', 18); grow(S, 'lead', 1.5, ch); return { text: '팀원의 눈이 반짝였다. 그날 밤 사무실 불이 늦게까지 켜져 있었다.', chips: ch }; } },
             { label: '좋은데, 지금은 타이밍이 아니야', sub: '경영↑ 사기 약간↓', run: S => { const ch = []; grow(S, 'biz', 1, ch); bump(S, 'stress', 3, ch); return { text: '“알겠습니다.” 대답은 밝았지만 어깨가 조금 처져 보였다.', chips: ch }; } },
+        ] },
+    { id: 'team_pitch', once: false, w: 4, cd: 5, place: 'office', cast: { ask: 'team' }, cond: S => S.emp >= 1 && S.prods.length > 0 && !S.teamProj,
+        face: 'news', speaker: 'TEAM', title: '팀원의 프로젝트 제안',
+        text: S => {
+            const P = newTeamPitch(S);
+            S._pitch = P;
+            const K = TEAM_KIND[P.kind];
+            return `${P.role} ${josa(P.who, '이', '가')} 기획서를 들고 왔다.\n“대표님, ${P.idea}. 제가 ${K.verb} 리드해 보고 싶어요.”\n이번 프로젝트는 대표의 ${K.statNames}이 받쳐 줘야 성공해요.`;
+        },
+        choices: [
+            { label: '맡긴다. 네가 리드해 봐', sub: '예산 200~300만 · 2개월 뒤 결과 · 리더십↑', run: S => startTeamProj(S, false) },
+            { label: '내가 같이 붙어서 이끈다', sub: '체력 −8 · 스트레스 +6 · 성공 확률↑', run: S => startTeamProj(S, true) },
+            { label: '아이디어는 좋은데 지금은 보류', sub: '경영↑ 팀 사기 약간↓', run: S => { const ch = []; const P = S._pitch; delete S._pitch; grow(S, 'biz', 0.8, ch); bump(S, 'stress', 2, ch); return { text: `“알겠습니다. 다음 분기에 다시 들고 올게요.” ${P ? P.who : '팀원'}의 노트북이 조용히 닫혔다.`, chips: ch }; } },
         ] },
     { id: 'staff_conflict', once: false, w: 3, place: 'office', cast: { ask: 'team' }, cond: S => S.emp >= 3,
         face: 'news', speaker: 'TEAM', title: '팀원들 사이에 갈등이 생겼다',
@@ -2022,6 +2065,8 @@ function fixRivalLover(S) {
     if (!wrong || !RIVAL_LOVER_OK(S))
         return;
     L[wrong].taken = false;
+    if (S.married)
+        return;
     if (!L[RIVAL_LOVER])
         L[RIVAL_LOVER] = { aff: 15, stage: -1 };
     else if (L[RIVAL_LOVER].stage === -9) {
@@ -2036,7 +2081,7 @@ function loveEvent(S) {
     const L = loveOf(S);
     const partner = Object.keys(L).find(i => L[i].stage >= 1);
     // ---- 비서 콜론 루트 열기 ----
-    if (!L.colon && (S.m >= 18 || Object.keys(S.seen).some(k => k.startsWith('after_'))) && !S.seen['colon_open']) {
+    if (!L.colon && !S.married && (S.m >= 18 || Object.keys(S.seen).some(k => k.startsWith('after_'))) && !S.seen['colon_open']) {
         return { id: 'colon_open', face: 'ceo', speaker: 'OFFICE', title: '새벽 2시의 컵라면', place: 'office', cast: { ask: 'lv_colon' },
             text: () => '모두 퇴근한 사무실. 콜론이 컵라면 두 개를 들고 왔다.\n“대표님, 오늘 점심도 안 드셨죠. 스케줄에 다 적혀 있어요.” 안경 너머 눈이 유난히 다정했다.',
             choices: [
@@ -2056,11 +2101,16 @@ function loveEvent(S) {
             if (!known) {
                 L[pickId] = { aff: 15, stage: -1 };
             }
-            else if (L[pickId].stage === -9) {
+            else if (L[pickId].stage === -9 && !S.married) {
                 L[pickId].stage = -1;
                 L[pickId].gone = false;
             }
-            L[pickId].taken = true;
+            if (S.married) {
+                L[pickId].stage = -8;
+                L[pickId].taken = false;
+            }
+            else
+                L[pickId].taken = true;
             if (S.dateWith === pickId)
                 S.dateWith = null;
             return { id: 'rlover_reveal', face: 'ceo', speaker: 'RIVAL', title: '한서린의 새 남자친구', place: 'rooftop', cast: { ask: 'rival_smug' },
@@ -2266,7 +2316,7 @@ function loveEvent(S) {
         return { id: 'prop_' + partner, face: 'ceo', speaker: 'LOVE', title: `${lv.name}의 프러포즈`, place: 'rooftop', cast: { ask: 'lv_' + partner },
             text: () => partner === 'colon' ? `콜론이 다이어리를 펼쳤다. 10년 치 일정표 맨 마지막 칸에 적혀 있었다.\n「대표님께 청혼하기」\n반지 안쪽에는 콜론(:)이 새겨져 있다. “제 남은 일정, 전부 대표님 거예요.”` : `야경 앞에서 ${josa(lv.name, '이', '가')} 작은 상자를 열었다. 반지 안쪽에 콜론(:)이 새겨져 있다.\n“네 0단계부터 함께하고 싶어.”`,
             choices: [
-                { label: '“응.”', sub: '결혼', run: S => { const ch = []; loveOf(S)[partner].stage = 3; S.married = partner; bump(S, 'stress', -25, ch); bump(S, 'hp', 15, ch); S.album.push(`${josa(lv.name, '과', '와')} 결혼`); return { text: '눈물이 났다. 반지는 꼭 맞았다.', chips: ch }; } },
+                { label: '“응.”', sub: '결혼', run: S => { const ch = []; loveOf(S)[partner].stage = 3; S.married = partner; bump(S, 'stress', -25, ch); bump(S, 'hp', 15, ch); S.album.push(`${josa(lv.name, '과', '와')} 결혼`); const gone = settleOnMarriage(S, ch); return { text: '눈물이 났다. 반지는 꼭 맞았다.' + (gone.length ? `\n결혼 소식을 들은 ${gone.map(i => LOVERS[i].name).join(', ')}에게서 짧은 축하 메시지가 왔다. 마음 한쪽을 조용히 정리했다.` : ''), chips: ch }; } },
                 { label: '조금만 더 기다려 줘', sub: '회사가 먼저', run: S => { const ch = []; addAff(S, partner, -10, ch); grow(S, 'biz', 1, ch); return { text: '그는 반지를 다시 주머니에 넣었다. “평생 기다릴 수도 있어.”', chips: ch }; } },
             ] };
     }
@@ -2412,6 +2462,97 @@ function tripEvent(S) {
             { label: '같이 떠난다', sub: '자금 -300만 · 체력·스트레스 크게 회복 · 호감↑', run: S => { const ch = []; bump(S, 'cash', -300, ch); bump(S, 'hp', 25, ch); bump(S, 'stress', -35, ch); addAff(S, id, 8, ch); S.album.push(`${josa(lv.name, '과', '와')} ${season === 'summer' ? '여름 바다' : '겨울 산장'} 여행`); return { text: pick(lines), chips: ch }; } },
             { label: '이번엔 일이 너무 많아', sub: '경영↑ 호감↓', run: S => { const ch = []; grow(S, 'biz', 1.2, ch); addAff(S, id, -7, ch); bump(S, 'stress', 4, ch); return { text: `${lv.name}의 답장이 한참 늦게 왔다. “…응, 알겠어. 일 잘 마무리해.”`, chips: ch }; } },
         ] };
+}
+// 팀원 리드 프로젝트: 제안 → 2개월 진행 → 대표 능력치로 성공/실패
+const TEAM_NAMES = ['민지', '서윤', '도현', '하린', '지호', '유진', '태오', '수아', '건우', '예린'];
+const TEAM_KIND = {
+    dev: { label: '제품 개발', verb: '개발을', cost: 300, roles: ['lab', 'design', 'scm'], statNames: '연구 능력과 리더십', score: (S, co) => S.st.rnd * (co ? 0.6 : 0.5) + S.st.lead * 0.3 + S.st.aes * (co ? 0.2 : 0.1),
+        ideas: ['장벽 크림을 스틱으로 바꾼 “바르는 밴드” 라인을 만들면 어떨까요', '민감 피부용 저자극 선세럼을 리뉴얼해 보면 어떨까요', '남성 고객용 올인원 리페어 젤을 내 보면 어떨까요', '리필 파우치로 바꿔 쓰는 지속가능 라인을 만들면 어떨까요'] },
+    mkt: { label: '마케팅 캠페인', verb: '캠페인을', cost: 200, roles: ['growth', 'design', 'md'], statNames: '마케팅·감각과 리더십', score: (S, co) => S.st.mkt * (co ? 0.5 : 0.4) + S.st.aes * 0.2 + S.st.lead * 0.3 + (S.st.charm || 0) * (co ? 0.1 : 0),
+        ideas: ['“긁힌 유리 챌린지” 숏폼 캠페인을 해 보면 어떨까요', '성수동에 일주일짜리 유리 팝업을 열면 어떨까요', '피부과 전문의 라이브 Q&A 시리즈를 하면 어떨까요', '고객 비포·애프터 리뷰로 다큐 광고를 만들면 어떨까요'] },
+};
+function newTeamPitch(S) {
+    const kind = R() < 0.5 ? 'dev' : 'mkt';
+    const K = TEAM_KIND[kind];
+    const r = anyStaff(S, K.roles);
+    return { kind, role: r.name, roleId: r.id, who: pick(TEAM_NAMES), idea: pick(K.ideas) };
+}
+function teamChance(S, P) {
+    const K = TEAM_KIND[P.kind];
+    const st = staffOf(S);
+    const crew = Math.min(3, (st[P.roleId] || 0));
+    return clamp(0.12 + K.score(S, P.co) / 95 + crew * 0.03 + (P.co ? 0.08 : 0), 0.08, 0.92);
+}
+function startTeamProj(S, co) {
+    const ch = [];
+    const P = S._pitch || newTeamPitch(S);
+    delete S._pitch;
+    const K = TEAM_KIND[P.kind];
+    bump(S, 'cash', -K.cost, ch);
+    grow(S, 'lead', co ? 0.8 : 1.4, ch);
+    if (co) {
+        bump(S, 'hp', -8, ch);
+        bump(S, 'stress', 6, ch);
+    }
+    S.teamProj = Object.assign(Object.assign({}, P), { co, due: S.m + 2, start: S.m });
+    return { text: co ? `“좋아, 나도 같이 할게.” ${P.who}와 매일 아침 15분 스탠드업을 잡았다. 결과는 두 달 뒤.` : `“네가 리드해. 막히면 언제든 말하고.” ${P.who}의 눈이 반짝였다. 결과는 두 달 뒤.`, chips: ch };
+}
+function teamResultEvent(S) {
+    const P = S.teamProj;
+    if (!P || S.m < P.due)
+        return null;
+    const K = TEAM_KIND[P.kind];
+    const p = teamChance(S, P);
+    const ok = R() < p;
+    const pct = Math.round(p * 100);
+    const why = P.kind === 'dev'
+        ? (ok ? `대표의 연구 능력(${Math.round(S.st.rnd)})이 처방의 빈틈을 잡아 줬다.` : `대표의 연구 능력(${Math.round(S.st.rnd)})으로는 안정화 문제를 끝내 풀지 못했다.`)
+        : (ok ? `대표의 마케팅 감각(${Math.round(S.st.mkt)})이 메시지를 날카롭게 다듬어 줬다.` : `대표의 마케팅 감각(${Math.round(S.st.mkt)})이 아직 메시지를 붙잡지 못했다.`);
+    const close = () => { delete S.teamProj; S.teamWins = (S.teamWins || 0) + (ok ? 1 : 0); S.teamFails = (S.teamFails || 0) + (ok ? 0 : 1); };
+    const apply = (S, ch) => {
+        if (ok) {
+            if (P.kind === 'dev') {
+                const L = launch(S);
+                if (L.renew) {
+                    push(ch, `${L.name} 품질`, L.dq);
+                    return `리뉴얼 성공! 「${L.name}」 품질이 ${Math.round(L.q)}점이 됐다.`;
+                }
+                const pr = S.prods[S.prods.length - 1];
+                const b = Math.min(8, 100 - pr.q);
+                pr.q += b;
+                push(ch, '신제품 품질', pr.q);
+                push(ch, '생산비', -L.cost, true);
+                S.album.push(`${P.who} 리드 「${L.name}」 출시`);
+                return `신제품 「${L.name}」 출시! 품질 ${Math.round(pr.q)}점.`;
+            }
+            const rev = Math.round(400 + avgRev(S) * 0.4);
+            bump(S, 'cash', rev, ch);
+            bump(S, 'aware', 6, ch);
+            bump(S, 'fan', 5, ch);
+            S.album.push(`${P.who}의 캠페인 대성공`);
+            return `캠페인이 터졌다. 팔로워가 하루 만에 두 배가 됐다.`;
+        }
+        if (P.kind === 'dev') {
+            bump(S, 'stress', 6, ch);
+            S.prog = clamp((S.prog || 0) + 10, 0, 100);
+            push(ch, '개발 진척', 10);
+            return '시제품이 분리됐다. 출시는 무산. 그래도 실패 데이터가 다음 개발에 쌓였다.';
+        }
+        bump(S, 'stress', 6, ch);
+        bump(S, 'aware', -2, ch);
+        return '조회수는 바닥, 댓글은 “이게 뭐예요?”. 캠페인은 조용히 내려갔다.';
+    };
+    const choices = ok ? [
+        { label: `공을 ${P.who}에게 돌린다`, sub: '리더십↑ 스트레스↓', run: S => { const ch = []; const t = apply(S, ch); grow(S, 'lead', 1.5, ch); bump(S, 'stress', -5, ch); close(); return { text: `${t}\n전체 회의에서 ${P.who}의 이름을 크게 불렀다. 박수가 오래 이어졌다.`, chips: ch }; } },
+        { label: '성과급을 챙겨 준다', sub: '자금 −100 · 팀 사기↑ 경영↑', run: S => { const ch = []; const t = apply(S, ch); bump(S, 'cash', -100, ch); grow(S, 'biz', 1, ch); bump(S, 'stress', -3, ch); close(); return { text: `${t}\n봉투를 받은 ${josa(P.who, '이', '가')} 말했다. “다음 거 벌써 생각해 놨어요.”`, chips: ch }; } },
+    ] : [
+        { label: '같이 회고한다', sub: '리더십↑ 경영↑', run: S => { const ch = []; const t = apply(S, ch); grow(S, 'lead', 1.2, ch); grow(S, 'biz', 0.8, ch); close(); return { text: `${t}\n화이트보드에 “잘한 것 / 아쉬운 것”을 나란히 적었다. ${P.who}의 표정이 조금 풀렸다.`, chips: ch }; } },
+        { label: '내 판단이 틀렸다고 말한다', sub: '스트레스↓ 매력↑', run: S => { const ch = []; const t = apply(S, ch); bump(S, 'stress', -4, ch); grow(S, 'charm', 1, ch); close(); return { text: `${t}\n“리드는 네가 했지만, 승인은 내가 했어. 내 책임이야.” 팀 채널에 ♥가 하나씩 달렸다.`, chips: ch }; } },
+    ];
+    return { id: (ok ? 'team_ok_' : 'team_ng_') + S.m, cg: ok ? (P.kind === 'dev' ? 'lab' : 'staff_viral') : 'staff_mistake', face: 'news', speaker: 'TEAM', place: 'office', cast: { ask: 'team' },
+        title: `${P.who}의 ${K.label} 결과: ${ok ? '성공!' : '실패…'}`,
+        text: () => `${P.role} ${josa(P.who, '이', '가')} 두 달 동안 리드한 프로젝트.\n“${P.idea.replace(/(면 어떨까요|해 보면 어떨까요)$/, '')}…”\n${why} (성공 확률 ${pct}%${P.co ? ' · 대표 직접 참여' : ''})`,
+        choices };
 }
 // 정부지원사업: 공고 → 서류 지원 → 2개월 뒤 발표평가(선택) → 결과
 const GRANTS = {
@@ -2677,6 +2818,9 @@ function fixedEvents(S) {
     const ge = grantEvents(S);
     if (ge && out.length < 3)
         out.push(ge);
+    const tr = teamResultEvent(S);
+    if (tr && out.length < 3)
+        out.push(tr);
     return out;
 }
 function pickEvent(S) {
@@ -3984,7 +4128,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.10.09-F';
+const BUILD_TAG = '2026.10.09-G';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
@@ -4380,7 +4524,7 @@ function renderLove() {
     $('#love').innerHTML = `${S.heartbreak > 0 ? `<p class="sheet-sub" style="color:#c93a66">💔 실연 중 (${S.heartbreak}개월 남음)</p>` : ''}<p class="sheet-sub">데이트 상대를 고르면 연애 탭 「데이트」에서 그 사람과 만나요. 호감도 60이면 고백, 90이면 프러포즈 이벤트가 생겨요.</p><div class="lv-list">${Object.entries(LOVERS).sort((x, y) => ((L[y[0]] ? 1 : 0) - (L[x[0]] ? 1 : 0)) || ((L[y[0]] || {}).aff || 0) - ((L[x[0]] || {}).aff || 0)).map(([id, lv]) => {
         const v = L[id];
         const known = !!v;
-        const st = !known ? '아직 모르는 사이' : v.stage === -8 ? '한서린의 약혼자' : v.stage === -9 ? (v.divorced ? '이혼' : v.gone ? '떠나간 사람' : '헤어짐') : v.taken ? '한서린의 연인 · 몰래 데이트' : v.stage === -1 ? '썸' : LOVE_STAGE[v.stage];
+        const st = !known ? '아직 모르는 사이' : v.stage === -8 ? '한서린의 약혼자' : v.stage === -9 ? (v.divorced ? '이혼' : v.gone ? '떠나간 사람' : v.closed ? '결혼 후 정리' : '헤어짐') : v.taken ? '한서린의 연인 · 몰래 데이트' : v.stage === -1 ? '썸' : LOVE_STAGE[v.stage];
         return `<div class="lv ${known ? '' : 'unknown'} ${tgt === id && known && v.stage !== -9 ? 'on' : ''}">
       <div class="ph"><img src="art/spr_lv_${id}.png" alt="${known ? esc(lv.name) : '아직 만나지 않은 사람'}"></div>
       <div style="min-width:0"><b>${known ? `${lv.name} · ${lv.age}세` : '??? '}</b> <span class="st">${st}</span>
@@ -4567,6 +4711,8 @@ async function enterGame(isNew) {
         S.st.charm = 10;
     if (S)
         fixRivalLover(S);
+    if (S && S.married)
+        settleOnMarriage(S, null);
     show('scr-game');
     tab = '교육';
     activeSlot = S.plan.findIndex(x => !x);
