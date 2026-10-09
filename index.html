@@ -181,6 +181,8 @@ button:focus-visible{outline:2px solid var(--serum);outline-offset:2px}
 .tab{border:0;background:transparent;padding:6px 12px;font-weight:600;font-size:13px;color:var(--mute);border-bottom:2px solid transparent;margin-bottom:-1px}
 .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
 .acts{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.shop-wallet{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;font-size:13px;padding:8px 10px;border-radius:var(--r);background:#fff7e6;border:1px solid #f1d9a6}
+.shop-wallet b{font-size:15px}.shop-paid{color:var(--bad);font-weight:600;font-size:12.5px}
 .shop-note{grid-column:1/-1;font-size:12px;color:var(--mute);margin:4px 2px 0}
 .act{border:1px solid var(--line);background:var(--glass-solid);border-radius:var(--r);padding:9px 10px;text-align:left;display:grid;gap:3px;min-width:0}
 .act:hover:not(:disabled){border-color:var(--ink);background:#fff}
@@ -576,7 +578,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-H</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-I</span>
       </div>
     </div>
   </section>
@@ -703,20 +705,23 @@ const SHOP = [
     { id: 'tweed', name: '명품 트위드 재킷', icon: '🧥', age: 22, price: 600, st: { charm: 4, aes: 2 }, stress: 12, line: 'IR 미팅에서 심사역이 재킷 브랜드부터 물었다.' },
     { id: 'bag', name: '명품 가방', icon: '👜', age: 24, price: 900, st: { net: 3, charm: 3 }, stress: 12, line: '대표 모임에서 첫 마디가 “그 가방 어디 거예요?”였다.' },
     { id: 'watch', name: '클래식 명품 시계', icon: '⌚', age: 25, price: 1500, st: { lead: 3, biz: 2 }, stress: 10, line: '시간을 보는 게 아니라, 시간을 쓰는 사람이 된 기분.' },
+    { id: 'jewelry', name: '명품 하이 주얼리', icon: '💎', age: 26, price: 2500, st: { charm: 3, aes: 2, net: 2 }, stress: 14, line: '시상식 레드카펫에서 목걸이가 기사 사진의 주인공이 됐다.' },
     { id: 'car', name: '전기 SUV', icon: '🚗', age: 25, price: 7000, st: { net: 4, lead: 2 }, stress: 18, line: '출장 동선이 반으로 줄었다. 차 안이 제2의 회의실이 됐다.' },
     { id: 'officetel', name: '한강뷰 오피스텔', icon: '🏙️', age: 27, price: 35000, st: { lead: 3, biz: 3, aes: 2 }, stress: 22, line: '원룸을 떠나던 날, 첫 시제품 병을 창가에 올려 두었다.' },
     { id: 'penthouse', name: '성수동 펜트하우스', icon: '🏡', age: 29, price: 120000, st: { rnd: 2, aes: 2, mkt: 2, biz: 2, lead: 2, net: 2, charm: 2 }, stress: 30, line: '테라스에서 회사 간판이 보인다. 스무 살의 나에게 보여 주고 싶다.' },
 ];
 function shopHTML(S) {
     const own = S.owned || {}, age = ageOf(S);
-    return SHOP.map(it => {
-        const has = own[it.id] != null, lockAge = age < it.age, poor = !has && !lockAge && S.cash < it.price;
-        const eff = Object.entries(it.st).map(([k, v]) => `${STAT[k]}+${v}`).join(' ');
-        return `<button class="act shop" data-buy="${it.id}" ${has || lockAge || poor ? 'disabled' : ''}><b>${it.icon} ${it.name}</b><span class="d">${it.line}</span>
+    const next = SHOP.filter(it => it.age > age).sort((a, b) => a.age - b.age)[0];
+    return `<div class="shop-wallet">보유 자금 <b class="mono">${fmtMoney(S.cash)}원</b>${S.lastBuy ? ` <span class="shop-paid">방금 ${S.lastBuy.name} −${fmtMoney(S.lastBuy.price)}원</span>` : ''}</div>`
+        + SHOP.filter(it => age >= it.age).map(it => {
+            const has = own[it.id] != null, lockAge = false, poor = !has && S.cash < it.price;
+            const eff = Object.entries(it.st).map(([k, v]) => `${STAT[k]}+${v}`).join(' ');
+            return `<button class="act shop" data-buy="${it.id}" ${has || lockAge || poor ? 'disabled' : ''}><b>${it.icon} ${it.name}</b><span class="d">${it.line}</span>
       <span class="meta"><span class="c">${fmtMoney(it.price)}원</span><span>스트레스 −${it.stress}</span><span>${eff} (영구)</span></span>
       ${has ? '<span class="lock" style="background:#e8f7ec;color:#1e7a3c">보유 중</span>' : lockAge ? `<span class="lock">${it.age}살부터 살 수 있어요</span>` : poor ? '<span class="lock">자금 부족</span>' : ''}</button>`;
-    }).join('')
-        + '<p class="shop-note">쇼핑은 스케줄 칸을 쓰지 않아요. 바로 결제되고, 산 물건의 능력치는 영구히 남아요.</p>';
+        }).join('')
+        + `<p class="shop-note">${next ? `🔒 ${next.age}살이 되면 새 물건이 들어와요. ` : ''}쇼핑은 스케줄 칸을 쓰지 않아요. 바로 결제되고, 산 물건의 능력치는 영구히 남아요.</p>`;
 }
 function buyItem(S, id) {
     const it = SHOP.find(x => x.id === id);
@@ -735,6 +740,7 @@ function buyItem(S, id) {
     }
     own[id] = S.m;
     S.album.push(`${it.name} 구매`);
+    S.lastBuy = { name: it.name, price: it.price };
     return { text: `${it.icon} ${josa(it.name, '을', '를')} 샀다!\n${it.line}`, chips: ch };
 }
 const SLOT_NAMES = ['상순', '중순', '하순'];
@@ -896,8 +902,12 @@ const ACTS = {
             const R_ = ROUNDS[S.invest];
             if (S.aware < R_.aware)
                 return `“지표가 조금 더 쌓이면 다시 보시죠.” ${R_.name}은 인지도 ${R_.aware} 이상부터 진지하게 봐준다.`;
-            const chance = 0.12 + (S.st.biz + S.st.net) / 320 + S.aware / 400;
-            if (R() < chance) {
+            const rum = vcRumor(S);
+            const chance = Math.max(0.03, 0.12 + (S.st.biz + S.st.net) / 320 + S.aware / 400 - rum.pen);
+            const roll = R();
+            if (roll >= chance && rum.pen > 0)
+                return rum.line;
+            if (roll < chance) {
                 S.invest++;
                 bump(S, 'cash', R_.amt, ch);
                 bump(S, 'stress', 8, ch);
@@ -1101,6 +1111,98 @@ const LOVE_STAGE = ['썸', '연애 중', '약혼', '결혼'];
 function josa(w, a, b) { const c = w.charCodeAt(w.length - 1); const has = c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 !== 0; return w + (has ? a : b); }
 function loveOf(S) { if (!S.love)
     S.love = {}; return S.love; }
+// ---- 연애 평판: 지난달과 비교해 바뀐 관계가 있으면 기사·소문으로 돌아온다 ----
+const COMPANY_LOVERS = ['colon', 'intern'];
+function vcRumor(S) {
+    const r = S.vcRumor;
+    if (!r || S.m - r.m >= 12)
+        return { pen: 0, line: '' };
+    return r.kind === 'split' ? { pen: 0.12, line: '“윤재현 심사역이 손 뗀 회사라던데요?” 증권가 찌라시가 먼저 와 있었다. 미팅은 20분 만에 끝났다.' }
+        : { pen: 0.06, line: '“윤재현 심사역이랑 사귄다면서요. 특혜 아니에요?” 파트너가 노트북을 덮었다. 찌라시 때문에 다들 몸을 사린다.' };
+}
+function relSnap(S) { const L = S.love || {}; const o = {}; for (const i of Object.keys(L))
+    o[i] = L[i].stage; return o; }
+function relNewsEvent(S) {
+    const prev = S.relSnap;
+    const cur = relSnap(S);
+    S.relSnap = cur;
+    if (!prev)
+        return null;
+    const was = i => prev[i] != null && prev[i] >= 1, now = i => cur[i] != null && cur[i] >= 1;
+    const ended = Object.keys(prev).filter(i => was(i) && !now(i) && cur[i] === -9), started = Object.keys(cur).filter(i => now(i) && !was(i));
+    if (!ended.length && !started.length)
+        return null;
+    const news = [], fx = { fan: 0, aware: 0, lead: 0, stress: 0 };
+    let star = false;
+    for (const i of ended) {
+        const n = LOVERS[i].name, wife = prev[i] >= 3;
+        const cheat = started.some(j => j !== i);
+        if (cheat) {
+            fx.fan -= wife ? 8 : 6;
+            fx.aware += 3;
+            fx.stress += 6;
+            news.push(`📰 「환승 연애?」 ${n}${josa(n, '과', '와').slice(n.length)} ${wife ? '이혼 직후' : '결별 직후'} 새 연인과 포착됐다는 기사. 댓글창이 불탔다.`);
+        }
+        else if (wife) {
+            fx.fan -= 4;
+            fx.aware += 2;
+            fx.stress += 4;
+            news.push(`📰 「${S.brand} 대표 이혼」 기사가 포털 메인에 올랐다. “제품이랑 무슨 상관?”과 “실망” 댓글이 반반.`);
+        }
+        else {
+            fx.fan -= 1;
+            news.push(`💬 ${josa(n, '과', '와')} 헤어졌다는 소문이 업계에 조용히 돌았다.`);
+        }
+        if (COMPANY_LOVERS.includes(i)) {
+            fx.lead -= 2;
+            fx.stress += 3;
+            news.push(`🏢 사내에서 ${n} 얘기가 나오면 다들 말을 아낀다. 회의 분위기가 어색하다.`);
+        }
+        if (i === 'star') {
+            star = true;
+            fx.aware += 3;
+            fx.fan -= 2;
+            news.push(`🎤 「${n}, ${S.brand} 대표와 결별」 소속사 보도자료가 나왔다.`);
+        }
+        if (i === 'vc') {
+            S.vcRumor = { kind: 'split', m: S.m };
+            news.push(`📈 증권가 찌라시: “윤재현 심사역, ${S.brand} 대표와 결별… 후속 투자도 빠진다?” 앞으로 1년간 IR이 어려워져요.`);
+        }
+    }
+    for (const i of started) {
+        const n = LOVERS[i].name;
+        if (COMPANY_LOVERS.includes(i)) {
+            fx.lead -= 3;
+            news.push(`🏢 「대표님이 ${i === 'colon' ? '비서님' : '막내'}랑?」 사내 메신저가 조용히 술렁였다. 공과 사의 경계를 의심하는 눈빛.`);
+        }
+        if (i === 'star') {
+            star = true;
+            fx.aware += 6;
+            fx.fan += 2;
+            news.push(`🎤 소속사 보도자료: 「${n}, 뷰티 브랜드 ${S.brand} 대표와 열애 인정」. 실시간 검색어 1위.`);
+        }
+        if (i === 'vc') {
+            S.vcRumor = { kind: 'date', m: S.m };
+            news.push(`📈 증권가 찌라시: “${S.brand} 대표, 윤재현 심사역과 열애… 특혜 투자 의혹?” 다른 VC들이 몸을 사려요. (1년간 IR 성공률↓)`);
+        }
+    }
+    if (!news.length)
+        return null;
+    const apply = (S, mult, ch) => { if (fx.fan)
+        bump(S, 'fan', Math.round(fx.fan * (fx.fan < 0 ? mult : 1)), ch); if (fx.aware)
+        bump(S, 'aware', fx.aware, ch); if (fx.lead) {
+        const b = S.st.lead;
+        S.st.lead = clamp(b + fx.lead * (mult), 0, 100);
+        push(ch, STAT.lead, S.st.lead - b);
+    } if (fx.stress)
+        bump(S, 'stress', fx.stress, ch); };
+    return { id: 'relnews_' + S.m, face: 'news', speaker: star ? 'PRESS' : 'NEWS', title: star ? '연예 기사가 떴다' : '소문이 돌기 시작했다', place: 'street', cast: { ask: 'reporter' },
+        text: () => news.join('\n'),
+        choices: [
+            { label: '공식 입장을 낸다', sub: '매력 50 이상이면 피해 절반 · 아니면 역풍', run: S => { const ch = []; const good = (S.st.charm || 0) >= 50; apply(S, good ? 0.5 : 1.3, ch); bump(S, 'stress', 3, ch); return { text: good ? '“사생활은 사생활, 제품은 제품입니다.” 담백한 입장문에 오히려 호감이 늘었다.' : '해명문의 한 문장이 캡처돼 돌았다. 불이 더 번졌다.', chips: ch }; } },
+            { label: '아무 말도 하지 않는다', sub: '그대로 감수 · 스트레스↑', run: S => { const ch = []; apply(S, 1, ch); bump(S, 'stress', 4, ch); return { text: '휴대폰을 엎어 두고 일만 했다. 이것도 지나가겠지.', chips: ch }; } },
+        ] };
+}
 // 결혼하면 다른 썸·연인 관계는 조용히 정리된다 (라이벌의 남자친구는 그쪽 사람으로 돌아간다)
 function settleOnMarriage(S, ch) {
     if (!S.married)
@@ -2957,6 +3059,9 @@ function fixedEvents(S) {
     const tr = teamResultEvent(S);
     if (tr && out.length < 3)
         out.push(tr);
+    const rn = relNewsEvent(S);
+    if (rn && out.length < 3)
+        out.push(rn);
     return out;
 }
 function pickEvent(S) {
@@ -4264,7 +4369,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.10.09-H';
+const BUILD_TAG = '2026.10.09-I';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
@@ -4800,7 +4905,8 @@ document.addEventListener('click', e => {
     if (t.dataset.buy) {
         const r = buyItem(S, t.dataset.buy);
         if (r) {
-            sfx('select');
+            sfx('coin');
+            toast(`${S.lastBuy.name} 구매 · 자금 −${fmtMoney(S.lastBuy.price)}원 (남은 자금 ${fmtMoney(S.cash)}원)`);
             note({ text: r.text, chips: r.chips });
             render();
             save();
