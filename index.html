@@ -51,12 +51,12 @@ button:focus-visible{outline:2px solid var(--serum);outline-offset:2px}
 @keyframes glass-heal{0%{opacity:.85}100%{opacity:0}}
 .cover::before{content:"";position:absolute;inset:0 0 auto;height:38%;z-index:1;background:linear-gradient(180deg,rgba(28,36,92,.55),rgba(28,36,92,.18) 60%,transparent)}
 .cover::after{content:"";position:absolute;inset:auto 0 0;height:34%;z-index:1;background:linear-gradient(0deg,rgba(246,248,252,.96) 0%,rgba(246,248,252,.86) 42%,rgba(246,248,252,0) 100%)}
-.cover-top{position:absolute;z-index:2;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + clamp(60px,8dvh,72px));padding:0 20px;color:#fff;animation:cover-up .9s .3s both}
+.cover-top{position:absolute;z-index:2;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 16px);padding:0 20px;color:#fff;animation:cover-up .9s .3s both}
 .cover-top .eyebrow{color:rgba(255,255,255,.82);font-size:10.5px;letter-spacing:.3em}
-.cover .wordmark{color:#fff;font-size:clamp(42px,13.5vw,64px);margin-top:10px;text-shadow:0 2px 18px rgba(20,24,70,.55),0 0 2px rgba(20,24,70,.4)}
+.cover .wordmark{color:#fff;font-size:clamp(42px,13.5vw,64px);margin-top:clamp(14px,3dvh,28px);text-shadow:0 2px 18px rgba(20,24,70,.55),0 0 2px rgba(20,24,70,.4)}
 .cover .wordmark .colon{color:#9fb4ff}
 .cover .wordmark small{color:rgba(255,255,255,.92);margin-top:.45em;letter-spacing:.6em;padding-left:.6em}
-.cover-sub{margin:12px auto 0;display:inline-block;font-size:12px;letter-spacing:.18em;color:#fff;padding:5px 14px;border:1px solid rgba(255,255,255,.55);border-radius:99px;background:rgba(255,255,255,.12);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.cover-sub{margin:0 auto;display:inline-block;line-height:1.4;font-size:12px;letter-spacing:.18em;color:#fff;padding:5px 14px;border:1px solid rgba(255,255,255,.55);border-radius:99px;background:rgba(255,255,255,.12);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .cover-bottom{position:absolute;z-index:2;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);padding:0 22px;display:grid;gap:14px;justify-items:center;animation:cover-up .9s .6s both}
 @keyframes cover-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .cover .title-copy{font-size:13px;line-height:1.6;color:#27304d;max-width:none;margin:0;text-wrap:initial}
@@ -70,7 +70,7 @@ button:focus-visible{outline:2px solid var(--serum);outline-offset:2px}
 .cover .btn-row:has(#btn-open-load[hidden]) #btn-load{grid-column:1/-1}
 .cover .btn-row:has(#btn-load[hidden]) #btn-open-load{grid-column:1/-1}
 .cover .build-tag{margin-top:0;color:#56636B}
-@media (max-height:700px){.cover-sub{display:none}.cover .wordmark{font-size:clamp(38px,12vw,56px)}}
+@media (max-height:700px){.cover .wordmark{font-size:clamp(38px,12vw,56px)}}
 @media (prefers-reduced-motion:reduce){.cover-art,.cover-glass,.cover-top,.cover-bottom{animation:none}.cover-glass{opacity:0}}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .btn{border:1px solid var(--ink);background:var(--ink);color:#F4F6F7;padding:11px 22px;border-radius:999px;font-weight:600;letter-spacing:.02em}
@@ -564,9 +564,8 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
       <svg id="title-glass" class="cover-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg>
       <button class="cover-snd" data-sound aria-pressed="true" aria-label="소리 켜기/끄기"><span class="snd-ic">🔊</span></button>
       <div class="cover-top">
-        <div class="eyebrow">Canvas Labs · Derma Couture Sim</div>
-        <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
         <p class="cover-sub">뷰티 CEO 육성 시뮬레이션</p>
+        <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
       </div>
       <div class="cover-bottom">
         <p class="title-copy cover-card">스무 살, 작은 원룸에서 시작한 화장품 회사.<br>서른 살이 될 때까지 10년,<br>당신의 손으로 뷰티 브랜드를 키워 보세요.</p>
@@ -575,7 +574,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">BUILD 2026.10.09-D</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-E</span>
       </div>
     </div>
   </section>
@@ -3985,7 +3984,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.10.09-D';
+const BUILD_TAG = '2026.10.09-E';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
