@@ -36,17 +36,42 @@ button:focus-visible{outline:2px solid var(--serum);outline-offset:2px}
 .mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 
 /* ---------- 타이틀 ---------- */
-.title-screen{min-height:calc(100vh - 60px);display:grid;place-items:center;text-align:center}
-.title-inner{display:grid;gap:22px;justify-items:center;max-width:620px}
 .eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute)}
 .wordmark{font-family:var(--f-display);font-weight:800;font-size:clamp(40px,9vw,88px);line-height:1;letter-spacing:-.01em;margin:0}
 .wordmark .colon{color:var(--serum);display:inline-block;transform:translateY(-.04em)}
 .wordmark small{display:block;font-size:.34em;letter-spacing:.42em;font-weight:700;margin-top:.5em;color:var(--mute)}
 .title-copy{font-size:15px;color:var(--mute);max-width:44ch;text-wrap:balance;margin:0}
-.glass-pane{position:relative;width:min(260px,70vw);aspect-ratio:3/4;padding:6px;background:var(--glass-solid)}
-.glass-pane .in{position:relative;width:100%;height:100%;overflow:hidden;border:1px solid var(--glow)}
-.glass-pane img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
-.glass-pane svg{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen}
+.title-screen{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:#1d2350;overflow:hidden;text-align:center}
+.cover-bg{position:absolute;inset:-40px;background:url("art/cover.jpg") 50% 40%/cover;filter:blur(28px) saturate(1.1) brightness(.85)}
+.cover{position:relative;height:100%;height:100dvh;width:min(100vw,calc(100dvh * 9 / 16));overflow:hidden;box-shadow:0 0 80px rgba(10,14,40,.5);isolation:isolate}
+@supports not (height:100dvh){.cover{height:100vh;width:min(100vw,calc(100vh * 9 / 16))}}
+.cover-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 62%;animation:cover-in 2.4s cubic-bezier(.2,.7,.2,1) both}
+@keyframes cover-in{from{transform:scale(1.08);filter:brightness(1.25) saturate(.8)}to{transform:none;filter:none}}
+.cover-glass{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;pointer-events:none;animation:glass-heal 3.2s .4s ease-out both}
+@keyframes glass-heal{0%{opacity:.85}100%{opacity:0}}
+.cover::before{content:"";position:absolute;inset:0 0 auto;height:38%;z-index:1;background:linear-gradient(180deg,rgba(28,36,92,.55),rgba(28,36,92,.18) 60%,transparent)}
+.cover::after{content:"";position:absolute;inset:auto 0 0;height:34%;z-index:1;background:linear-gradient(0deg,rgba(246,248,252,.96) 0%,rgba(246,248,252,.86) 42%,rgba(246,248,252,0) 100%)}
+.cover-top{position:absolute;z-index:2;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + clamp(60px,8dvh,72px));padding:0 20px;color:#fff;animation:cover-up .9s .3s both}
+.cover-top .eyebrow{color:rgba(255,255,255,.82);font-size:10.5px;letter-spacing:.3em}
+.cover .wordmark{color:#fff;font-size:clamp(42px,13.5vw,64px);margin-top:10px;text-shadow:0 2px 18px rgba(20,24,70,.55),0 0 2px rgba(20,24,70,.4)}
+.cover .wordmark .colon{color:#9fb4ff}
+.cover .wordmark small{color:rgba(255,255,255,.92);margin-top:.45em;letter-spacing:.6em;padding-left:.6em}
+.cover-sub{margin:12px auto 0;display:inline-block;font-size:12px;letter-spacing:.18em;color:#fff;padding:5px 14px;border:1px solid rgba(255,255,255,.55);border-radius:99px;background:rgba(255,255,255,.12);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.cover-bottom{position:absolute;z-index:2;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);padding:0 22px;display:grid;gap:14px;justify-items:center;animation:cover-up .9s .6s both}
+@keyframes cover-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.cover .title-copy{font-size:13px;line-height:1.6;color:#27304d;max-width:none;margin:0;text-wrap:initial}
+.cover-card{width:min(100%,340px);padding:12px 16px;border-radius:14px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.9);box-shadow:0 6px 24px rgba(30,40,100,.12);backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2)}
+.cover-snd{position:absolute;z-index:3;top:calc(env(safe-area-inset-top,0px) + 12px);right:12px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.18);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font-size:17px;display:grid;place-items:center;padding:0}
+.cover .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:min(100%,340px)}
+.cover .btn-row .btn{width:100%;justify-content:center;min-height:50px}
+.cover #btn-new{grid-column:1/-1;font-size:17px;min-height:56px;background:linear-gradient(135deg,#2B44C0,#1c2a7a);color:#fff;border:0;box-shadow:0 8px 24px rgba(43,68,192,.35)}
+.cover .btn.ghost{background:rgba(255,255,255,.75);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.cover .btn-row #btn-load:not([hidden])+#btn-open-load[hidden]{display:none}
+.cover .btn-row:has(#btn-open-load[hidden]) #btn-load{grid-column:1/-1}
+.cover .btn-row:has(#btn-load[hidden]) #btn-open-load{grid-column:1/-1}
+.cover .build-tag{margin-top:0;color:#56636B}
+@media (max-height:700px){.cover-sub{display:none}.cover .wordmark{font-size:clamp(38px,12vw,56px)}}
+@media (prefers-reduced-motion:reduce){.cover-art,.cover-glass,.cover-top,.cover-bottom{animation:none}.cover-glass{opacity:0}}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .btn{border:1px solid var(--ink);background:var(--ink);color:#F4F6F7;padding:11px 22px;border-radius:999px;font-weight:600;letter-spacing:.02em}
 .btn:hover{background:var(--serum);border-color:var(--serum)}
@@ -519,7 +544,7 @@ body:not(.game-mode){padding-top:calc(16px + env(safe-area-inset-top,0px));paddi
 html.ios-app{min-height:var(--appH,100vh)}
 html.ios-app body{min-height:var(--appH,100vh);box-sizing:border-box}
 html.ios-app body.game-mode{background:#1b2140}
-html.ios-app .title-screen{min-height:calc(var(--appH,100vh) - 60px)}
+html.ios-app .cover{height:var(--appH,100dvh)}
 html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
 .build-tag{display:block;margin-top:10px;font:600 10px/1 var(--f-mono,monospace);letter-spacing:.12em;color:var(--mute);opacity:.6}
 /* 태블릿 가로: 게임 화면은 세로 비율로 가운데에 (양옆은 배경) */
@@ -533,16 +558,24 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
 
   <!-- 타이틀 -->
   <section id="scr-title" class="title-screen">
-    <div class="title-inner">
-      <div class="eyebrow">Canvas Labs · Derma Couture Simulation</div>
-      <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
-      <div class="glass-pane ornate"><div class="in"><img src="art/age20_ok.jpg" alt="레이스 재킷에 리본 블라우스를 입고 세럼 병을 든 20세 창업 1년차 대표"><svg id="title-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg></div></div>
-      <p class="title-copy">스무 살, 작은 원룸에서 시작한 화장품 회사. 서른 살이 될 때까지 10년, 당신의 손으로 뷰티 브랜드를 키워 보세요.</p><span class="build-tag">BUILD 2026.10.09-C</span>
-      <div class="btn-row">
-        <button class="btn" id="btn-new">새로 시작</button>
-        <button class="btn ghost" id="btn-load" hidden>이어하기</button>
-        <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
-        <button class="btn ghost" data-sound aria-pressed="true"><span class="snd-ic">🔊</span> <span class="snd-lb">소리 끄기</span></button>
+    <div class="cover-bg" aria-hidden="true"></div>
+    <div class="cover">
+      <img class="cover-art" src="art/cover.jpg" alt="세럼 병을 들고 빛나는 유리 무대 위에 선 스무 살 대표, 뒤로 서울의 저녁 하늘">
+      <svg id="title-glass" class="cover-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <button class="cover-snd" data-sound aria-pressed="true" aria-label="소리 켜기/끄기"><span class="snd-ic">🔊</span></button>
+      <div class="cover-top">
+        <div class="eyebrow">Canvas Labs · Derma Couture Sim</div>
+        <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
+        <p class="cover-sub">뷰티 CEO 육성 시뮬레이션</p>
+      </div>
+      <div class="cover-bottom">
+        <p class="title-copy cover-card">스무 살, 작은 원룸에서 시작한 화장품 회사.<br>서른 살이 될 때까지 10년,<br>당신의 손으로 뷰티 브랜드를 키워 보세요.</p>
+        <div class="btn-row">
+          <button class="btn" id="btn-new">새로 시작</button>
+          <button class="btn ghost" id="btn-load" hidden>이어하기</button>
+          <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
+        </div>
+        <span class="build-tag">BUILD 2026.10.09-D</span>
       </div>
     </div>
   </section>
@@ -3952,7 +3985,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.10.09-C';
+const BUILD_TAG = '2026.10.09-D';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
