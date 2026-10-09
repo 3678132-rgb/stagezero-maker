@@ -578,7 +578,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-K</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.10.09-L</span>
       </div>
     </div>
   </section>
@@ -1049,6 +1049,8 @@ const ACTS = {
             const id = dateTarget(S);
             const lv = LOVERS[id];
             const L = loveOf(S);
+            if (L[id].stage === -9 && L[id].recall)
+                return reunionDate(S, id, ch, out);
             const taken = L[id].taken;
             const tier = dateTier(L[id].aff);
             addAff(S, id, (6 + (S.st[lv.likes] || 0) * 0.08 + (S.st.charm || 0) * 0.05 + rand(0, 3)) * (taken ? 0.6 : 1), ch);
@@ -1213,16 +1215,41 @@ function relNewsEvent(S) {
             { label: '아무 말도 하지 않는다', sub: '그대로 감수 · 스트레스↑', run: S => { const ch = []; apply(S, 1, ch); bump(S, 'stress', 4, ch); return { text: '휴대폰을 엎어 두고 일만 했다. 이것도 지나가겠지.', chips: ch }; } },
         ] };
 }
-// 헤어진 사람에게 다시 연락: 매력이 높을수록 다시 만날 확률↑ (결혼 중이면 몰래 만나는 썸이 된다)
+// 헤어진 사람에게 다시 연락: ① 연락(매력이 낮으면 답이 없다) → ② 재회 데이트에서 다시 만날지 결정
 function recallChance(S, id) { const v = (S.love || {})[id]; if (!v)
-    return 0; return clamp(0.08 + (S.st.charm || 0) / 110 + v.aff / 300 - (v.divorced ? 0.12 : 0) - (S.married ? 0.05 : 0), 0.05, 0.9); }
-const RECALL_OK = { playboy: '“이 번호, 아직 안 지웠어.” 강도윤이 웃었다. “어디로 갈까?”', intern: '“대표님…! 저 기다리고 있었어요.” 서하준의 답장이 3초 만에 왔다.', vc: '“…시간 비워 둘게.” 윤재현답게 짧은 답장. 그런데 1분 뒤 레스토랑 예약 링크가 왔다.', star: '“스케줄 하나 뺐어요.” 차이안이 모자를 눌러쓴 셀카를 보냈다.', ceo2: '“나도 연락하고 싶었어. 먼저 해 줘서 고마워.” 백승우의 답장.', colon: '“일정 확인해 보니… 대표님 시간은 비어 있네요.” 콜론다운 답장이었다.' };
+    return 0; return clamp(0.05 + (S.st.charm || 0) / 100 + v.aff / 400 - (v.divorced ? 0.12 : 0), 0.05, 0.92); }
+function reunionChance(S, id) { const v = (S.love || {})[id]; if (!v)
+    return 0; return clamp(0.15 + (S.st.charm || 0) / 110 + v.aff / 220 - (v.divorced ? 0.1 : 0) - (S.married && S.married !== id ? 0.05 : 0), 0.1, 0.92); }
+const RECALL_REPLY = { playboy: '“이 번호, 아직 안 지웠어.” 강도윤의 답장. “토요일 9시, 그 루프탑.”', intern: '“대표님…! 저 기다리고 있었어요.” 서하준의 답장이 3초 만에 왔다.', vc: '“…목요일 저녁 비워 둘게.” 윤재현답게 짧은 답장. 1분 뒤 레스토랑 예약 링크가 왔다.', star: '“스케줄 하나 뺄게요.” 차이안이 모자를 눌러쓴 셀카를 보냈다.', ceo2: '“나도 연락하고 싶었어. 한강 어때?” 백승우의 답장.', colon: '“일정 확인해 보니… 그날 저녁, 비어 있네요.” 콜론다운 답장이었다.' };
+const REUNION = {
+    playboy: { ok: '반년 만의 루프탑. 강도윤이 예전 그 자리에 칵테일 두 잔을 놓아 두었다.\n“네가 좋아하던 거, 아직 기억해.” 잔이 부딪히는 소리가 이상하게 떨렸다.\n“이번엔… 장난 아니고, 진심으로 해 볼게.”', ng: '강도윤은 여전히 능글맞게 웃었지만, 눈은 웃지 않았다.\n“우리, 좋은 추억으로 남기자. 그게 너한테도 나아.”' },
+    intern: { ok: '“대표님… 아니, 누나.” 서하준이 처음으로 호칭을 바꿨다.\n“그동안 저 많이 컸어요. 이제 기다리기만 하는 사람 아니에요.”\n떨리는 손이 내 손을 꼭 잡았다.', ng: '서하준이 고개를 숙였다.\n“저 이제 겨우 괜찮아졌어요. 다시 흔들리면… 못 버틸 것 같아요.”' },
+    vc: { ok: '윤재현이 와인 리스트 대신 내 얼굴을 오래 봤다.\n“헤어지고 나서 계산해 봤어. 너 없는 쪽이 손실이더라.”\n처음 보는 서툰 웃음이었다.', ng: '“미안. 감정적인 결정은 두 번 하지 않기로 했어.”\n윤재현이 계산서를 먼저 집었다. 마지막까지 매너는 완벽했다.' },
+    star: { ok: '모자를 깊게 눌러쓴 차이안이 골목 끝에서 뛰어왔다.\n“기사 나도 상관없어요. 이번엔 숨지 않을래요.”\n이어폰 한쪽에서 우리가 처음 같이 들은 노래가 흘러나왔다.', ng: '“보고 싶었어요. 진짜로. 근데… 다시 시작하면 또 서로 아플 것 같아요.”\n차이안이 마스크를 다시 올렸다.' },
+    ceo2: { ok: '백승우가 컵라면 두 개를 들고 한강에 나타났다. “국룰 기억하지?”\n김이 오르는 컵라면 너머로 그가 말했다. “경쟁도 사랑도 다시 해 보자. 이번엔 같은 편으로.”', ng: '“네 회사 잘되는 거 보면 좋더라. 그걸로 충분한 것 같아.”\n백승우가 빈 컵을 정리하고 먼저 일어났다.' },
+    colon: { ok: '콜론이 수첩을 펼쳐 보였다. 헤어진 뒤에도 내 일정이 빼곡히 적혀 있었다.\n“습관이 안 고쳐지더라고요.” 안경을 벗은 서진이 웃었다.\n“…다시, 대표님 일정 관리해도 될까요?”', ng: '“대표님 일정에 제가 없는 게, 대표님한테 더 좋은 일정이에요.”\n콜론이 안경을 고쳐 쓰고 고개를 숙였다.' },
+};
 function recallLover(S, id) {
     const L = loveOf(S), v = L[id], lv = LOVERS[id], ch = [];
     v.recallM = S.m;
     if (R() < recallChance(S, id)) {
+        v.recall = true;
+        S.dateWith = id;
+        bump(S, 'stress', -2, ch);
+        return { ok: true, title: `${lv.name}에게서 답장이 왔다`, text: (RECALL_REPLY[id] || '답장이 왔다.') + `\n재회 데이트 약속을 잡았다. 연애 탭 「데이트」를 스케줄에 넣으면 만나요.\n(다시 만날지는 데이트에서 결정돼요 · 예상 ${Math.round(reunionChance(S, id) * 100)}%)`, chips: ch };
+    }
+    bump(S, 'stress', 8, ch);
+    return { ok: false, title: '답장이 없다', text: pick([`${lv.name}에게 보낸 메시지에 ‘읽음’만 떠 있다. 하루 종일 휴대폰만 들여다봤다.`, `신호가 몇 번 가다 끊겼다. ${lv.name}의 프로필 사진이 바뀌어 있었다.`, `“잘 지내?” 한 줄을 썼다 지웠다 열 번. 보냈는데, 답이 없다.`]) + '\n매력을 더 키우면 다음엔 답이 올지도 몰라.', chips: ch };
+}
+function reunionDate(S, id, ch, out) {
+    const L = loveOf(S), v = L[id], lv = LOVERS[id];
+    v.recall = false;
+    out.lover = id;
+    out.place = lv.place || 'cafe';
+    const R_ = REUNION[id] || { ok: '다시 만났다.', ng: '역시 우린 아니었다.' };
+    if (R() < reunionChance(S, id)) {
         v.stage = -1;
-        v.aff = Math.max(v.aff, 40);
+        v.aff = Math.max(v.aff + 10, 45);
         v.closed = false;
         v.gone = false;
         v.taken = false;
@@ -1235,14 +1262,17 @@ function recallLover(S, id) {
                 S.affairAt = S.m;
             }
         }
-        push(ch, `${lv.name} 호감`, 0.1);
-        bump(S, 'stress', -6, ch);
-        S.album.push(`${josa(lv.name, '과', '와')} 다시 연락`);
-        return { ok: true, title: `${lv.name}에게서 답장이 왔다`, text: (RECALL_OK[id] || '답장이 왔다.') + `\n다시 썸이 시작됐다.${S.married && S.married !== id ? ' (결혼 중이라 들키면 위험해요)' : ''} 연애 탭 「데이트」로 만나요.`, chips: ch };
+        push(ch, `${lv.name} 호감`, 10);
+        bump(S, 'stress', -10, ch);
+        grow(S, 'charm', 1, ch);
+        S.album.push(`${josa(lv.name, '과', '와')} 재회`);
+        return `💞 재회\n${R_.ok}${S.married && S.married !== id ? '\n(결혼 중이에요. 들키면 큰일나요.)' : ''}`;
     }
-    bump(S, 'stress', 4, ch);
-    addAff(S, id, 1, ch);
-    return { ok: false, title: '읽음 표시만 떴다', text: `${lv.name}의 메시지 창에 ‘읽음’만 떠 있다. 답장은 오지 않았다.\n매력을 더 키우면 다음엔 다를지도 몰라.`, chips: ch };
+    addAff(S, id, 2, ch);
+    bump(S, 'stress', 5, ch);
+    if (S.dateWith === id)
+        S.dateWith = null;
+    return `🥀 재회 실패\n${R_.ng}`;
 }
 // 결혼하면 다른 썸·연인 관계는 조용히 정리된다 (라이벌의 남자친구는 그쪽 사람으로 돌아간다)
 function settleOnMarriage(S, ch) {
@@ -1336,7 +1366,7 @@ function dateTarget(S) {
     const ids = Object.keys(L);
     if (!ids.length)
         return null;
-    if (S.dateWith && L[S.dateWith] && L[S.dateWith].stage > -8)
+    if (S.dateWith && L[S.dateWith] && (L[S.dateWith].stage > -8 || L[S.dateWith].recall))
         return S.dateWith;
     // 직접 고르지 않았으면: 연인/배우자 → 호감도 높은 썸 순. 라이벌의 연인은 직접 골랐을 때만 몰래 만난다
     const ok = ids.filter(i => L[i].stage > -8 && !L[i].taken);
@@ -4441,7 +4471,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.10.09-K';
+const BUILD_TAG = '2026.10.09-L';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
@@ -4838,11 +4868,11 @@ function renderLove() {
         const v = L[id];
         const known = !!v;
         const st = !known ? '아직 모르는 사이' : v.stage === -8 ? '한서린의 약혼자' : v.stage === -9 ? (v.divorced ? '이혼' : v.gone ? '떠나간 사람' : v.closed ? '결혼 후 정리' : '헤어짐') : v.taken ? '한서린의 연인 · 몰래 데이트' : v.stage === -1 ? '썸' : LOVE_STAGE[v.stage];
-        return `<div class="lv ${known ? '' : 'unknown'} ${tgt === id && known && v.stage !== -9 ? 'on' : ''}">
+        return `<div class="lv ${known ? '' : 'unknown'} ${tgt === id && known && (v.stage !== -9 || v.recall) ? 'on' : ''}">
       <div class="ph"><img src="art/spr_lv_${id}.png" alt="${known ? esc(lv.name) : '아직 만나지 않은 사람'}"></div>
       <div style="min-width:0"><b>${known ? `${lv.name} · ${lv.age}세` : '??? '}</b> <span class="st">${st}</span>
         <div class="job">${known ? esc(lv.job) : '만나는 법: ' + esc(lv.meet)}</div>
-        ${known ? `<div class="per">${esc(lv.persona)}</div><div class="meta2"><span>좋아하는 능력: ${STAT[lv.likes]}</span><span>호감도 ${Math.round(v.aff)} · ${DATE_TIER_NAMES[dateTier(v.aff)].split(' · ')[0]}</span><span>다음 데이트: ${DATE_TIER_NAMES[dateTier(v.aff)].split(' · ')[1]}</span>${v.taken ? '<span style="color:#c93a66">75가 되면 뺏을 기회가 와요</span>' : ''}</div><div class="heartbar"><i style="width:${v.aff}%"></i></div>${v.stage === -9 ? (v.recallM === S.m ? '<button class="pick" disabled>이번 달엔 이미 연락했어요</button>' : `<button class="pick recall" data-recall="${id}">📱 다시 연락하기 · 성공 ${Math.round(recallChance(S, id) * 100)}%</button>`) : ''}${v.stage !== -9 && v.stage !== -8 ? `<button class="pick" data-datewith="${id}">${tgt === id ? (v.taken ? '♥ 몰래 데이트 중' : '♥ 데이트 상대') : (v.taken ? '몰래 데이트 상대로' : '데이트 상대로')}</button>` : ''}` : ''}
+        ${known ? `<div class="per">${esc(lv.persona)}</div><div class="meta2"><span>좋아하는 능력: ${STAT[lv.likes]}</span><span>호감도 ${Math.round(v.aff)} · ${DATE_TIER_NAMES[dateTier(v.aff)].split(' · ')[0]}</span><span>다음 데이트: ${DATE_TIER_NAMES[dateTier(v.aff)].split(' · ')[1]}</span>${v.taken ? '<span style="color:#c93a66">75가 되면 뺏을 기회가 와요</span>' : ''}</div><div class="heartbar"><i style="width:${v.aff}%"></i></div>${v.stage === -9 ? (v.recall ? `<button class="pick" data-datewith="${id}">${tgt === id ? '♥ 재회 데이트 약속됨' : '재회 데이트 상대로'}</button>` : v.recallM === S.m ? '<button class="pick" disabled>이번 달엔 이미 연락했어요</button>' : `<button class="pick recall" data-recall="${id}">📱 연락해서 데이트 신청 · 답장 ${Math.round(recallChance(S, id) * 100)}%</button>`) : ''}${v.stage !== -9 && v.stage !== -8 ? `<button class="pick" data-datewith="${id}">${tgt === id ? (v.taken ? '♥ 몰래 데이트 중' : '♥ 데이트 상대') : (v.taken ? '몰래 데이트 상대로' : '데이트 상대로')}</button>` : ''}` : ''}
       </div></div>`;
     }).join('')}</div>`;
 }
