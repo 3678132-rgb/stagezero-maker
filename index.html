@@ -537,7 +537,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
       <div class="eyebrow">Canvas Labs · Derma Couture Simulation</div>
       <h1 class="wordmark">STAGE<span class="colon">:</span>ZERO<small>MAKER</small></h1>
       <div class="glass-pane ornate"><div class="in"><img src="art/age20_ok.jpg" alt="레이스 재킷에 리본 블라우스를 입고 세럼 병을 든 20세 창업 1년차 대표"><svg id="title-glass" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden="true"></svg></div></div>
-      <p class="title-copy">스무 살, 작은 원룸에서 시작한 화장품 회사. 서른 살이 될 때까지 10년, 당신의 손으로 뷰티 브랜드를 키워 보세요.</p><span class="build-tag">BUILD 2026.10.09-B</span>
+      <p class="title-copy">스무 살, 작은 원룸에서 시작한 화장품 회사. 서른 살이 될 때까지 10년, 당신의 손으로 뷰티 브랜드를 키워 보세요.</p><span class="build-tag">BUILD 2026.10.09-C</span>
       <div class="btn-row">
         <button class="btn" id="btn-new">새로 시작</button>
         <button class="btn ghost" id="btn-load" hidden>이어하기</button>
@@ -685,6 +685,9 @@ const ORIGINS = [
     { id: 'ceo', name: '중소기업 사장', desc: '공장 사무실에서 숙제를 했다. 원가와 현금흐름이 몸에 배어 있다.', cash: 700, st: { rnd: 6, aes: 6, mkt: 8, biz: 22, lead: 14, net: 10, charm: 6 } },
     { id: 'actor', name: '배우', desc: '촬영장에서 자랐다. 카메라 앞에 서면 오히려 편하다.', cash: 600, st: { rnd: 6, aes: 12, mkt: 10, biz: 6, lead: 6, net: 12, charm: 24 } },
     { id: 'civil', name: '성실한 공무원', desc: '평범하지만 다정한 집. 모든 걸 조금씩 잘하고, 쉽게 지치지 않는다.', cash: 400, st: { rnd: 12, aes: 12, mkt: 12, biz: 12, lead: 12, net: 10, charm: 12 } },
+    { id: 'soldier', name: '직업 군인', desc: '이사만 일곱 번. 새벽 6시 기상과 “안 되면 되게 하라”가 몸에 배어 있다.', cash: 450, st: { rnd: 8, aes: 6, mkt: 6, biz: 10, lead: 22, net: 8, charm: 8 } },
+    { id: 'farmer', name: '제주 감귤 농부', desc: '귤밭과 동백 숲에서 자랐다. 원료가 어디서 어떻게 자라는지 손으로 안다.', cash: 450, st: { rnd: 16, aes: 12, mkt: 6, biz: 10, lead: 8, net: 6, charm: 10 } },
+    { id: 'jobless', name: '백수', desc: '자칭 프리랜서 아빠는 늘 “곧 대박 난다”고 했다. 돈은 없지만 동네 사람은 다 안다.', cash: 200, st: { rnd: 6, aes: 10, mkt: 12, biz: 4, lead: 6, net: 18, charm: 16 } },
 ];
 // 타고난 성향: 혈액형·MBTI·별자리 — 시작 능력치(st), 성장 보정(gb), 특성(trait)
 const BLOODS = {
@@ -1732,11 +1735,11 @@ const EVENTS = [
         face: 'news', speaker: 'NOTICE', title: '정부 R&D 지원사업 공고',
         text: () => '중소벤처기업부 창업성장기술개발사업. 마감까지 2주, 사업계획서 40페이지.',
         choices: [
-            { label: '밤새워 지원서를 쓴다', sub: '경영 40 이상이면 선정 확률↑', run: S => { const ch = []; bump(S, 'stress', 12, ch); if (R() < 0.25 + S.st.biz / 120) {
+            { label: '밤새워 지원서를 쓴다', sub: '선정되면 자금 +2천만 · 경영이 높을수록 선정 확률↑', run: S => { const ch = []; bump(S, 'stress', 12, ch); if (R() < 0.25 + S.st.biz / 120) {
                     bump(S, 'cash', 2000, ch);
                     grow(S, 'rnd', 2, ch);
                     S.album.push('정부 R&D 과제 선정');
-                    return { text: '최종 선정! 2억 원 규모 과제를 따냈다. 연구 장비를 들일 수 있게 됐다.', chips: ch };
+                    return { text: '최종 선정! 연구개발 지원금 2천만 원이 통장에 들어왔다. 연구 장비를 들일 수 있게 됐다.', chips: ch };
                 } grow(S, 'biz', 2, ch); return { text: '아쉽게 탈락. 그래도 사업계획서는 남았다.', chips: ch }; } },
             { label: '이번엔 패스', run: S => ({ text: '지금은 본업에 집중하기로 했다.', chips: [] }) },
         ] },
@@ -3026,12 +3029,26 @@ function headOf(i) { while (i > 0 && S.plan[i] === '>')
     i--; return i; }
 function clearSlot(i) { const h = headOf(i); const n = S.plan[h] && S.plan[h] !== '>' ? spanOf(S.plan[h]) : 1; for (let k = h; k < h + n && k < 3; k++)
     S.plan[k] = null; return h; }
+// 첫 제품이 나오기 전 석 달 동안은 비서가 상순을 「제형 개발」로 고정해 둔다
+const FIX_ACT = 'rnd';
+function isFixed(S, i) { return i === 0 && S && S.m < 3 && !(S.prods && S.prods.length); }
+const FIX_LINE = '상순은 제가 「제형 개발」로 고정해 뒀어요. 제형 업무를 해야 제품이 만들어져요! 첫 제품이 나올 때까지 석 달 동안은 이 칸을 바꿀 수 없어요.';
+function applyFixed() { if (!S || S.phase !== 'plan' || !isFixed(S, 0))
+    return; if (S.plan[0] !== FIX_ACT) {
+    if (S.plan[0])
+        clearSlot(0);
+    S.plan[0] = FIX_ACT;
+} if (activeSlot === 0) {
+    const nx = S.plan.findIndex(x => !x);
+    activeSlot = nx < 0 ? 1 : nx;
+} }
 function placeAct(i, id) { const n = spanOf(id); for (let k = i; k < i + n; k++)
     if (S.plan[k])
         clearSlot(k); S.plan[i] = id; for (let k = i + 1; k < i + n; k++)
     S.plan[k] = '>'; }
 function slotLabel(id, i) { if (!id)
-    return null; if (id === '>') {
+    return null; if (isFixed(S, i) && id === FIX_ACT)
+    return `🔒 ${ACTS[id].name} · 비서 고정`; if (id === '>') {
     const h = headOf(i);
     return `↳ ${ACTS[S.plan[h]].name} (계속)`;
 } return ACTS[id].name + (spanOf(id) > 1 ? ` · ${spanOf(id)}칸` : ''); }
@@ -3404,6 +3421,7 @@ function advice() {
 }
 function monthIntro() {
     bgm('home');
+    applyFixed();
     render();
     const c = CHAPTERS[S.m];
     if (c && !S.seen['chap_' + c.n]) {
@@ -3417,6 +3435,8 @@ function monthIntro() {
     }
     if (noSec(S))
         note({ face: 'ceo', speaker: '나 (혼잣말)', text: `${monthOf(S)}월. ${SEASON[monthOf(S)]}\n${R() < 0.5 ? '…콜론이 있었다면 이렇게 말했겠지. ' : ''}“${advice()}”` });
+    else if (isFixed(S, 0))
+        note({ text: `${monthOf(S)}월. ${FIX_LINE}\n${advice()}` });
     else
         note({ text: `${monthOf(S)}월. ${SEASON[monthOf(S)]}\n${advice()}` });
 }
@@ -3806,6 +3826,9 @@ const LETTER_ORIGIN = {
     ceo: '공장 사무실에서 숙제하던 딸이 이제 원가표를 먼저 봐요. 현금흐름 무서운 줄 알게 해 주셔서 고마워요.',
     actor: '촬영장에서 자란 덕분에 카메라 앞이 무섭지 않았어요. 떨릴 때마다 대기실의 엄마 아빠를 떠올렸어요.',
     civil: '평범하지만 다정한 집에서 배운 성실함이 제일 큰 밑천이었어요. 지칠 때마다 “하루씩만” 하던 말을 떠올렸어요.',
+    soldier: '아빠가 늘 하던 “안 되면 되게 하라”, 어릴 땐 그게 그렇게 싫었는데요. 공장 라인이 멈춘 밤마다 그 말로 버텼어요.',
+    farmer: '귤밭에서 “좋은 열매는 흙부터 다르다”던 말, 원료를 고를 때마다 생각했어요. 제 크림엔 그 흙 냄새가 조금 섞여 있어요.',
+    jobless: '아빠가 맨날 “곧 대박 난다”고 했잖아요. 대박은 제가 냈어요. 대신 아빠가 소개해 준 동네 사람들이 제 첫 손님들이었어요. 고마워요.',
 };
 const LETTER_END = {
     nolaunch: '회사를 접었어요. 석 달 안에 첫 제품을 못 냈거든요. 돈이 아니라 시간이 모자랐어요. 이번엔 제가 너무 느렸어요. 다음엔 첫날부터 실험실로 갈게요.',
@@ -3929,7 +3952,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.10.09-B';
+const BUILD_TAG = '2026.10.09-C';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
@@ -4446,6 +4469,13 @@ document.addEventListener('click', e => {
     }
     if (t.dataset.slot) {
         const i = +t.dataset.slot;
+        if (isFixed(S, i)) {
+            if (noSec(S))
+                note({ face: 'ceo', speaker: '나 (혼잣말)', text: '첫 제품이 나올 때까지 상순은 무조건 제형 개발. 제형을 만들어야 제품이 나온다.' });
+            else
+                note({ text: FIX_LINE });
+            return;
+        }
         if (S.plan[i]) {
             activeSlot = clearSlot(i);
             renderSchedule();
@@ -4515,6 +4545,7 @@ async function enterGame(isNew) {
         S.plan = [null, null, null];
         activeSlot = 0;
     }
+    applyFixed();
     render();
     if (isNew) {
         busy = true;
