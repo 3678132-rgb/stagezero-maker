@@ -639,7 +639,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.08-B</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.08-C</span>
       </div>
     </div>
   </section>
@@ -2645,7 +2645,7 @@ function tvStarOk(S) { const v = (S.love || {}).star; return !!v && !v.blocked &
 function tvEvent(S) {
     const F = S.film;
     // 1) 토크 퀴즈쇼 출연: 브랜드가 알려지고 나서
-    if (!S.seen.tv_show && S.prods.length > 0 && S.m >= 24 && S.aware >= 50 && S.fan >= 35 && R() < 0.35) {
+    if (!S.seen.tv_show && S.prods.length > 0 && S.m >= 24 && S.m <= 114 && S.aware >= 50 && S.fan >= 35 && R() < 0.35) {
         const quiz = (label, ok) => ({ label, sub: '정답이면 상금 100만 원', run: S => {
                 const ch = [];
                 S.tvAired = S.m;
@@ -2686,6 +2686,37 @@ function tvEvent(S) {
                 { label: '드라마 카메오 「한 회만, 대표 역으로」', sub: '인지도↑ 매력↑ · 부담 적음', run: take('drama') },
                 { label: '영화 조연 「제대로 연기해 볼게요」', sub: '인지도↑↑ 매력↑↑ · 체력·스트레스 부담', run: take('movie') },
                 { label: '“저는 브랜드로 말할게요.” 정중히 거절', sub: '리더십↑ 경영↑', run: S => { const ch = []; grow(S, 'lead', 2, ch); grow(S, 'biz', 1, ch); return { text: '감독이 아쉽게 웃었다. “언젠가 마음 바뀌면 연락 주세요.” 대본은 책장 맨 위 칸에 꽂아 두었다.', chips: ch }; } },
+            ] };
+    }
+    // 마지막 달(119개월째): 촬영·방영이 남아 있으면 한 번에 마무리하고 엔딩으로 간다
+    if (F && !F.done && S.m >= 119) {
+        const movie = F.kind === 'movie', rush = F.shot == null;
+        const fin = (promo) => S => {
+            const ch = [];
+            if (rush) {
+                F.shot = S.m;
+                bump(S, 'hp', movie ? -10 : -4, ch);
+            }
+            F.done = S.m;
+            const great = (S.st.charm || 0) + F.good * 12 + rand(0, 20) >= 80;
+            bump(S, 'aware', (movie ? 14 : 8) + (great ? 6 : 0), ch);
+            bump(S, 'fan', great ? 8 : 3, ch);
+            grow(S, 'charm', great ? 3 : 1, ch);
+            if (promo) {
+                grow(S, 'mkt', 2, ch);
+                bump(S, 'fan', -2, ch);
+            }
+            S.album.push(`${movie ? '영화' : '드라마'} 출연${great ? ' · 호평' : ''}`);
+            if (great && movie)
+                S.actFame = (S.actFame || 0) + 1;
+            return { text: `${great ? '플래시가 쏟아지고 박수가 길게 이어졌다. 「뷰티 CEO의 놀라운 데뷔」 기사가 밤새 올라왔다.' : '객석은 조용히 박수를 쳤다. 평은 “신기하다” 정도였지만, 브랜드 이름은 확실히 남았다.'}${promo ? '\n드레스 협찬 기사가 같이 나가며 브랜드 검색량이 뛰었다.' : ''}\n서른 살의 아침이 밝아 온다.`, chips: ch };
+        };
+        return { id: 'tv_final', face: 'news', speaker: 'D-DAY', title: '드디어 결전의 날이야!', cg: 'premiere', place: 'street',
+            beats: [{ speaker: '감독 민서하', text: `서른 살을 앞둔 마지막 달.\n${rush ? '촬영을 마치기 무섭게 개봉일이 잡혔다. 밤샘 촬영 끝에 겨우 마지막 컷을 찍었다.\n' : ''}감독이 어깨를 두드렸다. “대표님, 드디어 결전의 날이에요!”` }],
+            text: () => `${movie ? '레드카펫 위로 플래시가 쏟아졌다.' : '방영 날 밤, 팀원들과 사무실에 모여 TV를 켰다.'}\n10년 동안 키워 온 브랜드, 그리고 처음 서 보는 무대. 기자가 마이크를 내밀었다.`,
+            choices: [
+                { label: '“연기도 피부처럼, 0단계부터 배웠어요.”', sub: '매력·명장면이 많을수록 호평', run: fin(false) },
+                { label: '“이 드레스, 저희 브랜드 협찬이에요.”', sub: '마케팅↑ · 팬덤 조금↓', run: fin(true) },
             ] };
     }
     // 3) 촬영장
@@ -3731,7 +3762,7 @@ function fixedEvents(S) {
         out.push(tr);
     {
         const tv = tvEvent(S);
-        if (tv && out.length < 3)
+        if (tv && (out.length < 3 || tv.id === 'tv_final'))
             out.push(tv);
     }
     for (const ce of careEvents(S))
@@ -5235,7 +5266,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.08-B';
+const BUILD_TAG = '2026.11.08-C';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
