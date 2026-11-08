@@ -639,7 +639,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.08-A</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.08-B</span>
       </div>
     </div>
   </section>
@@ -2639,6 +2639,123 @@ const BDAY_CHOICES = [
     { label: '가족과 저녁 식사', sub: '체력↑ 스트레스↓', run: S => { const ch = []; bump(S, 'hp', 15, ch); bump(S, 'stress', -15, ch); return { text: '아빠가 서툰 손글씨로 “우리 대표님”이라고 쓴 케이크를 사 왔다.', chips: ch }; } },
 ];
 // 프린세스 메이커의 수확제처럼 매년 10월에 열리는 대회
+// ---- 방송 출연 → 섭외 → 촬영 → 방영: 장면마다 일러스트가 나오는 연작 이벤트 ----
+const TV_SHOW = '퀴즈 한 잔, 인생 한 잔';
+function tvStarOk(S) { const v = (S.love || {}).star; return !!v && !v.blocked && v.stage > -8; }
+function tvEvent(S) {
+    const F = S.film;
+    // 1) 토크 퀴즈쇼 출연: 브랜드가 알려지고 나서
+    if (!S.seen.tv_show && S.prods.length > 0 && S.m >= 24 && S.aware >= 50 && S.fan >= 35 && R() < 0.35) {
+        const quiz = (label, ok) => ({ label, sub: '정답이면 상금 100만 원', run: S => {
+                const ch = [];
+                S.tvAired = S.m;
+                S.album.push(`「${TV_SHOW}」 출연`);
+                if (ok) {
+                    bump(S, 'cash', 100, ch);
+                    bump(S, 'aware', 12, ch);
+                    bump(S, 'fan', 6, ch);
+                    grow(S, 'rnd', 1, ch);
+                    return { text: `딩동댕! “와, 역시 연구하는 대표님!” MC들이 박수를 쳤다.\n방송이 나간 밤, ‘${S.brand}’가 검색어 1위에 올랐다. 자사몰 서버가 두 번 멈췄다.`, chips: ch };
+                }
+                bump(S, 'aware', 9, ch);
+                bump(S, 'fan', 5, ch);
+                grow(S, 'charm', 1, ch);
+                return { text: '“땡! 정답은 히알루론산이에요. 장벽 지질이 아니라 수분을 잡는 성분이죠.”\n“아… 대표님 회사 제품은 괜찮은 거죠?” 객석이 뒤집어졌다. 오답 장면이 클립으로 200만 뷰를 넘겼다.', chips: ch };
+            } });
+        return { id: 'tv_show', face: 'news', speaker: 'ON AIR', title: `「${TV_SHOW}」 출연`, cg: 'tvshow', place: 'street',
+            beats: [
+                { speaker: 'MC 나건우', text: `녹화 당일. 키다리 MC 나건우가 웃으며 소개했다.\n“오늘의 손님은 긁힌 유리를 되돌리는 브랜드, ${S.brand}의 ${S.name} 대표님입니다!”\n카메라에 빨간불이 들어왔다.` },
+                { speaker: 'MC 오세찬', text: `동그리 MC 오세찬이 몸을 기울였다. “창업할 때 통장에 얼마 있었어요?”\n웃음이 터졌고, 이야기는 옥탑방에서 만든 첫 제형으로 흘러갔다. 나건우 MC가 말했다. “이런 게 진짜 훌륭한 브랜드죠.”` },
+            ],
+            text: () => '“자, 이제 퀴즈 시간! 맞히면 상금 100만 원!” 딩동, 벨이 울렸다.\n문제: 피부 장벽을 이루는 지질 성분이 아닌 것은?',
+            choices: [quiz('세라마이드', false), quiz('콜레스테롤', false), quiz('유리지방산', false), quiz('히알루론산', true)] };
+    }
+    // 2) 방송을 본 감독의 섭외
+    if (S.tvAired != null && !S.seen.tv_offer && S.m >= S.tvAired + 1) {
+        const star = tvStarOk(S);
+        const take = (kind) => S => {
+            const ch = [];
+            S.film = { kind, m: S.m, good: 0, star };
+            push(ch, kind === 'movie' ? '영화 출연 확정' : '드라마 출연 확정', 1);
+            bump(S, 'stress', -4, ch);
+            return { text: kind === 'movie' ? '“제대로 해 볼게요.” 대본을 끌어안고 나왔다. 다음 달부터 촬영이다. 회사 일과 병행하려면 체력이 필요하다.' : '“한 회만, 대표 역할로요.” 감독이 손뼉을 쳤다. “딱 대표님 그대로면 돼요.” 다음 달 촬영이다.', chips: ch };
+        };
+        return { id: 'tv_offer', face: 'ceo', speaker: 'CASTING', title: '대본이 도착했다', cg: 'script', place: 'cafe',
+            text: () => `방송 다음 주, 낯선 번호로 연락이 왔다. 영화감독 민서하라고 했다.\n“방송 보고 바로 연락드렸어요. 대표님 같은 얼굴이 필요해요. 뷰티 브랜드 대표 역이에요.”${star ? '\n함께 출연할 배우 명단 맨 위에 익숙한 이름이 있었다. 차이안.' : ''}`,
+            choices: [
+                { label: '드라마 카메오 「한 회만, 대표 역으로」', sub: '인지도↑ 매력↑ · 부담 적음', run: take('drama') },
+                { label: '영화 조연 「제대로 연기해 볼게요」', sub: '인지도↑↑ 매력↑↑ · 체력·스트레스 부담', run: take('movie') },
+                { label: '“저는 브랜드로 말할게요.” 정중히 거절', sub: '리더십↑ 경영↑', run: S => { const ch = []; grow(S, 'lead', 2, ch); grow(S, 'biz', 1, ch); return { text: '감독이 아쉽게 웃었다. “언젠가 마음 바뀌면 연락 주세요.” 대본은 책장 맨 위 칸에 꽂아 두었다.', chips: ch }; } },
+            ] };
+    }
+    // 3) 촬영장
+    if (F && F.shot == null && S.m >= F.m + 1) {
+        const movie = F.kind === 'movie';
+        const pay = (S, ch) => { F.shot = S.m; bump(S, 'hp', movie ? -15 : -6, ch); bump(S, 'stress', movie ? 10 : 4, ch); };
+        const choices = [
+            { label: '애드리브로 간다', sub: '매력 55 이상이면 명장면', run: S => {
+                    const ch = [];
+                    pay(S, ch);
+                    if ((S.st.charm || 0) >= 55) {
+                        F.good += 2;
+                        grow(S, 'charm', 3, ch);
+                        return { text: '감독이 “컷”을 외치지 않았다. 숨죽이던 스태프들이 박수를 쳤다. 그 장면이 예고편 첫 컷이 됐다.', chips: ch };
+                    }
+                    F.good -= 1;
+                    bump(S, 'stress', 6, ch);
+                    return { text: 'NG 열한 번. 얼굴이 화끈거렸다. 그래도 마지막 테이크가 끝나자 스태프들이 박수를 쳐 줬다.', chips: ch };
+                } },
+            { label: '“죄송합니다. 한 번만 다시 갈게요.”', sub: '안전하게 · 매력↑ 리더십↑', run: S => { const ch = []; pay(S, ch); F.good += 1; grow(S, 'charm', 1.5, ch); grow(S, 'lead', 1, ch); return { text: '대본을 다시 읽고 숨을 골랐다. 두 번째 테이크에서 감독이 고개를 끄덕였다. “좋아요, 대표님 목소리 그대로.”', chips: ch }; } },
+        ];
+        if (F.star && tvStarOk(S))
+            choices.push({ label: '상대역 차이안의 눈을 본다', sub: '차이안 호감↑ · 매력 40 이상이면 명장면', run: S => {
+                    const ch = [];
+                    pay(S, ch);
+                    addAff(S, 'star', 8, ch);
+                    if ((S.st.charm || 0) >= 40) {
+                        F.good += 2;
+                        grow(S, 'charm', 2, ch);
+                        return { text: '이안이 아주 작게 대사를 먼저 흘려 줬다. 장면은 한 번에 끝났다. “카메라 없는 데서도 그렇게 봐 줘요.” 그가 속삭였다.', chips: ch };
+                    }
+                    F.good += 1;
+                    return { text: '이안의 눈을 보다가 대사를 놓쳤다. 둘 다 웃음이 터져 NG. 그 메이킹 영상이 더 화제가 됐다.', chips: ch };
+                } });
+        return { id: 'tv_shoot', face: 'ceo', speaker: 'ON SET', title: movie ? '영화 촬영 첫날' : '드라마 촬영 날', cg: 'filming', place: 'street',
+            beats: [{ speaker: '감독 민서하', text: `촬영장. 조명 아래 서니 심장 소리가 귀까지 들렸다.\n${F.star && tvStarOk(S) ? '맞은편에 차이안이 서 있었다. 그가 눈으로 웃었다. “긴장돼요? 저도요.”\n' : ''}“레디… 액션!”` }],
+            text: () => '첫 대사는 괜찮았다. 그런데 두 번째 대사가 머릿속에서 하얗게 지워졌다.\n모니터 뒤에서 감독이 조용히 기다린다.',
+            choices };
+    }
+    // 4) 방영·시사회
+    if (F && F.shot != null && !F.done && S.m >= F.shot + 2) {
+        const movie = F.kind === 'movie';
+        const finish = (promo) => S => {
+            const ch = [];
+            F.done = S.m;
+            const score = (S.st.charm || 0) + F.good * 12 + rand(0, 20);
+            const great = score >= 80;
+            bump(S, 'aware', (movie ? 14 : 8) + (great ? 6 : 0), ch);
+            bump(S, 'fan', great ? 8 : 3, ch);
+            grow(S, 'charm', great ? 3 : 1, ch);
+            if (promo) {
+                grow(S, 'mkt', 2, ch);
+                bump(S, 'fan', -2, ch);
+            }
+            S.album.push(`${movie ? '영화' : '드라마'} 출연${great ? ' · 호평' : ''}`);
+            if (great && movie)
+                S.actFame = (S.actFame || 0) + 1;
+            const lead = movie ? 'VIP 시사회가 끝나자 객석에서 기립 박수가 나왔다.' : '방송이 끝나자 ‘대표님 연기’가 실시간 검색어에 올랐다.';
+            const rev = great ? (movie ? '다음 날 기사 제목: 「뷰티 CEO의 놀라운 스크린 데뷔, 신인상 후보로」.' : '짧은 출연이었지만 “연기 더 보고 싶다”는 댓글이 수천 개 달렸다.') : '평은 “신기하다” 정도였다. 그래도 브랜드 이름은 확실히 남았다.';
+            return { text: `${lead}\n${rev}${promo ? '\n드레스 협찬 기사가 같이 나가며 브랜드 검색량이 뛰었다. “결국 광고였네” 하는 댓글도 있었다.' : ''}`, chips: ch };
+        };
+        return { id: 'tv_premiere', face: 'news', speaker: movie ? 'PREMIERE' : 'ON AIR', title: movie ? '영화 시사회 레드카펫' : '드라마 방영 날', cg: 'premiere', place: 'street',
+            text: () => movie ? '레드카펫 위로 플래시가 쏟아졌다. 사파이어색 드레스가 조명을 받아 반짝였다.\n기자가 마이크를 내밀었다. “대표님, 한마디 해 주세요!”' : '방영 날 밤, 팀원들과 사무실에 모여 TV를 켰다. 엔딩 크레딧에 이름이 올라가자 다들 소리를 질렀다.\n기자에게서 인터뷰 요청이 왔다.',
+            choices: [
+                { label: '“연기도 피부처럼, 0단계부터 배웠어요.”', sub: '매력·명장면이 많을수록 호평', run: finish(false) },
+                { label: '“이 드레스, 저희 브랜드 협찬이에요.”', sub: '마케팅↑ · 팬덤 조금↓', run: finish(true) },
+            ] };
+    }
+    return null;
+}
 // ---- 어워즈: 심사위원 3명이 한 명씩 점수를 공개한다. 두 명이 공개된 뒤 「발표 멘트」로 마지막 심사위원 점수를 바꿀 수 있다 ----
 const JUDGES = {
     derma: { name: '정다인', role: '피부과 전문의 · 의대 교수', img: 'art/judge_derma.jpg', likes: '근거와 데이터', speech: 'data',
@@ -3612,6 +3729,11 @@ function fixedEvents(S) {
     const tr = teamResultEvent(S);
     if (tr && out.length < 3)
         out.push(tr);
+    {
+        const tv = tvEvent(S);
+        if (tv && out.length < 3)
+            out.push(tv);
+    }
     for (const ce of careEvents(S))
         if (out.length < 3)
             out.push(ce);
@@ -3703,7 +3825,7 @@ function computeEnding(S) {
         return 'couture';
     if (ch >= 75 && st.aes >= 85)
         return 'model';
-    if (ch >= 85 && st.aes >= 40)
+    if ((ch >= 85 || (S.actFame && ch >= 75)) && st.aes >= 40)
         return 'actress';
     if (st.lead >= 80 && st.net >= 80 && st.biz >= 60)
         return 'minister';
@@ -4693,6 +4815,18 @@ async function playEvent(ev) {
         setPlace(ev.place || PLACE_BY_EVENT[ev.id] || PLACE_BY_CAST[cast.ask]);
     if (ev.beats) {
         for (const b of ev.beats) {
+            if (b.cg) {
+                hideActor();
+                $('#dialog').hidden = true;
+                await showCG(b.cg, { kicker: ev.speaker, title: b.title || ev.title });
+                showScene(cgSrc(b.cg), b.title || ev.title);
+                await say({ speaker: b.speaker || ev.speaker, face: ev.face, title: b.title || ev.title, text: b.text });
+                continue;
+            }
+            if (!b.actor) {
+                await say({ speaker: b.speaker || ev.speaker, face: ev.face, title: ev.title, text: b.text });
+                continue;
+            }
             showActor(b.actor);
             await say({ speaker: b.speaker, face: 'lover', faceImg: SPR[b.actor] && SPR[b.actor].src, title: ev.title, text: b.text });
         }
@@ -4897,7 +5031,7 @@ const CG_MAP = { prologue: 'prologue', rival1: 'rival1', rival2: 'rival2', rival
     derma: 'lab', patent: 'lab', gov: 'lab', fashion: 'fashion', ma: 'ma', parents: 'parents', letter: 'letter', health: 'health',
     lv_anniv: 'date', lv_surprise: 'date', lv_visit: 'date', blind: 'date', lv_newlywed: 'date', lv_parents: 'date', lv_pet: 'pet', award: 'awards' };
 const CG_PREFIX = [['conf_', 'confess'], ['prop_', 'propose'], ['tri1_', 'triangle'], ['tri2_', 'triangle'], ['trip_summer', 'trip_summer'], ['trip_winter', 'trip_winter'], ['dump_', 'breakup'], ['after_', 'breakup'], ['grant_ad_', 'lab']];
-const CG_FX = { rain: ['hero_vc2', 'hero_vc3', 'breakup', 'rival3', 'colon_secret', 'monsoon', 'triangle', 'ch3', 'scandal'], snow: ['first_snow', 'trip_winter'], petal: ['sakura', 'spring_fever', 'ch1'], confetti: ['awards', 'party', 'promo', 'rival_final', 'workshop', 'yearend'], sparkle: ['hero_vc4', 'confess_playboy', 'confess_intern', 'confess_vc', 'confess_star', 'confess_ceo2', 'confess_colon', 'propose_playboy', 'propose_intern', 'propose_vc', 'propose_star', 'propose_ceo2', 'propose_colon', 'trip_summer', 'confess', 'propose', 'date', 'prologue', 'bday', 'ch4', 'ch2', 'colon_open', 'letter', 'pet', 'fashion'] };
+const CG_FX = { rain: ['hero_vc2', 'hero_vc3', 'breakup', 'rival3', 'colon_secret', 'monsoon', 'triangle', 'ch3', 'scandal'], snow: ['first_snow', 'trip_winter'], petal: ['sakura', 'spring_fever', 'ch1'], confetti: ['awards', 'party', 'promo', 'rival_final', 'workshop', 'yearend'], sparkle: ['premiere', 'filming', 'hero_vc4', 'confess_playboy', 'confess_intern', 'confess_vc', 'confess_star', 'confess_ceo2', 'confess_colon', 'propose_playboy', 'propose_intern', 'propose_vc', 'propose_star', 'propose_ceo2', 'propose_colon', 'trip_summer', 'confess', 'propose', 'date', 'prologue', 'bday', 'ch4', 'ch2', 'colon_open', 'letter', 'pet', 'fashion'] };
 const SEASON_CG = ['sakura', 'spring_fever', 'monsoon', 'summer_vac', 'chuseok', 'autumn_dry', 'first_snow', 'yearend'];
 function cgKey(ev) { if (ev.cg)
     return ev.cg; const lm = /^(conf|prop)_([a-z0-9]+)$/.exec(ev.id); if (lm && LOVERS[lm[2]])
@@ -4905,7 +5039,7 @@ function cgKey(ev) { if (ev.cg)
     return `${ev.id}_${stageOf(S).key.slice(3)}`; if (CG_MAP[ev.id])
     return CG_MAP[ev.id]; const p = CG_PREFIX.find(([x]) => ev.id.startsWith(x)); return p ? p[1] : null; }
 const cgSrc = k => `art/cg_${k}.jpg`;
-const CG_ALL = ['hero_vc1', 'hero_vc2', 'hero_vc3', 'hero_vc4', ...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
+const CG_ALL = ['hero_vc1', 'hero_vc2', 'hero_vc3', 'hero_vc4', ...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'tvshow', 'script', 'filming', 'premiere', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
 let cgFlip = false;
 function showCG(key, o = {}) {
     return new Promise(res => {
@@ -5101,7 +5235,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.08-A';
+const BUILD_TAG = '2026.11.08-B';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
