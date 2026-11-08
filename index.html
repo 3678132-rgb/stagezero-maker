@@ -639,7 +639,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.08-C</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.08-D</span>
       </div>
     </div>
   </section>
@@ -2688,37 +2688,6 @@ function tvEvent(S) {
                 { label: '“저는 브랜드로 말할게요.” 정중히 거절', sub: '리더십↑ 경영↑', run: S => { const ch = []; grow(S, 'lead', 2, ch); grow(S, 'biz', 1, ch); return { text: '감독이 아쉽게 웃었다. “언젠가 마음 바뀌면 연락 주세요.” 대본은 책장 맨 위 칸에 꽂아 두었다.', chips: ch }; } },
             ] };
     }
-    // 마지막 달(119개월째): 촬영·방영이 남아 있으면 한 번에 마무리하고 엔딩으로 간다
-    if (F && !F.done && S.m >= 119) {
-        const movie = F.kind === 'movie', rush = F.shot == null;
-        const fin = (promo) => S => {
-            const ch = [];
-            if (rush) {
-                F.shot = S.m;
-                bump(S, 'hp', movie ? -10 : -4, ch);
-            }
-            F.done = S.m;
-            const great = (S.st.charm || 0) + F.good * 12 + rand(0, 20) >= 80;
-            bump(S, 'aware', (movie ? 14 : 8) + (great ? 6 : 0), ch);
-            bump(S, 'fan', great ? 8 : 3, ch);
-            grow(S, 'charm', great ? 3 : 1, ch);
-            if (promo) {
-                grow(S, 'mkt', 2, ch);
-                bump(S, 'fan', -2, ch);
-            }
-            S.album.push(`${movie ? '영화' : '드라마'} 출연${great ? ' · 호평' : ''}`);
-            if (great && movie)
-                S.actFame = (S.actFame || 0) + 1;
-            return { text: `${great ? '플래시가 쏟아지고 박수가 길게 이어졌다. 「뷰티 CEO의 놀라운 데뷔」 기사가 밤새 올라왔다.' : '객석은 조용히 박수를 쳤다. 평은 “신기하다” 정도였지만, 브랜드 이름은 확실히 남았다.'}${promo ? '\n드레스 협찬 기사가 같이 나가며 브랜드 검색량이 뛰었다.' : ''}\n서른 살의 아침이 밝아 온다.`, chips: ch };
-        };
-        return { id: 'tv_final', face: 'news', speaker: 'D-DAY', title: '드디어 결전의 날이야!', cg: 'premiere', place: 'street',
-            beats: [{ speaker: '감독 민서하', text: `서른 살을 앞둔 마지막 달.\n${rush ? '촬영을 마치기 무섭게 개봉일이 잡혔다. 밤샘 촬영 끝에 겨우 마지막 컷을 찍었다.\n' : ''}감독이 어깨를 두드렸다. “대표님, 드디어 결전의 날이에요!”` }],
-            text: () => `${movie ? '레드카펫 위로 플래시가 쏟아졌다.' : '방영 날 밤, 팀원들과 사무실에 모여 TV를 켰다.'}\n10년 동안 키워 온 브랜드, 그리고 처음 서 보는 무대. 기자가 마이크를 내밀었다.`,
-            choices: [
-                { label: '“연기도 피부처럼, 0단계부터 배웠어요.”', sub: '매력·명장면이 많을수록 호평', run: fin(false) },
-                { label: '“이 드레스, 저희 브랜드 협찬이에요.”', sub: '마케팅↑ · 팬덤 조금↓', run: fin(true) },
-            ] };
-    }
     // 3) 촬영장
     if (F && F.shot == null && S.m >= F.m + 1) {
         const movie = F.kind === 'movie';
@@ -3762,7 +3731,7 @@ function fixedEvents(S) {
         out.push(tr);
     {
         const tv = tvEvent(S);
-        if (tv && (out.length < 3 || tv.id === 'tv_final'))
+        if (tv && out.length < 3)
             out.push(tv);
     }
     for (const ce of careEvents(S))
@@ -4698,9 +4667,12 @@ async function runMonth() {
         await ap;
         hideActor();
     }
-    S.m++;
-    if (S.m >= TOTAL_MONTHS)
+    if (S.m + 1 >= TOTAL_MONTHS) {
+        await finalDay();
+        S.m++;
         return finish();
+    }
+    S.m++;
     S.plan = [null, null, null];
     S.phase = 'plan';
     activeSlot = 0;
@@ -5062,7 +5034,7 @@ const CG_MAP = { prologue: 'prologue', rival1: 'rival1', rival2: 'rival2', rival
     derma: 'lab', patent: 'lab', gov: 'lab', fashion: 'fashion', ma: 'ma', parents: 'parents', letter: 'letter', health: 'health',
     lv_anniv: 'date', lv_surprise: 'date', lv_visit: 'date', blind: 'date', lv_newlywed: 'date', lv_parents: 'date', lv_pet: 'pet', award: 'awards' };
 const CG_PREFIX = [['conf_', 'confess'], ['prop_', 'propose'], ['tri1_', 'triangle'], ['tri2_', 'triangle'], ['trip_summer', 'trip_summer'], ['trip_winter', 'trip_winter'], ['dump_', 'breakup'], ['after_', 'breakup'], ['grant_ad_', 'lab']];
-const CG_FX = { rain: ['hero_vc2', 'hero_vc3', 'breakup', 'rival3', 'colon_secret', 'monsoon', 'triangle', 'ch3', 'scandal'], snow: ['first_snow', 'trip_winter'], petal: ['sakura', 'spring_fever', 'ch1'], confetti: ['awards', 'party', 'promo', 'rival_final', 'workshop', 'yearend'], sparkle: ['premiere', 'filming', 'hero_vc4', 'confess_playboy', 'confess_intern', 'confess_vc', 'confess_star', 'confess_ceo2', 'confess_colon', 'propose_playboy', 'propose_intern', 'propose_vc', 'propose_star', 'propose_ceo2', 'propose_colon', 'trip_summer', 'confess', 'propose', 'date', 'prologue', 'bday', 'ch4', 'ch2', 'colon_open', 'letter', 'pet', 'fashion'] };
+const CG_FX = { rain: ['hero_vc2', 'hero_vc3', 'breakup', 'rival3', 'colon_secret', 'monsoon', 'triangle', 'ch3', 'scandal'], snow: ['first_snow', 'trip_winter'], petal: ['sakura', 'spring_fever', 'ch1'], confetti: ['awards', 'party', 'promo', 'rival_final', 'workshop', 'yearend'], sparkle: ['finalday', 'premiere', 'filming', 'hero_vc4', 'confess_playboy', 'confess_intern', 'confess_vc', 'confess_star', 'confess_ceo2', 'confess_colon', 'propose_playboy', 'propose_intern', 'propose_vc', 'propose_star', 'propose_ceo2', 'propose_colon', 'trip_summer', 'confess', 'propose', 'date', 'prologue', 'bday', 'ch4', 'ch2', 'colon_open', 'letter', 'pet', 'fashion'] };
 const SEASON_CG = ['sakura', 'spring_fever', 'monsoon', 'summer_vac', 'chuseok', 'autumn_dry', 'first_snow', 'yearend'];
 function cgKey(ev) { if (ev.cg)
     return ev.cg; const lm = /^(conf|prop)_([a-z0-9]+)$/.exec(ev.id); if (lm && LOVERS[lm[2]])
@@ -5070,7 +5042,7 @@ function cgKey(ev) { if (ev.cg)
     return `${ev.id}_${stageOf(S).key.slice(3)}`; if (CG_MAP[ev.id])
     return CG_MAP[ev.id]; const p = CG_PREFIX.find(([x]) => ev.id.startsWith(x)); return p ? p[1] : null; }
 const cgSrc = k => `art/cg_${k}.jpg`;
-const CG_ALL = ['hero_vc1', 'hero_vc2', 'hero_vc3', 'hero_vc4', ...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'tvshow', 'script', 'filming', 'premiere', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
+const CG_ALL = ['hero_vc1', 'hero_vc2', 'hero_vc3', 'hero_vc4', ...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'tvshow', 'script', 'filming', 'premiere', 'finalday', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
 let cgFlip = false;
 function showCG(key, o = {}) {
     return new Promise(res => {
@@ -5266,7 +5238,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.08-C';
+const BUILD_TAG = '2026.11.08-D';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
@@ -5450,6 +5422,18 @@ function getDownloads() {
     if (!_dlP)
         _dlP = (window.claude && typeof window.claude.use === 'function') ? window.claude.use('downloads').catch(() => null) : Promise.resolve(null);
     return _dlP;
+}
+// ---------- 10년의 마지막 날: 엔딩 직전에 한 번 ----------
+async function finalDay() {
+    const p = partnerOf(S), lv = p && LOVERS[p], wife = S.married && S.married === p, aw = (S.awards && S.awards.grand) || 0, sec = secName(S);
+    $('#dialog').hidden = true;
+    hideActor();
+    await showCG('finalday', { kicker: 'D-DAY · 10년의 마지막 날', title: '드디어 결전의 날이야!', sub: `${S.brand}, 창업 120개월째` });
+    showScene(cgSrc('finalday'), '10년의 마지막 날');
+    await say({ speaker: sec ? `비서 ${sec}` : 'D-DAY', face: 'ceo', title: '드디어 결전의 날이야!',
+        text: `${sec ? `“대표님, 오늘이 딱 10년째 되는 날이에요.”\n${josa(sec, '이', '가')} 마지막 일정표를 내밀었다. 맨 아래 칸에 한 줄이 적혀 있었다.\n「드디어 결전의 날」` : '알람보다 먼저 눈이 떠졌다. 달력의 마지막 칸에 동그라미가 쳐져 있다.\n드디어 결전의 날이다.'}` });
+    await say({ speaker: S.name, face: 'ceo', title: '드디어 결전의 날이야!',
+        text: `옥탑방 책상 위 긁힌 유리병 하나에서 시작했다.\n지금은 제품 ${S.prods.length}개, 팀 ${(S.emp || 0) + 1}명${aw ? `, 어워즈 대상 ${aw}번` : ''}.${lv ? `\n${josa(wife ? '남편 ' + lv.name : lv.name, '이', '가')} 문 앞에서 엄지를 들어 보였다.` : ''}\n투명해진 병을 햇빛에 비춰 보고 숨을 크게 쉬었다. “좋아. 드디어 결전의 날이야!”` });
 }
 function finish() {
     document.body.classList.remove('running');
