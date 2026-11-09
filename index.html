@@ -639,7 +639,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.09-A</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.09-B</span>
       </div>
     </div>
   </section>
@@ -2034,6 +2034,11 @@ function settle(S) {
     }
     if (S.global)
         mult *= 1.8;
+    if (S.buzz && S.m < S.buzz.until) {
+        mult *= S.buzz.mult;
+        if (S.prods.length)
+            notes.push('대상 효과');
+    }
     if (mo === 11 && S.prods.length) {
         mult *= 1.3;
         notes.push('블랙프라이데이');
@@ -2844,6 +2849,133 @@ function tvEvent(S) {
     }
     return null;
 }
+// ---- 대상 이후 연쇄 이벤트: 매거진 커버 인터뷰(다음 달) → 주문 폭주(두 달 뒤) → 업계 러브콜(넉 달 뒤) ----
+const MAGAZINE = 'VERRE';
+function grandChainEvent(S) {
+    const G = S.grandChain;
+    if (!G)
+        return null;
+    if (!G.s1 && S.m >= G.m + 1) {
+        G.s1 = true;
+        const again = G.n >= 2;
+        const art = (head, body) => `기사 제목: 「${head}」\n${body}`;
+        return { id: 'grand_mag_' + S.m, face: 'news', speaker: 'MAGAZINE', title: `「${MAGAZINE}」 커버 인터뷰`, cg: 'magazine', place: 'meeting',
+            text: () => `${again ? `대상 ${G.n}관왕. 마리 윤 편집장에게서 또 연락이 왔다. “이번엔 ‘${G.n}번째 트로피’ 특집이에요.”` : '대상 발표 다음 날, 심사위원이던 마리 윤 편집장에게서 연락이 왔다.\n“다음 달 커버, 대표님으로 갑니다. 거절은 안 받아요.”'}\n촬영이 끝나고 인터뷰가 시작됐다. 첫 질문은 늘 같다. “어떤 이야기부터 할까요?”`,
+            choices: [
+                { label: '“긁힌 유리 이야기부터 할게요.”', run: S => {
+                        const ch = [];
+                        bump(S, 'aware', 9, ch);
+                        bump(S, 'fan', 6, ch);
+                        grow(S, 'aes', 1.5, ch);
+                        S.album.push(`「${MAGAZINE}」 커버`);
+                        return { text: art(`긁힌 유리를 투명하게, ${S.brand}`, '브랜드 철학을 담은 6페이지 화보가 나갔다. 서점 매대에서 잡지가 이틀 만에 품절됐다.'), chips: ch };
+                    } },
+                { label: '“처방 이야기를 해도 될까요?”', run: S => {
+                        const ch = [];
+                        bump(S, 'aware', 6, ch);
+                        bump(S, 'fan', 4, ch);
+                        grow(S, 'rnd', 1.5, ch);
+                        S.album.push(`「${MAGAZINE}」 커버`);
+                        return { text: art('트로피 뒤의 세라마이드 비율', '성분 이야기만 네 페이지. “이렇게 진지한 커버 인터뷰는 처음”이라는 반응과 함께 피부과 의사들이 기사를 공유했다.'), chips: ch };
+                    } },
+                { label: '창업 후 실패담을 털어놓는다', run: S => {
+                        const ch = [];
+                        bump(S, 'aware', 7, ch);
+                        bump(S, 'fan', 9, ch);
+                        grow(S, 'charm', 2, ch);
+                        bump(S, 'stress', -6, ch);
+                        S.album.push(`「${MAGAZINE}」 커버`);
+                        return { text: art('옥탑방에서 트로피까지', '통장 잔고 이야기에서 편집장이 웃음을 터뜨렸다. 기사 댓글에 “나도 다시 해 볼래요”가 줄줄이 달렸다.'), chips: ch };
+                    } },
+            ] };
+    }
+    if (!G.s2 && S.m >= G.m + 2) {
+        G.s2 = true;
+        return { id: 'grand_rush_' + S.m, face: 'news', speaker: 'SALES', title: '대상 효과: 주문 폭주', cg: 'soldout', place: 'office',
+            text: () => `어워즈 뒤로 주문이 평소의 다섯 배. 대표 제품 재고가 사흘 만에 바닥났다.\n고객센터 전화가 쉬지 않고 울린다. 어떻게 할까?`,
+            choices: [
+                { label: '공장을 풀가동해 증산한다', run: S => {
+                        const ch = [];
+                        bump(S, 'cash', -800, ch);
+                        bump(S, 'aware', 4, ch);
+                        if (S.buzz)
+                            S.buzz.until += 3;
+                        push(ch, '대상 효과 기간', 3);
+                        grow(S, 'biz', 1, ch);
+                        return { text: '원료사에 직접 찾아가 물량을 확보했다. 2주 뒤 창고가 다시 찼다. 대상 효과가 석 달 더 이어진다.', chips: ch };
+                    } },
+                { label: '「대상 에디션」 한정판을 낸다', run: S => {
+                        const ch = [];
+                        bump(S, 'cash', -300, ch);
+                        bump(S, 'fan', 8, ch);
+                        grow(S, 'aes', 1, ch);
+                        if (S.buzz)
+                            S.buzz.mult += 0.1;
+                        push(ch, '대상 효과', 10);
+                        return { text: '금박 로고를 찍은 한정판 3,000개가 10분 만에 매진됐다. 중고 거래 앱에 웃돈 매물이 올라왔다.', chips: ch };
+                    } },
+                { label: '예약 판매로 차분히 버틴다', run: S => {
+                        const ch = [];
+                        grow(S, 'lead', 1.5, ch);
+                        bump(S, 'fan', -2, ch);
+                        bump(S, 'stress', -4, ch);
+                        return { text: '“품질은 서두르지 않습니다.” 공지를 올렸다. 일부는 떠났지만, 남은 고객은 더 단단해졌다.', chips: ch };
+                    } },
+            ] };
+    }
+    if (!G.s3 && S.m >= G.m + 4) {
+        G.s3 = true;
+        if (G.n % 2 === 1) {
+            const first = !S.olive;
+            return { id: 'grand_buyer_' + S.m, face: 'news', speaker: 'LOVE CALL', title: '최강민 본부장의 러브콜', cg: 'retail', place: 'meeting',
+                text: () => `심사위원이던 H&B 체인 바이어 최강민 본부장이 직접 회사를 찾아왔다.\n“심사하면서 계속 생각했어요. 이 제품, ${first ? '전국 매장에 깔고 싶습니다.' : '매대 맨 앞 골든존에 단독 기획전으로 걸고 싶습니다.'}”`,
+                choices: [
+                    { label: first ? '전국 매장 입점을 받아들인다' : '단독 기획전을 연다', run: S => {
+                            const ch = [];
+                            if (first) {
+                                S.olive = true;
+                                S.album.push('H&B 전국 입점');
+                                bump(S, 'aware', 8, ch);
+                                push(ch, '전국 입점', 1);
+                            }
+                            else {
+                                if (S.buzz)
+                                    S.buzz.until += 2;
+                                push(ch, '대상 효과 기간', 2);
+                                bump(S, 'aware', 5, ch);
+                            }
+                            return { text: first ? '계약서에 사인하자 본부장이 손을 내밀었다. “다음 달부터 전국 1,300개 매장입니다.”' : '골든존에 우리 패키지가 한 줄로 늘어섰다. 지나가던 손님들이 트로피 스티커를 보고 멈춰 섰다.', chips: ch };
+                        } },
+                    { label: '“자사몰을 먼저 키울게요.” 정중히 미룬다', run: S => { const ch = []; bump(S, 'fan', 5, ch); grow(S, 'mkt', 1.5, ch); return { text: '“그 고집이 대상을 만들었겠죠.” 본부장이 명함을 두고 갔다.', chips: ch }; } },
+                ] };
+        }
+        return { id: 'grand_prof_' + S.m, face: 'ceo', speaker: 'LOVE CALL', title: '정다인 교수의 제안', cg: 'lab', place: 'meeting',
+            text: () => '심사위원이던 정다인 교수가 연구실로 초대했다.\n“대상 받은 처방, 임상으로 제대로 증명해 봅시다. 공동 연구 어때요?”',
+            choices: [
+                { label: '공동 연구를 시작한다', run: S => {
+                        const ch = [];
+                        bump(S, 'cash', -500, ch);
+                        grow(S, 'rnd', 3, ch);
+                        const b = S.prods.reduce((a, p) => !a || p.q > a.q ? p : a, null);
+                        if (b) {
+                            const q = b.q;
+                            b.q = clamp(b.q + 6, 0, 100);
+                            push(ch, '품질', b.q - q);
+                        }
+                        S.album.push('정다인 교수와 공동 연구');
+                        return { text: '석 달 뒤 피부과학회지에 공동 논문이 실렸다. 상세페이지에 “임상 완료” 한 줄이 붙었다.', chips: ch };
+                    } },
+                { label: '해외 학회 발표를 함께 간다', run: S => {
+                        const ch = [];
+                        bump(S, 'cash', -200, ch);
+                        bump(S, 'aware', 8, ch);
+                        grow(S, 'net', 2, ch);
+                        return { text: '파리 학회 무대에서 발표를 마치자 해외 바이어 명함이 열두 장 쌓였다.', chips: ch };
+                    } },
+            ] };
+    }
+    return null;
+}
 // ---- 어워즈: 심사위원 3명이 한 명씩 점수를 공개한다. 두 명이 공개된 뒤 「발표 멘트」로 마지막 심사위원 점수를 바꿀 수 있다 ----
 const JUDGES = {
     derma: { name: '정다인', role: '피부과 전문의 · 의대 교수', img: 'art/judge_derma.jpg', likes: '근거와 데이터', speech: 'data',
@@ -2864,7 +2996,7 @@ const AWARD_SPEECH = {
     fan: { label: '“이 상은 리뷰를 써 주신 고객분들의 것입니다.”', sub: '팬덤·마케팅이 높을수록 효과 · 최강민 본부장이 좋아함', pow: S => 6 + S.fan * 0.09 + S.st.mkt * 0.07 },
     dare: { label: '“내년엔 루미에르랩을 확실히 이기겠습니다.”', sub: '모 아니면 도 · 매력이 높을수록 성공', pow: S => 0 },
 };
-const AWARD_GRAND = 36; // 세 심사위원 합계가 이만큼 앞서면 대상
+const AWARD_GOLD_GAP = 15; // 이기면 대상, 이 점수 안으로 지면 우수상
 function awardsRivalBase(S) { return 48 + Math.floor(S.m / 12) * 5 + (S.rivalBoost || 0); }
 function awardsSetup(S, cat) {
     const c = AWARD_CATS[cat], rb = awardsRivalBase(S);
@@ -2892,7 +3024,7 @@ function awardsResolve(S, A, speech) {
     if (speech === 'dare')
         S.rival = (S.rival || 0) + 1;
     const mine = A.judges.reduce((a, j) => a + j.mine, 0), rival = A.judges.reduce((a, j) => a + j.rival, 0);
-    const res = mine >= rival + AWARD_GRAND ? 'grand' : mine >= rival ? 'gold' : 'none';
+    const res = mine >= rival ? 'grand' : mine >= rival - AWARD_GOLD_GAP ? 'gold' : 'none';
     const ch = [];
     S.awards = S.awards || { grand: 0, gold: 0 };
     if (res === 'grand') {
@@ -2901,6 +3033,9 @@ function awardsResolve(S, A, speech) {
         bump(S, 'aware', 10, ch);
         bump(S, 'fan', 6, ch);
         S.album.push(`${yearOf(S)} 어워즈 대상`);
+        S.grandChain = { m: S.m, n: S.awards.grand };
+        S.buzz = { until: S.m + 6, mult: 1.25 };
+        push(ch, '대상 효과 6개월', 1);
     }
     else if (res === 'gold') {
         S.awards.gold++;
@@ -2914,7 +3049,7 @@ function awardsResolve(S, A, speech) {
     }
     const c = AWARD_CATS[A.cat];
     const head = res === 'grand' ? `대상! (${mine} : ${rival})` : res === 'gold' ? `우수상 (${mine} : ${rival})` : `수상 실패 (${mine} : ${rival})`;
-    return { res, mine, rival, fx, text: `${head}\n${res === 'none' ? `${RIVAL_BRAND}가 트로피를 가져갔다. ${RIVAL}이 무대에서 이쪽을 힐끗 봤다.` : c.flavor}`, chips: ch };
+    return { res, mine, rival, fx, text: `${head}\n${res === 'none' ? `${RIVAL_BRAND}가 트로피를 가져갔다. ${RIVAL}이 무대에서 이쪽을 힐끗 봤다.` : res === 'gold' ? `${rival - mine}점 차로 대상을 ${RIVAL_BRAND}에 내줬다. 그래도 우수상 트로피가 손에 남았다.` : c.flavor + '\n앞으로 반년 동안 매출이 오른다. 다음 달부터 섭외 전화가 쏟아질 것이다.'}`, chips: ch };
 }
 function awardsEvent(S) {
     const rb = awardsRivalBase(S);
@@ -3805,6 +3940,11 @@ function fixedEvents(S) {
         out.push(sx);
     if (mo === 10 && S.prods.length > 0)
         out.push(awardsEvent(S));
+    {
+        const gc = grandChainEvent(S);
+        if (gc && out.length < 3)
+            out.push(gc);
+    }
     const le = loveEvent(S);
     if (le)
         out.push(le);
@@ -5172,7 +5312,7 @@ const CG_MAP = { prologue: 'prologue', rival1: 'rival1', rival2: 'rival2', rival
     derma: 'lab', patent: 'lab', gov: 'lab', fashion: 'fashion', ma: 'ma', parents: 'parents', letter: 'letter', health: 'health',
     lv_anniv: 'date', lv_surprise: 'date', lv_visit: 'date', blind: 'date', lv_newlywed: 'date', lv_parents: 'date', lv_pet: 'pet', award: 'awards' };
 const CG_PREFIX = [['conf_', 'confess'], ['prop_', 'propose'], ['tri1_', 'triangle'], ['tri2_', 'triangle'], ['trip_summer', 'trip_summer'], ['trip_winter', 'trip_winter'], ['dump_', 'breakup'], ['after_', 'breakup'], ['grant_ad_', 'lab']];
-const CG_FX = { rain: ['hero_vc2', 'hero_vc3', 'breakup', 'rival3', 'colon_secret', 'monsoon', 'triangle', 'ch3', 'scandal'], snow: ['first_snow', 'trip_winter'], petal: ['sakura', 'spring_fever', 'ch1'], confetti: ['awards', 'party', 'promo', 'rival_final', 'workshop', 'yearend'], sparkle: ['finalday', 'premiere', 'filming', 'hero_vc4', 'confess_playboy', 'confess_intern', 'confess_vc', 'confess_star', 'confess_ceo2', 'confess_colon', 'propose_playboy', 'propose_intern', 'propose_vc', 'propose_star', 'propose_ceo2', 'propose_colon', 'trip_summer', 'confess', 'propose', 'date', 'prologue', 'bday', 'ch4', 'ch2', 'colon_open', 'letter', 'pet', 'fashion'] };
+const CG_FX = { rain: ['hero_vc2', 'hero_vc3', 'breakup', 'rival3', 'colon_secret', 'monsoon', 'triangle', 'ch3', 'scandal'], snow: ['first_snow', 'trip_winter'], petal: ['sakura', 'spring_fever', 'ch1'], confetti: ['soldout', 'awards', 'party', 'promo', 'rival_final', 'workshop', 'yearend'], sparkle: ['magazine', 'finalday', 'premiere', 'filming', 'hero_vc4', 'confess_playboy', 'confess_intern', 'confess_vc', 'confess_star', 'confess_ceo2', 'confess_colon', 'propose_playboy', 'propose_intern', 'propose_vc', 'propose_star', 'propose_ceo2', 'propose_colon', 'trip_summer', 'confess', 'propose', 'date', 'prologue', 'bday', 'ch4', 'ch2', 'colon_open', 'letter', 'pet', 'fashion'] };
 const SEASON_CG = ['sakura', 'spring_fever', 'monsoon', 'summer_vac', 'chuseok', 'autumn_dry', 'first_snow', 'yearend'];
 function cgKey(ev) { if (ev.cg)
     return ev.cg; const lm = /^(conf|prop)_([a-z0-9]+)$/.exec(ev.id); if (lm && LOVERS[lm[2]])
@@ -5180,7 +5320,7 @@ function cgKey(ev) { if (ev.cg)
     return `${ev.id}_${stageOf(S).key.slice(3)}`; if (CG_MAP[ev.id])
     return CG_MAP[ev.id]; const p = CG_PREFIX.find(([x]) => ev.id.startsWith(x)); return p ? p[1] : null; }
 const cgSrc = k => `art/cg_${k}.jpg`;
-const CG_ALL = ['hero_vc1', 'hero_vc2', 'hero_vc3', 'hero_vc4', ...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'tvshow', 'script', 'filming', 'premiere', 'finalday', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
+const CG_ALL = ['hero_vc1', 'hero_vc2', 'hero_vc3', 'hero_vc4', ...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'tvshow', 'script', 'filming', 'premiere', 'magazine', 'soldout', 'finalday', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
 let cgFlip = false;
 function showCG(key, o = {}) {
     return new Promise(res => {
@@ -5376,7 +5516,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.09-A';
+const BUILD_TAG = '2026.11.09-B';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
