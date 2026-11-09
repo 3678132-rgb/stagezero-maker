@@ -639,7 +639,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.09-C</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.09-D</span>
       </div>
     </div>
   </section>
@@ -1084,6 +1084,74 @@ const ACTS = {
         run: (S, ch) => { grow(S, 'biz', rand(5, 7), ch); grow(S, 'lead', rand(1, 2), ch); return pick(['원가율 표를 보다가 MOQ의 무게를 실감했다.', '현금흐름표가 손익계산서보다 무섭다는 걸 알았다.', '1on1 미팅 템플릿을 하나 얻어왔다.']); } },
     acting: { cat: '교육', name: '연기·스피치 레슨', desc: '카메라 앞에서 말하고 표현하는 법을 배운다.', cost: 100, hp: 7, stress: 6, eff: '매력↑',
         run: (S, ch) => { grow(S, 'charm', rand(5, 7), ch); return pick(['거울 앞에서 같은 대사를 스무 번 반복했다.', '코치가 “눈빛이 살아났다”고 했다.', '발표 영상을 찍어 보니 확실히 달라졌다.']); } },
+    // 나이가 들면 열리는 과정 (나이 전에는 잠겨 보인다)
+    cert: { cat: '교육', name: '맞춤형화장품 조제관리사', desc: '국가 자격증 과정. 두 번 들으면 시험을 본다. 합격하면 대표 제품 품질↑.', cost: 70, hp: 8, stress: 10, eff: '연구↑ · 합격 시 품질↑', minAge: 23,
+        req: S => ageOf(S) >= 23 ? null : '23세부터 들을 수 있어요',
+        run: (S, ch) => {
+            grow(S, 'rnd', rand(5, 7), ch);
+            S.certN = (S.certN || 0) + 1;
+            if (!S.cert && S.certN >= 2) {
+                if (S.st.rnd >= 40 || R() < 0.5) {
+                    S.cert = true;
+                    const b = S.prods.reduce((a, p) => !a || p.q > a.q ? p : a, null);
+                    if (b) {
+                        const q = b.q;
+                        b.q = clamp(b.q + 4, 0, 100);
+                        push(ch, '품질', b.q - q);
+                    }
+                    push(ch, '자격증 합격', 1);
+                    S.album.push('맞춤형화장품 조제관리사 합격');
+                    return '합격 문자가 왔다. 손이 떨려서 세 번을 다시 읽었다. 이제 처방전에 내 이름을 걸 수 있다.';
+                }
+                return '불합격. 2점 차이였다. 다음 달에 다시 본다.';
+            }
+            return S.cert ? pick(['신입 연구원에게 칭량법을 가르쳤다. 가르치면서 더 배운다.', '개정된 화장품법 보수교육을 들었다.']) : '모의고사 72점. 다음 달이 진짜 시험이다. 사용 제한 원료표를 통째로 외웠다.';
+        } },
+    lang: { cat: '교육', name: '비즈니스 영어·중국어', desc: '해외 바이어와 직접 협상할 수 있도록 회화를 익힌다.', cost: 90, hp: 6, stress: 8, eff: '인맥↑ 매력↑', minAge: 24,
+        req: S => ageOf(S) >= 24 ? null : '24세부터 들을 수 있어요',
+        run: (S, ch) => {
+            grow(S, 'net', rand(4, 6), ch);
+            grow(S, 'charm', rand(1, 2), ch);
+            return pick(['“Our serum restores, not just soothes.” 엘리베이터 피치를 영어로 외웠다.', '중국어로 성분 설명을 해 보니 선생님이 박수를 쳤다. “很好!”', '통역 없이 해외 바이어와 30분 통화했다. 끊고 나서 혼자 소리를 질렀다.']);
+        } },
+    brandlab: { cat: '교육', name: '브랜드 디자인 씽킹', desc: '고객 관점으로 브랜드와 패키지를 다시 설계하는 워크숍.', cost: 110, hp: 6, stress: 6, eff: '감각↑ 마케팅↑', minAge: 25,
+        req: S => ageOf(S) >= 25 ? null : '25세부터 들을 수 있어요',
+        run: (S, ch) => {
+            grow(S, 'aes', rand(4, 6), ch);
+            grow(S, 'mkt', rand(1, 2), ch);
+            return pick(['포스트잇 200장으로 고객 여정 지도를 그렸다. 구매 직전 3초가 보였다.', '“긁힌 유리”를 한 장의 무드보드로 정리했다. 팀원들이 처음으로 같은 그림을 봤다.', '패키지 시안 열 개를 고객 다섯 명에게 보여 줬다. 내 최애는 꼴찌였다.']);
+        } },
+    emba: { cat: '교육', name: 'Executive MBA (주말 과정)', desc: '현직 대표들과 함께 듣는 경영대학원 과정. 2칸(20일).', slots: 2, cost: 600, hp: 14, stress: 14, eff: '경영↑↑ 리더십↑ 인맥↑', minAge: 26,
+        req: S => ageOf(S) >= 26 ? null : '26세부터 들을 수 있어요',
+        run: (S, ch) => {
+            grow(S, 'biz', rand(9, 12), ch);
+            grow(S, 'lead', rand(3, 4), ch);
+            grow(S, 'net', rand(2, 3), ch);
+            if (!S.emba) {
+                S.emba = true;
+                S.album.push('Executive MBA 입학');
+                return '첫 수업. 옆자리는 항공사 임원, 앞자리는 병원장이었다. 케이스 스터디 첫 장이 우리 회사 같은 스타트업 이야기였다.';
+            }
+            return pick(['케이스 토론에서 반대편 논리를 끝까지 밀어붙였다. 교수가 “좋아요, 대표님”이라고 했다.', '동기 대표들과 새벽까지 재무 모델을 짰다. 이게 쉬는 건가 일하는 건가.', '졸업 논문 주제를 정했다: 「인디 뷰티 브랜드의 10년 생존 조건」.']);
+        } },
+    board: { cat: '교육', name: '투자·이사회 아카데미', desc: '투자 계약, 지분, 이사회 운영을 배운다. 투자자 인맥이 생긴다.', cost: 150, hp: 6, stress: 8, eff: '경영↑ 인맥↑', minAge: 27,
+        req: S => ageOf(S) >= 27 ? null : '27세부터 들을 수 있어요',
+        run: (S, ch) => {
+            grow(S, 'biz', rand(4, 6), ch);
+            grow(S, 'net', rand(3, 4), ch);
+            return pick(['우선주와 보통주의 차이를 이제 투자자보다 잘 설명할 수 있다.', '모의 이사회에서 의장을 맡았다. 안건 세 개를 40분 만에 끝냈다.', '강연자로 온 VC 파트너가 명함을 건넸다. “다음 라운드 때 연락 주세요.”']);
+        } },
+    phd: { cat: '교육', name: '피부과학 박사과정 세미나', desc: '대학원 연구실에서 장벽 연구를 이어 간다. 연구가 높으면 논문이 나온다.', cost: 130, hp: 10, stress: 12, eff: '연구↑↑', minAge: 28,
+        req: S => ageOf(S) >= 28 ? null : '28세부터 들을 수 있어요',
+        run: (S, ch) => {
+            grow(S, 'rnd', rand(7, 9), ch);
+            if (S.st.rnd >= 80 && R() < 0.3) {
+                bump(S, 'aware', 4, ch);
+                S.album.push('피부과학 논문 게재');
+                return '미세 스크래치 회복에 관한 논문이 학회지에 실렸다. 제1저자에 내 이름이 있다.';
+            }
+            return pick(['현미경 너머로 각질층이 유리처럼 겹쳐 보였다.', '지도교수가 말했다. “대표님 질문이 제일 날카로워요.”', '새벽 세 시, 실험 데이터가 가설과 정확히 맞았다. 혼자 박수를 쳤다.']);
+        } },
     // 업무
     rnd: { cat: '업무', name: '제형 개발', desc: 'OEM 랩에서 처방을 다듬는다. 진척 100%면 신제품 출시(생산비 500만).', cost: 150, hp: 12, stress: 10, eff: '개발 진척↑ 연구↑',
         run: (S, ch, out) => {
@@ -4386,7 +4454,7 @@ function moodOf(S) {
 }
 // 90년대 PC-98 육성 시뮬레이션풍 일러스트: 회사 단계(4) × 컨디션(2)
 // 스케줄 일러스트: 20~23세(기본) / 24~25세(_mid) / 26세~(_late)
-const ACT_AGED = ['vacation', 'pt_cafe', 'pt_hb', 'pt_clinic', 'pt_mua', 'pt_model', 'pt_lecture', 'pt_host', 'pt_consult', 'yoga', 'running', 'weight', 'diet', 'academy', 'art', 'growth', 'mba', 'acting', 'rnd', 'shoot', 'seed', 'live', 'popup', 'ir', 'hire', 'expo', 'rest', 'spa', 'pilates', 'party', 'visit', 'picnic', 'oneday', 'temple', 'concert', 'pet'];
+const ACT_AGED = ['vacation', 'pt_cafe', 'pt_hb', 'pt_clinic', 'pt_mua', 'pt_model', 'pt_lecture', 'pt_host', 'pt_consult', 'yoga', 'running', 'weight', 'diet', 'academy', 'art', 'growth', 'mba', 'acting', 'rnd', 'shoot', 'seed', 'live', 'popup', 'ir', 'hire', 'expo', 'rest', 'spa', 'pilates', 'party', 'visit', 'picnic', 'oneday', 'temple', 'concert', 'pet', 'cert', 'lang', 'brandlab'];
 function actSrc(S, id) { const k = stageOf(S).key; const band = k === 'age25' ? '_mid' : (k === 'age27' || k === 'age30') ? '_late' : ''; return `art/act_${id}${band && ACT_AGED.includes(id) ? band : ''}.jpg`; }
 function seasonKey(S) { const mo = monthOf(S); return mo >= 3 && mo <= 5 ? 'spring' : mo >= 6 && mo <= 8 ? 'summer' : mo >= 9 && mo <= 11 ? 'autumn' : 'winter'; }
 function portraitTallSrc(S) { const m = moodOf(S); return m === 'tired' || m === 'sick' ? `art/${stageOf(S).key}_tired_t.jpg` : `art/${stageOf(S).key}_${seasonKey(S)}_t.jpg`; }
@@ -4526,7 +4594,7 @@ function renderSchedule() {
     <h3><span>${monthOf(S)}월 스케줄</span><span>${running ? '진행 중' : '칸을 고르고 활동을 선택'}</span></h3>
     <div class="slots">${S.plan.map((id, i) => `<button class="slot ${id ? 'filled' : ''} ${!running && i === activeSlot ? 'active' : ''} ${running && i === S.runIdx ? 'running' : ''}" data-slot="${i}" ${running ? 'disabled' : ''}><small>${SLOT_NAMES[i]}</small><b>${slotLabel(id, i) || '비어 있음'}</b></button>`).join('')}</div>
     <div class="tabs" role="tablist">${cats.map(c => `<button class="tab" role="tab" aria-selected="${c === tab}" data-tab="${c}">${c}</button>`).join('')}</div>
-    <div class="acts">${tab === '쇼핑' ? (`<div class="shop-mode"><button class="${shopMode === 'me' ? 'on' : ''}" data-shopmode="me">🛍️ 내 것 사기</button><button class="${shopMode === 'gift' ? 'on' : ''}" data-shopmode="gift">🎁 선물하기</button></div>` + (shopMode === 'gift' ? giftHTML(S) : shopHTML(S))) : Object.entries(ACTS).filter(([, a]) => a.cat === tab).map(([id, a]) => {
+    <div class="acts">${tab === '쇼핑' ? (`<div class="shop-mode"><button class="${shopMode === 'me' ? 'on' : ''}" data-shopmode="me">🛍️ 내 것 사기</button><button class="${shopMode === 'gift' ? 'on' : ''}" data-shopmode="gift">🎁 선물하기</button></div>` + (shopMode === 'gift' ? giftHTML(S) : shopHTML(S))) : Object.entries(ACTS).filter(([, a]) => a.cat === tab && !(a.minAge && ageOf(S) < a.minAge)).map(([id, a]) => {
         var _a;
         const span = spanOf(id);
         const lock = (a.req ? a.req(S) : null) || (activeSlot + span > 3 ? (span === 3 ? '한 달 전체: 상순 칸에서 고르세요' : '2칸 필요: 상순·중순 칸에서 고르세요') : null);
@@ -4539,7 +4607,7 @@ function renderSchedule() {
         ${lock ? `<span class="lock">${lock}</span>` : poor ? '<span class="lock">자금 부족</span>' : ''}
         ${id === 'hire' && !lock ? (() => { const nh = nextHire(S); return `<span class="lock" style="background:#eef3ff;color:var(--serum)">다음: ${nh.role.name}${nh.first ? ' (신규 직무)' : ' 증원'}</span>`; })() : ''}
       </button>`;
-    }).join('')}</div>
+    }).join('') + (tab === '교육' ? (() => { const nx = Object.values(ACTS).filter(a => a.cat === '교육' && a.minAge && ageOf(S) < a.minAge).sort((x, y) => x.minAge - y.minAge)[0]; return nx ? `<p class="shop-note">🔒 ${nx.minAge}살이 되면 새 과정 「${nx.name}」${(w => josa(w, '이', '가').slice(w.length))(nx.name.replace(/\s*\(.*\)$/, ''))} 열려요.</p>` : ''; })() : '')}</div>
     <div class="plan-foot"><span class="sum">이번 달 활동비 <b class="mono">${fmtMoney(planCost())}원</b> · 고정비 <span class="mono">${fmtMoney(150 + payroll(S))}원</span></span>
       </div>`;
 }
@@ -5591,7 +5659,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.09-C';
+const BUILD_TAG = '2026.11.09-D';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
