@@ -639,7 +639,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.08-F</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.09-A</span>
       </div>
     </div>
   </section>
@@ -1217,6 +1217,94 @@ const ACTS = {
         } },
     pilates: { cat: '휴식', name: '필라테스 & 피부관리', desc: '몸과 피부를 가꾸며 컨디션을 회복한다.', cost: 120, eff: '체력↑ 스트레스↓ 매력↑',
         run: (S, ch) => { bump(S, 'hp', 20, ch); bump(S, 'stress', -15, ch); grow(S, 'charm', 2, ch); return pick(['코어에 힘이 붙었다. 자세가 달라졌다.', '관리받은 피부가 조명 아래 반짝였다.', '땀 흘리고 나니 머리가 맑아졌다.']); } },
+    visit: { cat: '휴식', name: '본가에 다녀오기', desc: '엄마 밥을 먹고 하룻밤 자고 온다. 다녀오면 엄마가 한동안 덜 걱정한다.', cost: 5, eff: '스트레스↓↓ 체력↑',
+        run: (S, ch) => {
+            bump(S, 'hp', 25, ch);
+            bump(S, 'stress', -30, ch);
+            (S.lastEv || (S.lastEv = {})).parents = S.m;
+            const home = { derma: '원장님 아빠가 내 얼굴을 보자마자 말했다. “장벽 무너졌네. 잠은 자니?”', designer: '엄마 작업실에서 새 원단 냄새가 났다. “이 색, 너희 패키지에 어때?”',
+                adman: '저녁 식탁에서 아빠가 우리 광고를 틀었다. “카피 세 번째 줄, 빼.”', ceo: '아빠가 공장 얘기를 하다 말고 물었다. “현금은 몇 달 버틸 수 있니?”',
+                actor: '엄마가 내 인터뷰 영상을 틀어 놓고 표정을 하나하나 고쳐 줬다.', civil: '아빠가 퇴근길에 사 온 붕어빵이 아직 따뜻했다. “대표님, 많이 먹어.”',
+                soldier: '새벽 6시, 아빠가 문을 두드렸다. “기상. 산책 간다.” 투덜거렸지만 같이 걸으니 좋았다.', farmer: '아빠가 귤 한 박스를 차에 실어 줬다. “직원들이랑 나눠 먹어라.”',
+                jobless: '아빠가 또 새 사업 얘기를 했다. “이번엔 진짜 대박이야.” 웃다 보니 스트레스가 다 풀렸다.' }[S.origin] || '엄마가 차려 준 밥을 두 그릇 먹었다.';
+            if (S.why === 'mom' && R() < 0.3) {
+                grow(S, 'charm', 1, ch);
+                return home + '\n엄마 화장대 위 긁힌 유리병은 아직 그대로였다. “네가 만든 병은 아직 하나도 안 긁혔더라.”';
+            }
+            return home + '\n' + pick(['엄마가 반찬통을 다섯 개나 싸 줬다.', '내 방 침대는 10년 전 냄새 그대로였다.', '“밥은 꼭 챙겨 먹어.” 현관에서 엄마가 세 번 말했다.']);
+        } },
+    picnic: { cat: '휴식', name: '친구들과 한강 피크닉', desc: '오랜 친구들과 돗자리 펴고 치킨에 수다.', cost: 20, eff: '스트레스↓ 매력↑',
+        run: (S, ch, out) => {
+            bump(S, 'hp', 8, ch);
+            bump(S, 'stress', -22, ch);
+            grow(S, 'charm', 1.5, ch);
+            const L = loveOf(S);
+            if (!L.star && !S.married && (S.st.charm || 0) >= 35 && R() < 0.15) {
+                const t = meetLover(S, 'star', ch);
+                if (t)
+                    return `“내 친구 소개해 줄까? 배우야.” 친구가 그 자리에서 전화를 걸었다.\n${t}`;
+            }
+            if (R() < 0.3) {
+                grow(S, 'mkt', 1.5, ch);
+                return pick(['“요즘 애들은 성분표부터 봐.” 대학원생 친구의 말을 메모했다.', '친구가 파우치를 쏟아 보여 줬다. 요즘 다들 쓰는 게 이거란다. 살아 있는 시장조사.']);
+            }
+            return pick(['해가 질 때까지 웃었다. 회사 얘기는 한마디도 안 했다.', '“너 대표 된 거 아직도 안 믿겨.” 친구들이 건배를 외쳤다.', '라면을 끓이다 쏟아서 셋이 배를 잡고 웃었다.']);
+        } },
+    oneday: { cat: '휴식', name: '원데이 클래스', desc: '도자기·조향·플라워 중 하나를 배워 본다. 손을 쓰면 머리가 쉰다.', cost: 60, eff: '감각↑ 스트레스↓',
+        run: (S, ch) => {
+            bump(S, 'stress', -16, ch);
+            bump(S, 'hp', 6, ch);
+            grow(S, 'aes', 2.5, ch);
+            const k = stageOf(S).key, kind = k === 'age25' ? '조향' : (k === 'age27' || k === 'age30') ? '플라워' : '도자기';
+            const line = { 도자기: '물레 위에서 비뚤어진 컵 하나가 나왔다. 그래도 내 손으로 만든 첫 그릇이다.', 조향: '향 세 가지를 섞었더니 엉뚱하게 비 온 뒤 숲 냄새가 났다.', 플라워: '흰 장미와 파란 델피니움을 묶었다. 브랜드 컬러 그대로였다.' }[kind];
+            if (S.prog > 0 && S.prog < 99 && R() < 0.3) {
+                const b = S.prog;
+                S.prog = Math.min(99, S.prog + 8);
+                push(ch, '개발 진척', S.prog - b);
+                return `${kind} 클래스. ${line}\n${kind === '도자기' ? '유약이 갈라진 무늬' : kind === '조향' ? '잔향이 남는 방식' : '꽃잎이 겹치는 결'}에서 개발 중인 제품 아이디어가 떠올랐다.`;
+            }
+            return `${kind} 클래스. ${line}`;
+        } },
+    temple: { cat: '휴식', name: '템플스테이', desc: '산사에서 새벽 예불과 명상. 2칸(20일). 지친 마음을 깊이 쉬게 한다.', slots: 2, cost: 30, eff: '스트레스↓↓↓ 번아웃 기록 1회 회복',
+        run: (S, ch) => {
+            bump(S, 'hp', 40, ch);
+            bump(S, 'stress', -70, ch);
+            grow(S, 'lead', 1, ch);
+            if ((S.burnouts || 0) > 0) {
+                S.burnouts--;
+                push(ch, '번아웃 기록', -1);
+            }
+            return pick(['새벽 네 시 목탁 소리에 눈을 떴다. 이상하게 하나도 피곤하지 않았다.', '스님이 차를 따르며 말했다. “비워야 담깁니다.” 그 말을 다이어리 첫 장에 적었다.', '휴대폰 없는 열흘. 처음 사흘은 불안했고, 나머지는 평화로웠다.']);
+        } },
+    concert: { cat: '휴식', name: '콘서트·페스티벌', desc: '여름밤 야외 공연에서 소리 지르고 뛴다. 여름(6~8월)에만.', cost: 15, eff: '스트레스↓↓ 매력↑',
+        req: S => [6, 7, 8].includes(monthOf(S)) ? null : '여름(6~8월)에만 열려요',
+        run: (S, ch) => {
+            bump(S, 'stress', -28, ch);
+            bump(S, 'hp', -4, ch);
+            grow(S, 'charm', 1.5, ch);
+            const v = (S.love || {}).star;
+            if (v && !v.blocked && v.stage > -8 && v.stage !== -9) {
+                addAff(S, 'star', 6, ch);
+                return '차이안의 단독 콘서트였다. 앵콜 직전, 그가 객석 쪽을 보며 아주 작게 손을 흔들었다. 분명 나한테였다.';
+            }
+            return pick(['목이 쉴 때까지 떼창을 했다. 내일 회의는 속삭이면서 해야겠다.', '폭죽이 터지는 순간, 옆자리 모르는 사람과 하이파이브를 했다.', '잔디밭에 누워 별을 보며 라이브를 들었다. 서울에도 별이 있었다.']);
+        } },
+    pet: { cat: '휴식', name: '반려견과 함께', desc: S => S.pet ? '반려견과 산책하며 쉰다. 함께 사는 동안 매달 스트레스가 조금씩 줄어든다.' : '보호소에서 강아지를 입양한다(입양비 40만 별도). 그 뒤로 매달 스트레스가 조금씩 줄어든다.', cost: 10, eff: '스트레스↓ 체력↑',
+        run: (S, ch) => {
+            bump(S, 'stress', -18, ch);
+            bump(S, 'hp', 10, ch);
+            if (!S.pet) {
+                S.pet = true;
+                S.petName = '구름';
+                bump(S, 'cash', -40, ch);
+                bump(S, 'stress', -10, ch);
+                push(ch, '반려견 입양', 1);
+                S.album.push('강아지 「구름」 입양');
+                return '보호소에서 하얀 강아지가 끝까지 따라왔다. 파란 리본 목줄을 사서 걸어 주었다.\n이름은 「구름」. 오늘부터 우리 집 막내다.';
+            }
+            const n = S.petName || '제로';
+            return pick([`${josa(n, '이', '가')} 꼬리를 흔들며 앞장섰다. 공원 한 바퀴에 머리가 맑아졌다.`, `퇴근하니 ${josa(n, '이', '가')} 현관에서 기다리고 있었다. 오늘 하루가 다 괜찮아졌다.`, `${n}${josa(n, '이랑', '랑').slice(n.length)} 소파에서 낮잠을 잤다. 세상에서 제일 비싼 휴식.`]);
+        } },
     club: { cat: '연애', name: '클럽 가기', desc: '청담 클럽에서 밤새 춤춘다. 새로운 인연이 있을지도.', cost: 80, hp: 12, stress: -16, eff: '스트레스↓ 매력↑ 만남',
         run: (S, ch, out) => {
             grow(S, 'charm', rand(1.5, 2.5), ch);
@@ -2219,7 +2307,7 @@ const EVENTS = [
             { label: '자연스럽게 함께 저녁을 먹는다', sub: '호감↑↑ 스트레스↓', run: S => { const ch = []; const p = partnerOf(S); S.seen['meetparents_' + p] = true; addAff(S, p, 10, ch); bump(S, 'stress', -8, ch); S.album.push(`${josa(LOVERS[p].name, '이', '가')} 부모님께 인사`); return { text: '설거지는 둘이 했다. 부엌 창 너머로 부모님이 웃는 소리가 들렸다.', chips: ch }; } },
             { label: '아직은 이르다며 미룬다', sub: '호감↓', run: S => { const ch = []; const p = partnerOf(S); S.seen['meetparents_' + p] = true; addAff(S, p, -6, ch); return { text: '“그래… 준비되면 말해 줘.” 목소리가 조금 작아졌다.', chips: ch }; } },
         ] },
-    { id: 'lv_pet', once: true, w: 2, place: 'home', get cast() { return { ask: 'lv_' + partnerOf(S) }; }, cond: S => { const p = partnerOf(S); return p && S.love[p].aff >= 65; },
+    { id: 'lv_pet', once: true, w: 2, place: 'home', get cast() { return { ask: 'lv_' + partnerOf(S) }; }, cond: S => { const p = partnerOf(S); return !S.pet && p && S.love[p].aff >= 65; },
         face: 'ceo', speaker: 'LOVE', title: '유기견 보호소에서',
         text: S => `주말 봉사를 간 보호소에서, 작은 강아지 한 마리가 계속 따라왔다. ${josa(LOVERS[partnerOf(S)].name, '이', '가')} 눈으로 묻는다. “우리…?”`,
         choices: [
@@ -4083,7 +4171,7 @@ function moodOf(S) {
 }
 // 90년대 PC-98 육성 시뮬레이션풍 일러스트: 회사 단계(4) × 컨디션(2)
 // 스케줄 일러스트: 20~23세(기본) / 24~25세(_mid) / 26세~(_late)
-const ACT_AGED = ['vacation', 'pt_cafe', 'pt_hb', 'pt_clinic', 'pt_mua', 'pt_model', 'pt_lecture', 'pt_host', 'pt_consult', 'yoga', 'running', 'weight', 'diet', 'academy', 'art', 'growth', 'mba', 'acting', 'rnd', 'shoot', 'seed', 'live', 'popup', 'ir', 'hire', 'expo', 'rest', 'spa', 'pilates', 'party'];
+const ACT_AGED = ['vacation', 'pt_cafe', 'pt_hb', 'pt_clinic', 'pt_mua', 'pt_model', 'pt_lecture', 'pt_host', 'pt_consult', 'yoga', 'running', 'weight', 'diet', 'academy', 'art', 'growth', 'mba', 'acting', 'rnd', 'shoot', 'seed', 'live', 'popup', 'ir', 'hire', 'expo', 'rest', 'spa', 'pilates', 'party', 'visit', 'picnic', 'oneday', 'temple', 'concert', 'pet'];
 function actSrc(S, id) { const k = stageOf(S).key; const band = k === 'age25' ? '_mid' : (k === 'age27' || k === 'age30') ? '_late' : ''; return `art/act_${id}${band && ACT_AGED.includes(id) ? band : ''}.jpg`; }
 function seasonKey(S) { const mo = monthOf(S); return mo >= 3 && mo <= 5 ? 'spring' : mo >= 6 && mo <= 8 ? 'summer' : mo >= 9 && mo <= 11 ? 'autumn' : 'winter'; }
 function portraitTallSrc(S) { const m = moodOf(S); return m === 'tired' || m === 'sick' ? `art/${stageOf(S).key}_tired_t.jpg` : `art/${stageOf(S).key}_${seasonKey(S)}_t.jpg`; }
@@ -5288,7 +5376,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.08-F';
+const BUILD_TAG = '2026.11.09-A';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
