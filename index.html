@@ -639,7 +639,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.09-B</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.09-C</span>
       </div>
     </div>
   </section>
@@ -2034,6 +2034,11 @@ function settle(S) {
     }
     if (S.global)
         mult *= 1.8;
+    if (S.fakeHit && S.m < S.fakeHit.until) {
+        mult *= S.fakeHit.mult;
+        if (S.prods.length)
+            notes.push('짝퉁 여파: 매출 −15%');
+    }
     if (S.buzz && S.m < S.buzz.until) {
         mult *= S.buzz.mult;
         if (S.prods.length)
@@ -2845,6 +2850,71 @@ function tvEvent(S) {
             choices: [
                 { label: '“연기도 피부처럼, 0단계부터 배웠어요.”', sub: '매력·명장면이 많을수록 호평', run: finish(false) },
                 { label: '“이 드레스, 저희 브랜드 협찬이에요.”', sub: '마케팅↑ · 팬덤 조금↓', run: finish(true) },
+            ] };
+    }
+    return null;
+}
+// ---- 짝퉁과의 전쟁: 대상이나 해외 진출 뒤, 가짜 세럼이 퍼진다 (발견 → 대응 → 결말, 3편) ----
+const FAKE_PLAN = { qr: '정품 인증 QR', law: '판매자 소송', camp: '「진짜를 알아보는 법」 캠페인', wait: '지켜보기' };
+function fakeEvent(S) {
+    const F = S.fake, p0 = (S.prods[0] || {}).name || '세럼';
+    // 1편: 발견
+    if (!F && !S.seen.fake_1 && S.prods.length > 0 && S.m >= 30 && S.m <= 110 && monthOf(S) !== 10 && (((S.awards || {}).grand || 0) >= 1 || S.global) && R() < 0.3) {
+        const go = (plan, cost, line) => S => { const ch = []; if (cost)
+            bump(S, 'cash', -cost, ch); S.fake = { plan, m: S.m, score: plan === 'wait' ? 0 : 2 }; bump(S, 'stress', plan === 'wait' ? 4 : 8, ch); return { text: line, chips: ch }; };
+        return { id: 'fake_1', face: 'news', speaker: 'CRISIS', title: '가짜가 나타났다', cg: 'fake1', place: 'office',
+            text: () => `고객 DM 한 통. “${p0} 쓰고 얼굴이 뒤집어졌어요.” 사진 속 병은 우리 것과 거의 똑같았다.\n해외 쇼핑몰에 정가의 3분의 1 가격으로 수천 개가 깔려 있다. 라벨 글씨가 미세하게 삐뚤고, 세럼이 탁했다.\n리뷰창에 「${S.brand} 트러블」이 올라오기 시작했다.`,
+            choices: [
+                { label: '정품 인증 QR을 도입한다', run: go('qr', 1500, '모든 상자에 홀로그램 QR 씰을 붙이기로 했다. 비싸지만, 확실하다. 공장 라인이 밤새 멈추지 않았다.') },
+                { label: '판매자를 상대로 소송한다', run: go('law', 800, '변호사가 말했다. “해외 판매자는 쉽지 않습니다. 그래도 하실 거죠?” 고개를 끄덕였다.') },
+                { label: '「진짜를 알아보는 법」 캠페인을 연다', run: go('camp', 300, '정품과 가짜를 나란히 놓고 차이를 보여 주는 영상을 찍었다. “여러분이 직접 지켜 주세요.”') },
+                { label: '일단 지켜본다', run: go('wait', 0, '“금방 사라지겠지.” 그렇게 생각하기로 했다. 리뷰창 알림은 끄지 않았다.') },
+            ] };
+    }
+    if (!F)
+        return null;
+    // 2편: 대응 (두 달 뒤)
+    if (F.s2 == null && S.m >= F.m + 2) {
+        F.s2 = S.m;
+        const pick2 = {
+            qr: { text: `QR 씰 도입 한 달. 고객들이 찍어 올린 「가짜 인증 실패」 사진으로 가짜 판매처 지도가 그려졌다.\n${p0} 가짜를 산 고객들이 환불을 요구하고 있다. 우리 책임은 아니지만…`,
+                choices: [
+                    { label: '가짜를 산 고객에게도 정품으로 바꿔 준다', run: S => { const ch = []; bump(S, 'cash', -500, ch); F.score += 2; bump(S, 'fan', 6, ch); grow(S, 'lead', 1, ch); return { text: '“가짜를 사신 것도 저희가 막지 못한 탓입니다.” 공지 하나에 댓글창 분위기가 뒤집혔다.', chips: ch }; } },
+                    { label: '유통사·세관과 공조 수사를 요청한다', run: S => { const ch = []; F.score += (S.st.net >= 50 ? 2 : 1); grow(S, 'net', 1.5, ch); return { text: S.st.net >= 50 ? '업계 인맥이 움직였다. 세관이 컨테이너 두 대를 압수했다.' : '공문을 보냈지만 답이 느리다. 그래도 수사는 시작됐다.', chips: ch }; } },
+                ] },
+            law: { text: '첫 재판. 상대 변호사가 말했다. “상표가 비슷한 건 우연입니다.”\n판사가 우리 쪽을 본다. 증거는 충분할까?',
+                choices: [
+                    { label: '끝까지 간다: 성분 분석표를 증거로 낸다', run: S => { const ch = []; bump(S, 'cash', -400, ch); const ok = S.st.biz + S.st.rnd >= 110 || R() < 0.4; F.score += ok ? 3 : 0; bump(S, 'stress', ok ? -4 : 10, ch); return { text: ok ? '성분 분석표 한 장에 법정이 조용해졌다. 우리 처방에만 있는 세라마이드 비율이 가짜에는 없었다.' : '증거가 부족하다는 판단. 항소를 준비해야 한다. 그 사이 가짜는 더 퍼졌다.', chips: ch }; } },
+                    { label: '합의하고 판매를 즉시 중단시킨다', run: S => { const ch = []; F.score += 1; grow(S, 'biz', 1, ch); return { text: '배상금은 적었지만, 그날 밤 쇼핑몰에서 가짜 상품 페이지가 사라졌다.', chips: ch }; } },
+                ] },
+            camp: { text: '「진짜를 알아보는 법」 영상이 300만 뷰를 넘겼다. 고객들이 직접 가짜를 신고하기 시작했다.\n다음 영상은 어떻게 갈까?',
+                choices: [
+                    { label: '대표가 직접 출연해 정품을 뜯어 보인다', run: S => { const ch = []; const ok = (S.st.charm || 0) >= 50; F.score += ok ? 3 : 1; bump(S, 'aware', 6, ch); grow(S, 'charm', 1, ch); return { text: ok ? '“이 탁한 게 가짜예요. 저희 세럼은 유리처럼 맑아요.” 그 한 컷이 밈이 됐다.' : '긴장해서 말이 꼬였다. 그래도 진심은 전해졌다.', chips: ch }; } },
+                    { label: '뷰티 크리에이터들과 공동 캠페인을 한다', run: S => { const ch = []; bump(S, 'cash', -300, ch); F.score += (S.st.mkt >= 50 ? 3 : 2); grow(S, 'mkt', 1.5, ch); bump(S, 'fan', 4, ch); return { text: '크리에이터 스무 명이 같은 날 「#진짜를지켜줘」 영상을 올렸다.', chips: ch }; } },
+                ] },
+            wait: { text: `결국 기사가 났다. 「${S.brand} ${p0}, 부작용 논란」.\n가짜 때문이라는 걸 아는 사람은 아무도 없다. 문의 전화가 쏟아진다.`,
+                choices: [
+                    { label: '늦었지만 사과문과 함께 QR을 도입한다', run: S => { const ch = []; bump(S, 'cash', -1500, ch); F.score += 2; bump(S, 'aware', -4, ch); bump(S, 'stress', 10, ch); return { text: '“더 빨리 움직였어야 했습니다.” 사과문 아래 댓글은 반반이었다.', chips: ch }; } },
+                    { label: '“우리 제품 문제가 아닙니다.” 해명만 한다', run: S => { const ch = []; bump(S, 'fan', -5, ch); bump(S, 'stress', 8, ch); return { text: '해명은 사실이었지만, 차가웠다. 고객들은 사실보다 태도를 기억했다.', chips: ch }; } },
+                ] },
+        }[F.plan];
+        return { id: 'fake_2', face: 'news', speaker: 'CRISIS', title: `가짜와의 전쟁: ${FAKE_PLAN[F.plan]}`, cg: 'fake2', place: 'meeting', text: () => pick2.text, choices: pick2.choices };
+    }
+    // 3편: 결말 (발견 넉 달 뒤)
+    if (F.s2 != null && F.done == null && S.m >= F.m + 4) {
+        const win = F.score >= 4;
+        if (win)
+            return { id: 'fake_3', face: 'news', speaker: 'VICTORY', title: '진짜가 이겼다', cg: 'fake3', place: 'street',
+                text: () => `넉 달 만에 해외 쇼핑몰에서 가짜가 사라졌다. 매장에서는 손님들이 상자의 QR을 찍어 보며 웃는다.\n「가짜와 싸운 브랜드」라는 기사가 나간 뒤, 오히려 신뢰가 더 단단해졌다.`,
+                choices: [
+                    { label: '싸움을 함께해 준 고객들에게 감사 편지를 보낸다', run: S => { const ch = []; F.done = S.m; bump(S, 'fan', 12, ch); bump(S, 'aware', 8, ch); bump(S, 'stress', -12, ch); S.trust = true; S.album.push('짝퉁과의 전쟁 승리'); return { text: '손글씨 감사 카드 3,000장. 받은 고객들이 인증 사진을 올렸다. 「진짜는 편지도 진짜네」.', chips: ch }; } },
+                    { label: '정품 인증 시스템을 업계에 공개한다', run: S => { const ch = []; F.done = S.m; bump(S, 'fan', 8, ch); bump(S, 'aware', 10, ch); grow(S, 'lead', 2, ch); grow(S, 'net', 2, ch); S.trust = true; S.album.push('짝퉁과의 전쟁 승리 · 인증 시스템 공개'); return { text: '“가짜는 한 브랜드의 문제가 아닙니다.” 인디 브랜드 대표들이 줄지어 감사 메시지를 보냈다.', chips: ch }; } },
+                ] };
+        return { id: 'fake_3', face: 'news', speaker: 'CRISIS', title: '가짜를 막지 못했다', cg: 'scandal', place: 'rain',
+            text: () => `가짜는 사라지지 않았다. 검색창에 브랜드 이름을 치면 연관 검색어에 「부작용」이 먼저 뜬다.\n매출 그래프가 처음으로 꺾였다.`,
+            choices: [
+                { label: '처음부터 다시: 패키지를 전면 교체한다', run: S => { const ch = []; F.done = S.m; bump(S, 'cash', -1000, ch); bump(S, 'aware', -6, ch); bump(S, 'fan', -4, ch); S.fakeHit = { until: S.m + 3, mult: 0.85 }; grow(S, 'aes', 1.5, ch); S.album.push('짝퉁 사태 · 패키지 전면 교체'); return { text: '긁힌 유리 대신, 위조할 수 없는 새 병을 만들기로 했다. 석 달은 힘들 것이다.', chips: ch }; } },
+                { label: '버틴다', run: S => { const ch = []; F.done = S.m; bump(S, 'aware', -8, ch); bump(S, 'fan', -8, ch); S.fakeHit = { until: S.m + 6, mult: 0.85 }; bump(S, 'stress', 12, ch); S.album.push('짝퉁 사태'); return { text: '시간이 해결해 주길 바랐다. 반년 동안 매출이 15% 빠진다.', chips: ch }; } },
             ] };
     }
     return null;
@@ -3944,6 +4014,11 @@ function fixedEvents(S) {
         const gc = grandChainEvent(S);
         if (gc && out.length < 3)
             out.push(gc);
+    }
+    {
+        const fk = fakeEvent(S);
+        if (fk && out.length < 3)
+            out.push(fk);
     }
     const le = loveEvent(S);
     if (le)
@@ -5312,7 +5387,7 @@ const CG_MAP = { prologue: 'prologue', rival1: 'rival1', rival2: 'rival2', rival
     derma: 'lab', patent: 'lab', gov: 'lab', fashion: 'fashion', ma: 'ma', parents: 'parents', letter: 'letter', health: 'health',
     lv_anniv: 'date', lv_surprise: 'date', lv_visit: 'date', blind: 'date', lv_newlywed: 'date', lv_parents: 'date', lv_pet: 'pet', award: 'awards' };
 const CG_PREFIX = [['conf_', 'confess'], ['prop_', 'propose'], ['tri1_', 'triangle'], ['tri2_', 'triangle'], ['trip_summer', 'trip_summer'], ['trip_winter', 'trip_winter'], ['dump_', 'breakup'], ['after_', 'breakup'], ['grant_ad_', 'lab']];
-const CG_FX = { rain: ['hero_vc2', 'hero_vc3', 'breakup', 'rival3', 'colon_secret', 'monsoon', 'triangle', 'ch3', 'scandal'], snow: ['first_snow', 'trip_winter'], petal: ['sakura', 'spring_fever', 'ch1'], confetti: ['soldout', 'awards', 'party', 'promo', 'rival_final', 'workshop', 'yearend'], sparkle: ['magazine', 'finalday', 'premiere', 'filming', 'hero_vc4', 'confess_playboy', 'confess_intern', 'confess_vc', 'confess_star', 'confess_ceo2', 'confess_colon', 'propose_playboy', 'propose_intern', 'propose_vc', 'propose_star', 'propose_ceo2', 'propose_colon', 'trip_summer', 'confess', 'propose', 'date', 'prologue', 'bday', 'ch4', 'ch2', 'colon_open', 'letter', 'pet', 'fashion'] };
+const CG_FX = { rain: ['fake1', 'hero_vc2', 'hero_vc3', 'breakup', 'rival3', 'colon_secret', 'monsoon', 'triangle', 'ch3', 'scandal'], snow: ['first_snow', 'trip_winter'], petal: ['sakura', 'spring_fever', 'ch1'], confetti: ['soldout', 'awards', 'party', 'promo', 'rival_final', 'workshop', 'yearend'], sparkle: ['fake3', 'magazine', 'finalday', 'premiere', 'filming', 'hero_vc4', 'confess_playboy', 'confess_intern', 'confess_vc', 'confess_star', 'confess_ceo2', 'confess_colon', 'propose_playboy', 'propose_intern', 'propose_vc', 'propose_star', 'propose_ceo2', 'propose_colon', 'trip_summer', 'confess', 'propose', 'date', 'prologue', 'bday', 'ch4', 'ch2', 'colon_open', 'letter', 'pet', 'fashion'] };
 const SEASON_CG = ['sakura', 'spring_fever', 'monsoon', 'summer_vac', 'chuseok', 'autumn_dry', 'first_snow', 'yearend'];
 function cgKey(ev) { if (ev.cg)
     return ev.cg; const lm = /^(conf|prop)_([a-z0-9]+)$/.exec(ev.id); if (lm && LOVERS[lm[2]])
@@ -5320,7 +5395,7 @@ function cgKey(ev) { if (ev.cg)
     return `${ev.id}_${stageOf(S).key.slice(3)}`; if (CG_MAP[ev.id])
     return CG_MAP[ev.id]; const p = CG_PREFIX.find(([x]) => ev.id.startsWith(x)); return p ? p[1] : null; }
 const cgSrc = k => `art/cg_${k}.jpg`;
-const CG_ALL = ['hero_vc1', 'hero_vc2', 'hero_vc3', 'hero_vc4', ...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'tvshow', 'script', 'filming', 'premiere', 'magazine', 'soldout', 'finalday', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
+const CG_ALL = ['hero_vc1', 'hero_vc2', 'hero_vc3', 'hero_vc4', ...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'tvshow', 'script', 'filming', 'premiere', 'magazine', 'soldout', 'fake1', 'fake2', 'fake3', 'finalday', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
 let cgFlip = false;
 function showCG(key, o = {}) {
     return new Promise(res => {
@@ -5516,7 +5591,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.09-B';
+const BUILD_TAG = '2026.11.09-C';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
