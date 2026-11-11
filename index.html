@@ -162,6 +162,21 @@ button:focus-visible{outline:2px solid var(--serum);outline-offset:2px}
 .chips-inline{display:flex;flex-wrap:wrap;gap:5px;padding-block:6px}
 .tag{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:2px 8px;color:var(--mute);background:var(--glass-solid)}
 .tag.on{border-color:var(--serum);color:var(--serum);background:var(--serum-soft)}
+.pc{display:grid;grid-template-columns:84px 1fr;gap:8px 10px;padding:10px;margin:8px 0;border-radius:14px;background:#fff;border:1px solid var(--line);box-shadow:0 2px 8px rgba(40,50,120,.06)}
+.pc>img{width:84px;height:84px;object-fit:cover;border-radius:10px;background:#eef2fb}
+.pc-t{min-width:0;display:flex;flex-direction:column;gap:2px}.pc-t small{font-size:11px;color:var(--mute)}.pc-t b{font-size:14.5px;line-height:1.3}.pc-t p{margin:0;font-size:12px;color:var(--sub,#555);line-height:1.4}
+.pc-bars{display:flex;align-items:center;gap:6px;font-size:11.5px;margin-top:3px}.pc-bars b{font-family:var(--f-mono)}
+.popbar{flex:1;height:7px;border-radius:99px;background:#e7ebf6;overflow:hidden}.popbar i{display:block;height:100%;background:linear-gradient(90deg,#8ec5ff,#4f86ff)}
+.pc.old .popbar i{background:linear-gradient(90deg,#ffc08a,#ff7a4d)}.pc-warn{color:#c2541c!important;font-weight:600}
+.pc-acts{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.pm{all:unset;box-sizing:border-box;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:4px;padding:6px 8px;border-radius:9px;background:#f2f5ff;border:1px solid #dfe6fb;font-size:12px}
+.pm small{font-family:var(--f-mono);font-size:10.5px;color:var(--mute);white-space:nowrap}.pm:disabled{opacity:.45;cursor:default}.pm:focus-visible,.pc-life button:focus-visible{outline:2px solid #4f86ff}
+.pc-life{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.pc-life button{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;padding:7px;border-radius:9px;font-size:12.5px;font-weight:700;background:#fff3e8;border:1px solid #f4c9a3;color:#a5481a}
+.pc-life button.sure{background:#c2416a;color:#fff;border-color:#c2416a}.pc-life button:disabled{opacity:.45;cursor:default}
+.pc-empty{font-size:13px;color:var(--mute)}
+.pc-ret{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.pc-ret div{display:flex;flex-direction:column;align-items:center;text-align:center;font-size:11px}
+.pc-ret img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;filter:grayscale(1) opacity(.6)}.pc-ret small{color:var(--mute);font-size:10px}
 .prods{display:grid;gap:3px;font-size:12px;padding-top:6px;border-top:1px solid var(--line)}
 .prods div{display:flex;justify-content:space-between;gap:8px}
 .prods span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -378,6 +393,7 @@ body.running .phone .bottom-area,body.running .phone .side-l,body.running .phone
 .fab.c-green{--c1:#9be87a;--c2:#4cc25a;--c3:#2b8a3a}
 .fab.c-red{--c1:#ffa38a;--c2:#ff6a4d;--c3:#c23c24}
 .fab.c-teal{--c1:#7ff0dc;--c2:#22c3ac;--c3:#138a79}
+.fab.c-blue{--c1:#9cc8ff;--c2:#4f86ff;--c3:#2a55c2}
 .fab .ic{background:linear-gradient(180deg,var(--c1),var(--c2));border:3px solid #fff;color:#fff;box-shadow:0 4px 0 var(--c3),0 6px 12px rgba(0,0,0,.25)}
 .fab .ic.gauge{background:#fff;border-color:var(--c2)}
 .fab .lb{background:linear-gradient(180deg,var(--c2),var(--c3));border-color:#fff}
@@ -666,7 +682,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.11-C</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.11-D</span>
       </div>
     </div>
   </section>
@@ -713,6 +729,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
       <nav class="side-l" aria-label="정보">
         <button class="fab c-pink" data-sheet="status"><span class="ic" data-icon="stats"></span><span class="lb">능력치</span><span class="badge" id="badge-status" hidden>!</span></button>
         <button class="fab c-orange" data-sheet="company"><span class="ic" data-icon="company"></span><span class="lb">회사</span></button>
+        <button class="fab c-blue" data-sheet="prods"><span class="ic" data-icon="bottle"></span><span class="lb">제품</span><span class="badge" id="badge-prods" hidden>!</span></button>
         <button class="fab c-pink" data-sheet="love"><span class="ic" data-icon="heart"></span><span class="lb">썸남</span><span class="badge" id="badge-love" hidden>♥</span></button>
         <button class="fab c-purple" data-sheet="dex"><span class="ic" data-icon="dex"></span><span class="lb">엔딩도감</span></button>
       </nav>
@@ -754,6 +771,10 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
       <div class="sheet" id="sheet-company" hidden><div class="sheet-card">
         <div class="sheet-head"><b id="tb-brand"></b><button class="sheet-x" data-close-sheet aria-label="닫기">×</button></div>
         <div id="company"></div>
+      </div></div>
+      <div class="sheet" id="sheet-prods" hidden><div class="sheet-card">
+        <div class="sheet-head"><b>제품</b><button class="sheet-x" data-close-sheet aria-label="닫기">×</button></div>
+        <div id="prodsheet"></div>
       </div></div>
       <div class="sheet" id="sheet-dex" hidden><div class="sheet-card">
         <div class="sheet-head"><b>엔딩 도감</b><button class="sheet-x" data-close-sheet aria-label="닫기">×</button></div>
@@ -1086,6 +1107,106 @@ function profileMods(prof) {
 }
 const STAT_SHORT_K = { rnd: '연구', aes: '감각', mkt: '마케팅', biz: '경영', lead: '리더십', net: '인맥', charm: '매력' };
 const PRODUCT_NAMES = ['제로 리페어 세럼', '글래스 배리어 크림', '마이크로 스크래치 앰플', '클리어 스테이지 토너', '콜론 리커버리 마스크', '제로 글로우 선세럼', '스크래치 SOS 밤', '리스토어 아이 컨센트레이트'];
+// 제품 정보: 종류·기능·그림 (이름 순서대로 art/prod_1~8.jpg)
+const PRODUCT_INFO = {
+    '제로 리페어 세럼': { type: '세럼', feat: '판테놀·세라마이드로 무너진 장벽을 회복', img: 'art/prod_1.jpg' },
+    '글래스 배리어 크림': { type: '크림', feat: '5중 세라마이드 보습막, 유리알 같은 결', img: 'art/prod_2.jpg' },
+    '마이크로 스크래치 앰플': { type: '앰플', feat: 'PDRN으로 미세 손상 집중 케어', img: 'art/prod_3.jpg' },
+    '클리어 스테이지 토너': { type: '토너', feat: '약산성 물토너, 묵은 각질 정돈', img: 'art/prod_4.jpg' },
+    '콜론 리커버리 마스크': { type: '마스크팩', feat: '시카 진정 시트, 붉은 기 10분 진정', img: 'art/prod_5.jpg' },
+    '제로 글로우 선세럼': { type: '선세럼', feat: 'SPF50+ PA++++ 백탁 없는 광채', img: 'art/prod_6.jpg' },
+    '스크래치 SOS 밤': { type: '스틱 밤', feat: '트러블 자리에 바르는 국소 진정', img: 'art/prod_7.jpg' },
+    '리스토어 아이 컨센트레이트': { type: '아이크림', feat: '펩타이드 탄력, 쿨링 세라믹 팁', img: 'art/prod_8.jpg' },
+};
+const prodInfo = p => PRODUCT_INFO[p.base || p.name] || { type: '스킨케어', feat: '', img: 'art/prod_1.jpg' };
+// ---- 제품 인기도: 출시 3년(36개월)까지는 품질·인지도·팬덤 쪽으로 움직이고, 그 뒤로는 매달 떨어진다. 마케팅으로 띄운다 ----
+const PROD_LIFE = 36;
+const prodAge = (S, p) => S.m - (p.m || 0);
+function popOf(p) { return p.pop == null ? 50 : p.pop; }
+function popFactor(p) { return 0.55 + popOf(p) * 0.0065; }
+function popTick(S) {
+    for (const p of S.prods) {
+        if (p.pop == null)
+            p.pop = Math.round(clamp(35 + p.q * 0.3 + S.aware * 0.15, 5, 95));
+        if (prodAge(S, p) < PROD_LIFE) {
+            const tgt = p.q * 0.6 + S.aware * 0.2 + S.fan * 0.2;
+            p.pop = clamp(p.pop + (tgt - p.pop) * 0.08 - 0.6, 3, 100);
+        }
+        else
+            p.pop = clamp(p.pop - (diffOf(S).age ? 2.5 : 1.5), 3, 100);
+    }
+}
+const PROMOS = [
+    { id: 'seed', name: '인플루언서 씨딩', icon: '📦', cost: 150, line: '뷰티 크리에이터 50명에게 제품을 보낸다.', run: (S, p) => ({ pop: 6 + S.st.mkt * 0.06, aware: 1 }) },
+    { id: 'sns', name: 'SNS 광고', icon: '📱', cost: 600, line: '릴스·피드 광고를 한 달 동안 돌린다.', run: (S, p) => ({ pop: 9 + S.st.mkt * 0.08, aware: 3 }) },
+    { id: 'popup', name: '팝업스토어', icon: '🎪', cost: 2000, line: '성수동에서 2주 동안 체험 팝업을 연다.', run: (S, p) => ({ pop: 13 + S.st.aes * 0.06, aware: 2, fan: 3 }) },
+    { id: 'tv', name: 'TV·옥외 광고', icon: '📺', cost: 8000, line: '지하철역 전광판과 TV 광고를 한꺼번에.', run: (S, p) => ({ pop: 20 + S.st.mkt * 0.05, aware: 8 }) },
+];
+const promoUsed = (S, p, id) => !!(p.mk && p.mk[id] === S.m);
+function runPromo(S, idx, id) {
+    const p = S.prods[idx], P = PROMOS.find(x => x.id === id);
+    if (!p || !P || promoUsed(S, p, id) || S.cash < P.cost)
+        return null;
+    const ch = [];
+    bump(S, 'cash', -P.cost, ch);
+    const r = P.run(S, p);
+    const b = popOf(p);
+    p.pop = clamp(b + r.pop, 0, 100);
+    push(ch, '인기도', Math.round(p.pop - b));
+    if (r.aware)
+        bump(S, 'aware', r.aware, ch);
+    if (r.fan)
+        bump(S, 'fan', r.fan, ch);
+    (p.mk || (p.mk = {}))[id] = S.m;
+    S.lastBuy = { name: P.name, price: P.cost };
+    return { text: `${P.icon} 「${p.name}」 ${P.name}. ${P.line}`, chips: ch };
+}
+const RENEW_COST = 1200;
+function renewProd(S, idx) {
+    const p = S.prods[idx];
+    if (!p || S.cash < RENEW_COST)
+        return null;
+    const ch = [];
+    bump(S, 'cash', -RENEW_COST, ch);
+    const q = p.q;
+    p.q = clamp(p.q + 8 + (invested(S, 'rndcenter') ? 3 : 0), 0, 100);
+    push(ch, '품질', p.q - q);
+    const b = popOf(p);
+    p.pop = Math.max(b, 55);
+    push(ch, '인기도', Math.round(p.pop - b));
+    p.m = S.m;
+    p.gen = (p.gen || 1) + 1;
+    p.asked = false;
+    S.album.push(`${p.name} 리뉴얼`);
+    return { text: `「${p.name}」 ${p.gen}세대로 리뉴얼했다. 새 패키지에 “NEW” 스티커가 붙었다.`, chips: ch };
+}
+function retireProd(S, idx) {
+    const p = S.prods[idx];
+    if (!p || S.prods.length < 2)
+        return null;
+    S.prods.splice(idx, 1);
+    p.off = S.m;
+    (S.retired || (S.retired = [])).push(p);
+    const ch = [];
+    bump(S, 'fan', -2, ch);
+    S.album.push(`${p.name} 단종`);
+    return { text: `「${p.name}」${josa(p.name, '을', '를').slice(p.name.length)} 단종했다. 마지막 재고가 다 팔리던 날, 리뷰 게시판에 “고마웠어요”가 올라왔다.`, chips: ch };
+}
+// 출시 3년이 된 제품: 리뉴얼·단종·그대로 중에서 고른다 (한 달에 한 개씩)
+function prodReviewEvent(S) {
+    const idx = S.prods.findIndex(p => prodAge(S, p) >= PROD_LIFE && !p.asked);
+    if (idx < 0)
+        return null;
+    const p = S.prods[idx];
+    p.asked = true;
+    return { id: 'prod_review_' + S.m, face: 'news', speaker: 'PRODUCT', title: `「${p.name}」 출시 3년`, cg: 'lab', place: 'office',
+        text: () => `「${p.name}」${josa(p.name, '이', '가').slice(p.name.length)} 나온 지 3년이 지났다. 인기도 ${Math.round(popOf(p))}. 매대에서 손이 덜 가기 시작했다.\n“리뉴얼할까요, 아니면 정리하고 다음 제품에 힘을 실을까요?”`,
+        choices: [
+            { label: `리뉴얼한다 (${fmtMoney(RENEW_COST)}원)`, run: S => { const r = renewProd(S, S.prods.indexOf(p)); return r || { text: '자금이 모자라 리뉴얼을 미뤘다.', chips: [] }; } },
+            { label: '단종한다', run: S => { const r = retireProd(S, S.prods.indexOf(p)); return r || { text: '하나뿐인 제품이라 단종할 수 없다. 그대로 판다.', chips: [] }; } },
+            { label: '그대로 판다', run: S => ({ text: '아직 찾는 손님이 있다. 조금 더 지켜보기로 했다.', chips: [] }) },
+        ] };
+}
 // ---- 옷장: 산 옷으로 갈아입으면 홈 화면 주인공 그림이 바뀌고, 입은 옷에 따라 작은 효과가 있다 ----
 const OUTFITS = [
     { id: 'ballet', look: 9, tags: ['romantic'], name: '발레코어 룩', icon: '🩰', age: 20, price: 45, ages: [20, 22, 25, 27, 30], eff: '휴식할 때 스트레스 회복↑', line: '리본 카디건에 메리제인. 거울 앞에서 괜히 한 바퀴 돌았다.' },
@@ -1720,12 +1841,23 @@ function launch(S) {
         const before = p.q;
         p.q = clamp(p.q + 8, 0, 100);
         p.m = S.m;
+        p.asked = false;
+        p.gen = (p.gen || 1) + 1;
+        p.pop = Math.max(popOf(p), 55);
         return { renew: true, name: p.name, q: p.q, dq: p.q - before };
     }
     const q = Math.round(clamp(18 + S.st.rnd * 0.5 + S.st.aes * 0.28 + rand(0, 10) + (invested(S, 'rndcenter') ? 8 : 0), 10, 100));
-    const name = PRODUCT_NAMES[S.prods.length];
+    const used = new Set(S.prods.concat(S.retired || []).map(p => p.name)), active = new Set(S.prods.map(p => p.base || p.name));
+    let base = PRODUCT_NAMES.find(n => !used.has(n)), name = base;
+    if (!base) {
+        base = PRODUCT_NAMES.find(n => !active.has(n));
+        let k = 2;
+        name = `${base} ${k}.0`;
+        while (used.has(name))
+            name = `${base} ${++k}.0`;
+    }
     const prodCost = S.prods.length ? 500 : 200; // 첫 제품은 소량 생산
-    S.prods.push({ name, q, m: S.m });
+    S.prods.push({ name, base, q, m: S.m, pop: Math.round(clamp(35 + q * 0.3 + S.aware * 0.15, 5, 95)) });
     S.cash -= prodCost;
     bump(S, 'aware', 4, null);
     bump(S, 'fan', 3, null);
@@ -2338,7 +2470,8 @@ function mgmtEff(S) {
 function settle(S) {
     const mo = monthOf(S);
     const D = diffOf(S);
-    let base = S.prods.reduce((a, p) => a + p.q * ageFactor(S, p) * (4 + S.aware * 0.8 + S.fan * 0.6) * 0.3, 0);
+    popTick(S);
+    let base = S.prods.reduce((a, p) => a + p.q * ageFactor(S, p) * popFactor(p) * (4 + S.aware * 0.8 + S.fan * 0.6) * 0.3, 0);
     let mult = 1 + Math.min(S.emp, 30) * 0.1;
     const notes = [];
     if (S.olive) {
@@ -2388,6 +2521,8 @@ function settle(S) {
         notes.push(`판관비 ${fmtMoney(sga)}원 포함`);
     if (D.age && S.prods.some(p => ageFactor(S, p) < 0.85))
         notes.push('오래된 제품이 덜 팔려요: 리뉴얼·신제품 필요');
+    if (S.prods.some(p => prodAge(S, p) >= PROD_LIFE && popOf(p) < 35))
+        notes.push('출시 3년 넘은 제품의 인기가 떨어지는 중: 제품 탭에서 리뉴얼·단종');
     S.yrNet = (S.yrNet || 0) + net;
     if (mo === 12) {
         if (D.tax && S.yrNet > 0) {
@@ -4364,6 +4499,11 @@ function fixedEvents(S) {
         if (fk && out.length < 3)
             out.push(fk);
     }
+    if (out.length < 3) {
+        const pr = prodReviewEvent(S);
+        if (pr)
+            out.push(pr);
+    }
     const le = loveEvent(S);
     if (le)
         out.push(le);
@@ -4578,6 +4718,7 @@ const ICONS = {
     fit: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 8v8M3.5 10v4M18 8v8M20.5 10v4M6 12h12"/></svg>',
     rest: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>',
     heart: '<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.5 1.1 4.3 2.4h2c.8-1.3 2.2-2.4 4.3-2.4 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg>',
+    bottle: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M10 2h4v4h-4zM9 6h6l2 4v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V10z"/><path d="M7 13h10"/></svg>',
     menu: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
 };
 function paintIcons() { document.querySelectorAll('[data-icon]').forEach(el => { if (!el.dataset.painted) {
@@ -4754,6 +4895,26 @@ function spark(hist) {
     const last = pts[pts.length - 1];
     return `<svg class="spark" viewBox="0 0 200 46" preserveAspectRatio="none"><line x1="0" y1="42" x2="200" y2="42" stroke="#C3CBCF"/><polygon points="2,42 ${line} ${last[0].toFixed(1)},42" fill="#2B44C0" opacity=".12"/><polyline points="${line}" fill="none" stroke="#2B44C0" stroke-width="1.6" vector-effect="non-scaling-stroke"/><circle cx="${last[0]}" cy="${last[1]}" r="2.6" fill="#2B44C0"/></svg>`;
 }
+// ---- 제품 탭: 만든 제품의 종류·기능·품질·인기도, 마케팅, 출시 3년 뒤 리뉴얼·단종 ----
+function prodCardHTML(S, p, i) {
+    const I = prodInfo(p), a = prodAge(S, p), pop = Math.round(popOf(p)), old = a >= PROD_LIFE, plan = S.phase === 'plan';
+    return `<article class="pc ${old ? 'old' : ''}"><img src="${I.img}" alt="${esc(p.name)} 제품 사진"><div class="pc-t">
+    <small>${I.type}${(p.gen || 1) > 1 ? ` · ${p.gen}세대` : ''} · 출시 ${a >= 12 ? Math.floor(a / 12) + '년 ' : ''}${a % 12}개월</small><b>${esc(p.name)}</b><p>${I.feat}</p>
+    <div class="pc-bars"><span>품질 <b>${p.q}</b></span><span class="popbar" role="img" aria-label="인기도 ${pop}"><i style="width:${pop}%"></i></span><span>인기 <b>${pop}</b></span></div>
+    ${old ? '<p class="pc-warn">출시 3년이 지나 인기가 매달 떨어져요</p>' : ''}</div>
+    <div class="pc-acts">${PROMOS.map(P => { const used = promoUsed(S, p, P.id); return `<button type="button" class="pm" data-promo="${i}:${P.id}" ${used || S.cash < P.cost || !plan ? 'disabled' : ''}><span>${P.icon} ${P.name}</span><small>${used ? '이번 달 완료' : fmtMoney(P.cost) + '원'}</small></button>`; }).join('')}</div>
+    ${old ? `<div class="pc-life"><button type="button" data-renew="${i}" ${S.cash < RENEW_COST || !plan ? 'disabled' : ''}>🔄 리뉴얼 · ${fmtMoney(RENEW_COST)}원</button><button type="button" data-retire="${i}" ${S.prods.length < 2 || !plan ? 'disabled' : ''}>🗂 단종</button></div>` : ''}
+  </article>`;
+}
+function renderProds() {
+    const el = $('#prodsheet');
+    if (!el || !S)
+        return;
+    const ret = S.retired || [];
+    el.innerHTML = `<p class="sheet-sub">판매 중 ${S.prods.length} / 8 · 보유 자금 ${fmtMoney(S.cash)}원<br>마케팅은 제품마다 종류별로 한 달에 한 번. 인기도가 높을수록 잘 팔리고, 출시 3년이 지나면 인기가 떨어져요.</p>`
+        + (S.prods.length ? S.prods.map((p, i) => prodCardHTML(S, p, i)).join('') : '<p class="pc-empty">아직 출시한 제품이 없어요. 교육·업무 탭의 제형 개발로 첫 제품을 만들어요.</p>')
+        + (ret.length ? `<h3>단종한 제품</h3><div class="pc-ret">${ret.map(p => `<div><img src="${prodInfo(p).img}" alt=""><span>${esc(p.name)}</span><small>${yearOf({ m: p.m })}–${yearOf({ m: p.off })}</small></div>`).join('')}</div>` : '');
+}
 function render() {
     if (!S)
         return;
@@ -4777,6 +4938,11 @@ function render() {
     {
         const L = loveOf(S);
         $('#badge-love').hidden = !Object.values(L).some(v => v.stage >= 1);
+    }
+    {
+        const bp = $('#badge-prods');
+        if (bp)
+            bp.hidden = !S.prods.some(p => prodAge(S, p) >= PROD_LIFE);
     }
     {
         const b = $('#btn-advice');
@@ -4805,7 +4971,7 @@ function render() {
     ${spark(S.hist)}
     ${teamHTML()}
     <div class="chips-inline"><span class="tag on">자사몰</span><span class="tag ${S.olive ? 'on' : ''}">올리브영</span><span class="tag ${S.global ? 'on' : ''}">글로벌</span><span class="tag ${S.invest ? 'on' : ''}">${S.invest ? ROUNDS[S.invest - 1].name : '투자 전'}</span></div>
-    <div class="prods">${S.prods.length ? S.prods.map(p => `<div><span>${esc(p.name)}</span><span class="q">품질 ${p.q}</span></div>`).join('') : '<div><span style="color:var(--mute)">아직 출시한 제품이 없어요</span></div>'}</div>`;
+    <div class="prods">${S.prods.length ? S.prods.map(p => `<div><span>${esc(p.name)}</span><span class="q">품질 ${p.q} · 인기 ${Math.round(popOf(p))}</span></div>`).join('') : '<div><span style="color:var(--mute)">아직 출시한 제품이 없어요</span></div>'}</div>`;
     renderSchedule();
 }
 function teamHTML() {
@@ -6028,7 +6194,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.11-C';
+const BUILD_TAG = '2026.11.11-D';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
@@ -6476,6 +6642,8 @@ function openSheet(name) {
         renderSchedule();
     if (name === 'love')
         renderLove();
+    if (name === 'prods')
+        renderProds();
     const el = $('#sheet-' + name);
     if (el) {
         el.hidden = false;
@@ -6661,6 +6829,46 @@ document.addEventListener('click', e => {
             toast(`${S.lastBuy.name} 설립 · 자금 −${fmtMoney(S.lastBuy.price)}원 (남은 자금 ${fmtMoney(S.cash)}원)`);
             note({ text: r.text, chips: r.chips });
             render();
+            save();
+        }
+        return;
+    }
+    if (t.dataset.promo) {
+        const [i, id] = t.dataset.promo.split(':');
+        const r = runPromo(S, +i, id);
+        if (r) {
+            sfx('coin');
+            toast(`${S.lastBuy.name} · 자금 −${fmtMoney(S.lastBuy.price)}원`);
+            note({ text: r.text, chips: r.chips });
+            render();
+            renderProds();
+            save();
+        }
+        return;
+    }
+    if (t.dataset.renew) {
+        const r = renewProd(S, +t.dataset.renew);
+        if (r) {
+            sfx('fanfare');
+            note({ text: r.text, chips: r.chips });
+            render();
+            renderProds();
+            save();
+        }
+        return;
+    }
+    if (t.dataset.retire) {
+        if (!t.classList.contains('sure')) {
+            t.classList.add('sure');
+            t.textContent = '정말 단종할까요?';
+            return;
+        }
+        const r = retireProd(S, +t.dataset.retire);
+        if (r) {
+            sfx('down');
+            note({ text: r.text, chips: r.chips });
+            render();
+            renderProds();
             save();
         }
         return;
