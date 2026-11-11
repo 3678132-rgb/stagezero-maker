@@ -706,7 +706,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.11-H</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.11-I</span>
       </div>
     </div>
   </section>
@@ -4898,7 +4898,7 @@ function computeEnding(S) {
     }
     // 성공 엔딩: 조건을 넘은 것들 중에서 「가장 많이 키운 쪽」에 맞는 엔딩을 고른다 (예전엔 회장이 맨 앞이라 거의 회장만 나왔다)
     // 결전의 날 선택이 그쪽 엔딩에 +8을 준다
-    const fp = S.finalPick, bias = { deal: ['chair', 'vc'], lab: ['lab', 'couture'], stage: ['model', 'actress', 'influencer', 'director'], people: ['minister', 'olive'] }[fp] || [];
+    const fp = S.finalPick, bias = { deal: ['chair', 'vc'], lab: ['lab', 'couture'], stage: ['model', 'actress', 'influencer', 'director'] }[fp] || [];
     const C = [];
     const add = (k, ok, fit) => { if (ok)
         C.push({ k, fit: fit + (bias.includes(k) ? 8 : 0) }); };
@@ -6642,7 +6642,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.11-H';
+const BUILD_TAG = '2026.11.11-I';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
