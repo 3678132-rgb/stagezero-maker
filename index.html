@@ -566,6 +566,30 @@ body.running .phone .dialog{max-height:30%}
 .aw-act p{margin:0;font-size:13.5px;line-height:1.6}
 .aw-act p.q{font-family:var(--f-display);font-size:15px;color:#FFE08A}
 .aw-act .rvline{font-size:12.5px;color:#E79AB4}
+.pl .aw-bg{opacity:.62;filter:none;background-position:50% 20%}.pl .aw-head{text-shadow:0 1px 6px rgba(0,0,0,.8)}.pl .pl-prod,.pl .pl-steps li{background:rgba(7,11,34,.78)}
+.pl-prod{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.07);border:1px solid rgba(232,199,122,.35);border-radius:14px;padding:10px}
+.pl-prod img{width:64px;height:64px;border-radius:10px;object-fit:cover;flex:none}.pl-prod small{display:block;font-size:11px;color:#AEB3D6}.pl-prod b{display:block;font-family:var(--f-display);font-size:18px;color:#FFE08A}.pl-prod span{display:block;font-size:12px;color:#C9CCE6;margin-top:2px}
+.pl-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.pl-steps li{background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.25);border-radius:10px;padding:6px;text-align:center;min-width:0}
+.pl-steps small{display:block;font-size:10.5px;color:#AEB3D6}.pl-steps b{display:block;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pl-steps li.on{border-style:solid;border-color:#E8C77A;background:rgba(232,199,122,.12)}
+.pl-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pl-card{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;padding:10px 6px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.25);min-width:0}
+.pl-card i{font-style:normal;font-size:30px}.pl-card b{font-size:13px;line-height:1.25}.pl-card span{display:flex;flex-wrap:wrap;justify-content:center;gap:3px}
+.pl-card em{font-style:normal;font-size:10px;padding:1px 6px;border-radius:99px;background:rgba(142,160,255,.25);color:#dfe4ff}.pl-card em.x{background:rgba(232,199,122,.25);color:#FFE08A}
+.pl-card:hover,.pl-card:focus-visible{border-color:#FFE08A;outline:none;box-shadow:0 0 0 1px #FFE08A}
+.lv{background:#000}.lv-bg{position:absolute;inset:0;background:50% 20%/cover no-repeat;opacity:.85;pointer-events:none}
+.lv-top{position:relative;display:flex;gap:8px;align-items:center;font-size:13px}.lv-top span{background:rgba(0,0,0,.55);border-radius:99px;padding:4px 10px}.lv-top .lv-on{background:#e5324a;font-weight:700;letter-spacing:.06em}
+.lv-chat{position:relative;margin-top:auto;display:flex;flex-direction:column;gap:4px;max-width:85%}
+.lv-chat p{margin:0;font-size:12.5px;line-height:1.4;background:rgba(0,0,0,.45);border-radius:10px;padding:4px 9px;width:fit-content;max-width:100%;animation:fadein .3s ease both}
+.lv-chat p b{color:#AEB3D6;font-weight:600;margin-right:4px}.lv-chat p.hl{background:rgba(232,199,122,.9);color:#1a1530;font-weight:600}.lv-chat p.hl b{color:#5a4410}.lv-chat p.me{background:rgba(79,134,255,.75)}.lv-chat p.me b{color:#fff}
+.lv .aw-act{margin-top:8px;position:relative}
+.lv-heart{position:absolute;bottom:200px;font-style:normal;font-size:22px;animation:lvheart 2s ease-out forwards;pointer-events:none}
+@keyframes lvheart{from{transform:translateY(0) scale(.6);opacity:0}15%{opacity:1}to{transform:translateY(-260px) scale(1.2);opacity:0}}
+.tl-wrap{position:fixed;inset:0;z-index:80;background:rgba(10,12,30,.6);display:flex;align-items:flex-end;justify-content:center}
+.tl-card{width:min(560px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:22px 22px 0 0;border-top:3px solid #E9C77A;padding:14px 16px 20px;display:flex;flex-direction:column;gap:10px}
+.tl-head{display:flex;justify-content:space-between;align-items:flex-start}.tl-head small{display:block;font-size:11.5px;color:var(--mute)}.tl-head b{font-family:var(--f-display);font-size:22px}
+.tl-year{display:grid;grid-template-columns:64px 1fr;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.tl-year img{width:64px;height:84px;object-fit:cover;object-position:50% 15%;border-radius:10px}
+.tl-year h4{margin:0 0 4px;font-family:var(--f-display);font-size:17px}.tl-year h4 small{font-size:12px;color:var(--mute);font-weight:400}
+.tl-year ul{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:13px}.tl-year li{display:flex;gap:6px}.tl-year li i{font-style:normal;flex:none}.tl-year li.dim{color:var(--mute)}
 .aw-btn{all:unset;cursor:pointer;display:block;text-align:center;background:#E8C77A;color:#1A1530;font-weight:600;font-size:15px;border-radius:10px;padding:12px}
 .aw-opt{all:unset;cursor:pointer;display:block;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:9px 12px}
 .aw-opt b{display:block;font-family:var(--f-display);font-size:14px;font-weight:700;color:#fff}
@@ -682,7 +706,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.11-G</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.11-H</span>
       </div>
     </div>
   </section>
@@ -1192,6 +1216,196 @@ function retireProd(S, idx) {
     S.album.push(`${p.name} 단종`);
     return { text: `「${p.name}」${josa(p.name, '을', '를').slice(p.name.length)} 단종했다. 마지막 재고가 다 팔리던 날, 리뷰 게시판에 “고마웠어요”가 올라왔다.`, chips: ch };
 }
+// ---- 신제품 기획 회의: 제형 개발이 끝나 출시가 정해지면 주성분·제형·패키지·가격을 카드로 고른다. 그해 트렌드와 맞을수록 품질·첫 인기도↑ ----
+const PLAN_STEPS = [
+    { key: 'ing', label: '주성분', opts: [
+            { id: 'cera', name: '세라마이드', icon: '🧱', tags: ['barrier', 'mild'] }, { id: 'vitc', name: '비타민C', icon: '🍋', tags: ['glow', 'tone'] },
+            { id: 'pdrn', name: 'PDRN', icon: '🧬', tags: ['repair', 'premium'] }, { id: 'retinal', name: '레티날', icon: '⏳', tags: ['aging', 'premium'] },
+            { id: 'cica', name: '시카', icon: '🌿', tags: ['calm', 'mild'] }, { id: 'niacin', name: '나이아신아마이드', icon: '✨', tags: ['tone', 'glow'] },
+            { id: 'peptide', name: '펩타이드', icon: '🔗', tags: ['aging', 'repair'] }, { id: 'hyal', name: '히알루론산', icon: '💦', tags: ['light', 'barrier'] }
+        ] },
+    { key: 'tex', label: '제형', opts: [
+            { id: 'gel', name: '워터리 젤', icon: '💧', tags: ['light', 'calm'] }, { id: 'cream', name: '리치 크림', icon: '☁️', tags: ['barrier', 'aging'] },
+            { id: 'oil', name: '오일 세럼', icon: '🫧', tags: ['glow', 'premium'] }, { id: 'stick', name: '스틱·밤', icon: '🖍️', tags: ['light', 'trend'] },
+            { id: 'pad', name: '토너 패드', icon: '🧻', tags: ['tone', 'trend'] }
+        ] },
+    { key: 'pkg', label: '패키지', opts: [
+            { id: 'blue', name: '사파이어 블루', icon: '🔷', tags: ['premium', 'repair'] }, { id: 'frost', name: '클리어 프로스트', icon: '🧊', tags: ['mild', 'light'] },
+            { id: 'lav', name: '펄 라벤더', icon: '💜', tags: ['glow', 'trend'] }, { id: 'eco', name: '리필 에코', icon: '♻️', tags: ['eco', 'calm'] },
+            { id: 'mini', name: '미니 키트', icon: '🎁', tags: ['trend', 'tone'] }
+        ] },
+    { key: 'price', label: '가격', opts: [
+            { id: 'low', name: '가성비 · 1만원대', icon: '🪙', tags: ['mass'], pop: 8, aware: 2, q: -2 }, { id: 'mid', name: '미드 · 3만원대', icon: '💳', tags: [], pop: 3 },
+            { id: 'high', name: '프리미엄 · 7만원대', icon: '💎', tags: ['premium'], pop: -3, aware: 4, q: 3 }
+        ] },
+];
+const PLAN_TRENDS = [
+    { name: '장벽 회복', tags: ['barrier', 'mild', 'repair'] }, { name: '광채 글로우', tags: ['glow', 'tone', 'trend'] }, { name: '진정·민감 피부', tags: ['calm', 'mild', 'light'] },
+    { name: '슬로우 에이징', tags: ['aging', 'repair', 'premium'] }, { name: '가볍게, 빠르게', tags: ['light', 'trend', 'tone'] }, { name: '지속 가능 뷰티', tags: ['eco', 'calm', 'mild'] },
+    { name: '하이엔드 스킨케어', tags: ['premium', 'repair', 'aging'] },
+];
+const planTrend = S => PLAN_TRENDS[(Math.floor(S.m / 12) * 3 + 2) % PLAN_TRENDS.length];
+function planSetup(S) {
+    const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(R() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    } return a; };
+    return { trend: planTrend(S), steps: PLAN_STEPS.map(st => (Object.assign(Object.assign({}, st), { opts: st.key === 'price' ? st.opts : shuffle(st.opts).slice(0, 3) }))) };
+}
+function planApply(S, P, picks) {
+    const p = S.prods[S.planFor];
+    S.planFor = null;
+    if (!p)
+        return { text: '', chips: [] };
+    const cards = P.steps.map((st, i) => st.opts[picks[i]]);
+    const hits = cards.reduce((a, c) => a + c.tags.filter(t => P.trend.tags.includes(t)).length, 0);
+    const price = cards[3], grade = hits >= 5 ? 'great' : hits >= 3 ? 'good' : hits >= 1 ? 'ok' : 'meh';
+    const ch = [];
+    const q0 = p.q;
+    p.q = clamp(p.q + hits + (price.q || 0), 5, 100);
+    push(ch, '품질', p.q - q0);
+    const b = popOf(p);
+    p.pop = clamp(b + hits * 4 + (price.pop || 0), 3, 100);
+    push(ch, '첫 인기도', Math.round(p.pop - b));
+    bump(S, 'aware', (price.aware || 0) + (grade === 'great' ? 4 : 0), ch);
+    if (grade === 'great')
+        bump(S, 'fan', 3, ch);
+    p.concept = { ing: cards[0].name, tex: cards[1].name, pkg: cards[2].name, price: price.name, trend: P.trend.name, hits, grade };
+    const line = { great: `트렌드 「${P.trend.name}」와 완벽하게 맞았다. 출시 첫날 품절, 대기 알림 신청이 2만 건.`, good: `「${P.trend.name}」 흐름을 잘 탔다. 첫 리뷰들이 “딱 요즘 피부에 필요한 거”라고 했다.`,
+        ok: '무난한 출발. 기본기는 좋다는 평이 많다.', meh: `요즘 흐름(「${P.trend.name}」)과는 조금 비껴갔다. 마케팅으로 띄워야 한다.` }[grade];
+    return { grade, hits, text: `「${p.name}」 컨셉 확정: ${cards.map(c => c.name).join(' · ')}\n${line}`, chips: ch };
+}
+function planEvent(S) {
+    const p = S.prods[S.planFor];
+    if (!p) {
+        S.planFor = null;
+        return null;
+    }
+    const T = planTrend(S);
+    return { id: 'plan_' + S.m, face: 'ceo', speaker: 'NEW PRODUCT', title: `「${p.name}」 기획 회의`, cg: 'plan', place: 'office',
+        text: () => `샘플이 완성됐다. 출시 전에 컨셉을 정할 시간.\n시장 조사 결과 올해 키워드는 「${T.name}」.\n주성분, 제형, 패키지, 가격을 차례로 골라 보자.`,
+        choices: [{ label: '기획 회의 시작', plan: true, run: S => { const P = planSetup(S); return planApply(S, P, P.steps.map(st => Math.floor(R() * st.opts.length))); } }] };
+}
+// ---- 라이브 커머스 하이라이트: 라이브 커머스를 한 달에는 실시간 채팅 질문에 답하며 추가 매출을 낸다 ----
+const LIVE_QS = [
+    { q: '건성인데 이거 써도 돼요? 🥺', who: '촉촉해지고싶다', a: [
+            { label: '“세라마이드가 장벽을 채워 줘서 건성에 특히 좋아요.”', sc: S => S.st.rnd >= 35 ? 2 : 1, re: S => S.st.rnd >= 35 ? '성분 설명이 술술 나왔다. 채팅창에 “전문가다…”' : '설명하다 성분 이름이 꼬였다. 그래도 진심은 전해졌다.' },
+            { label: '손등에 직접 바르고 카메라에 가까이 보여 준다', sc: () => 2, re: () => '촉촉하게 스며드는 장면에 “와 흡수 미쳤다” 채팅이 쏟아졌다.' },
+            { label: '“네! 다 좋아요!”', sc: () => 1, re: () => '“다 좋다는 게 제일 무서운데…” 채팅이 조금 식었다.' }
+        ] },
+    { q: '할인은 없어요? 😢', who: '통장잔고3천원', a: [
+            { label: '지금부터 30분 한정 쿠폰을 연다', sc: () => 2, re: () => '쿠폰 공지가 뜨자 구매 알림이 연달아 터졌다.' },
+            { label: '미니어처를 하나 더 얹어 준다', sc: () => 2, re: () => '“증정 맛집” 채팅이 이어졌다.' },
+            { label: '“정가가 제값이에요.”', sc: S => S.aware >= 50 ? 1 : 0, re: S => S.aware >= 50 ? '브랜드를 아는 팬들은 고개를 끄덕였다.' : '시청자 몇 명이 나갔다.' }
+        ] },
+    { q: '솔직히 광고비로 리뷰 산 거 아님? 🙄', who: '의심많은사람', a: [
+            { label: '웃으며 리뷰 정책을 화면에 띄워 설명한다', sc: () => 2, re: () => '“이 정도면 믿을 만하네” 분위기가 바뀌었다.' },
+            { label: '조용히 차단한다', sc: () => 1, re: () => '채팅이 잠깐 조용해졌다.' },
+            { label: '“그런 말 함부로 하시면 안 되죠!”', sc: () => 0, meme: true, re: () => '발끈한 표정이 그대로 캡처됐다. 내일 커뮤니티에 짤이 돌 것 같다.' }
+        ] },
+    { q: '대표님 피부 뭐 써요? 진짜 좋아 보여요 😍', who: '광채요정', a: [
+            { label: '즉석에서 메이크업을 지우고 민낯을 보여 준다', sc: S => (S.st.charm || 0) >= 40 ? 2 : 1, re: S => (S.st.charm || 0) >= 40 ? '민낯 공개에 하트가 화면을 덮었다.' : '조명이 살짝 아쉬웠다. 그래도 솔직함은 통했다.' },
+            { label: '아침·저녁 루틴을 우리 제품으로 소개한다', sc: () => 2, re: () => '루틴 세트 구매가 줄줄이 들어왔다.' },
+            { label: '“비밀이에요~”', sc: () => 1, re: () => '“아 뭐야ㅋㅋ” 웃고 넘어갔다.' }
+        ] },
+    { q: '루미에르랩이랑 뭐가 달라요?', who: '비교충', a: [
+            { label: '임상 데이터 비교표를 띄운다', sc: S => S.st.rnd >= 45 ? 2 : 1, re: S => S.st.rnd >= 45 ? '숫자가 말해 줬다. “설득당함” 채팅.' : '표가 너무 어려웠다. 반응이 반반.' },
+            { label: '“긁힌 유리를 투명하게.” 브랜드 이야기를 한다', sc: S => S.st.aes >= 40 ? 2 : 1, re: S => S.st.aes >= 40 ? '이야기가 끝나자 몇 명이 “울컥했다”고 썼다.' : '좋은 이야기였지만 조금 길었다.' },
+            { label: '“거기 성분 별로예요.”', sc: () => 0, meme: true, re: () => '경쟁사 비방으로 클립이 돌기 시작했다. 한서린 팬들이 몰려왔다.' }
+        ] },
+    { q: '택배 언제 와요? 내일 여행 가는데 ㅠㅠ', who: '캐리어싸는중', a: [
+            { label: '“오늘 주문하면 내일 출고, 정확한 날짜를 안내드릴게요.”', sc: () => 2, re: () => '정확한 안내에 “믿고 산다” 채팅.' },
+            { label: '“내일 무조건 도착해요!”', sc: S => S.st.biz >= 45 ? 2 : 0, re: S => S.st.biz >= 45 ? '물류팀이 해냈다. 다음 날 인증샷이 올라왔다.' : '다음 날 도착하지 않았다. 문의 게시판에 항의가 쌓였다.' },
+            { label: '“그건 잘 모르겠어요…”', sc: () => 0, re: () => '“대표가 모르면 누가 알아요” 채팅이 올라왔다.' }
+        ] },
+];
+function liveSetup(S) {
+    const idx = [...LIVE_QS.keys()];
+    for (let i = idx.length - 1; i > 0; i--) {
+        const j = Math.floor(R() * (i + 1));
+        [idx[i], idx[j]] = [idx[j], idx[i]];
+    }
+    return { qs: idx.slice(0, 4), viewers: Math.round(150 + S.aware * 25 + S.fan * 35) };
+}
+function liveApply(S, L, ans) {
+    const ch = [];
+    let sc = 0, meme = false;
+    const lines = [];
+    L.qs.forEach((qi, i) => { const a = LIVE_QS[qi].a[ans[i]]; sc += a.sc(S); if (a.meme)
+        meme = true; });
+    const base = S.liveLast || 0, f = sc / 8 * 0.9 - 0.1, extra = Math.round(base * f);
+    S.liveShow = null;
+    if (extra) {
+        S.liveRev += extra;
+        push(ch, '라이브 추가 매출', extra, true);
+    }
+    bump(S, 'fan', Math.round(sc * 0.5), ch);
+    if (sc >= 7)
+        bump(S, 'aware', 3, ch);
+    if (meme) {
+        bump(S, 'stress', 6, ch);
+        bump(S, 'aware', 2, ch);
+    }
+    const grade = sc >= 7 ? 'great' : sc >= 5 ? 'good' : sc >= 3 ? 'ok' : 'bad';
+    const text = { great: '역대급 방송. 동시 시청자 기록을 갈아치웠다. 방송이 끝나자 팀원들이 박수를 쳤다.', good: '좋은 방송이었다. 단골이 늘었다.', ok: '무난하게 마쳤다. 다음엔 더 잘할 수 있다.', bad: '아쉬운 방송. 끝나고 한참 화면을 꺼진 채로 바라봤다.' }[grade] + (meme ? '\n…그리고 짤이 하나 돌기 시작했다.' : '');
+    return { grade, sc, meme, extra, text, chips: ch };
+}
+function liveEvent(S) {
+    return { id: 'liveshow_' + S.m, face: 'ceo', speaker: 'LIVE', title: '라이브 방송 중!', place: 'office',
+        text: () => '카메라 빨간 불이 들어왔다. 채팅창이 빠르게 올라간다.\n질문에 잘 답할수록 시청자와 매출이 늘어난다.',
+        choices: [{ label: '채팅 읽기 시작', liveshow: true, run: S => { const L = liveSetup(S); return liveApply(S, L, L.qs.map(qi => { const a = LIVE_QS[qi].a; let bi = 0; a.forEach((x, i) => { if (x.sc(S) > a[bi].sc(S))
+                    bi = i; }); return R() < 0.7 ? bi : Math.floor(R() * a.length); })); } }] };
+}
+// ---- 글로벌 팝업 투어: 파리 해외 법인을 세우거나 글로벌 진출하면 석 달마다 한 도시씩 ----
+const TOUR = [
+    { id: 'tokyo', city: '도쿄', title: '오모테산도 팝업', text: '도쿄 오모테산도에 첫 해외 팝업을 열었다. 오픈 전부터 줄이 골목을 두 번 감았다.\n“한국에서 직접 오신 대표님이세요?” 통역이 귓속말을 했다.', choices: [
+            { label: '줄 선 손님에게 직접 샘플을 나눠 준다', run: S => { const ch = []; bump(S, 'fan', 6, ch); bump(S, 'hp', -6, ch); grow(S, 'charm', 2, ch); return { text: '한 명 한 명 눈을 맞추며 “아리가토”를 백 번 넘게 했다. SNS에 “대표가 직접 줌” 사진이 퍼졌다.', chips: ch }; } },
+            { label: '정리권을 나눠 주고 동선을 다시 짠다', run: S => { const ch = []; grow(S, 'lead', 3, ch); bump(S, 'cash', 800, ch); return { text: '혼잡이 풀리자 회전율이 두 배가 됐다. 현지 매니저가 메모를 해 갔다.', chips: ch }; } },
+            { label: '영업시간을 밤 10시까지 늘린다', run: S => { const ch = []; bump(S, 'cash', 1500, ch); bump(S, 'stress', 8, ch); return { text: '퇴근길 직장인들까지 몰렸다. 마지막 손님을 보내고 나서야 저녁을 먹었다.', chips: ch }; } }
+        ] },
+    { id: 'paris', city: '파리', title: '마레 지구 부티크', text: '파리 마레 지구 부티크 오픈 날. 유명 매거진 편집장이 선글라스를 벗고 쇼윈도를 한참 바라봤다.\n“Who designed this?”', choices: [
+            { label: '“제가요.” 브랜드 이야기를 직접 들려준다', run: S => { const ch = []; bump(S, 'aware', 8, ch); grow(S, 'aes', 3, ch); S.album.push('파리 매거진 인터뷰'); return { text: '다음 달 매거진 한 페이지에 “긁힌 유리를 투명하게”가 프랑스어로 실렸다.', chips: ch }; } },
+            { label: '쇼윈도를 그 자리에서 다시 꾸민다', run: S => { const ch = []; grow(S, 'aes', 4, ch); bump(S, 'fan', 4, ch); return { text: '편집장이 웃으며 휴대폰을 꺼냈다. “Perfect.”', chips: ch }; } },
+            { label: '현지 향수 하우스와 콜라보를 제안한다', run: S => { const ch = []; grow(S, 'net', 4, ch); bump(S, 'cash', -500, ch); bump(S, 'aware', 4, ch); return { text: '향 하나를 함께 만들기로 했다. 계약서에 사인하는 손이 떨렸다.', chips: ch }; } }
+        ] },
+    { id: 'ny', city: '뉴욕', title: '소호 팝업', text: '뉴욕 소호의 거대한 사파이어 큐브 앞. 팔로워 300만 뷰티 크리에이터가 링라이트를 들이댔다.\n“Live interview, right now?”', choices: [
+            { label: '영어로 직접 인터뷰한다', run: S => { const ch = []; const ok = S.st.net >= 45; bump(S, 'aware', ok ? 10 : 4, ch); grow(S, 'charm', 2, ch); return { text: ok ? '떨렸지만 준비한 엘리베이터 피치가 나왔다. 영상 조회수 180만.' : '몇 번 말이 막혔지만 웃음으로 넘겼다. “So cute!” 댓글이 달렸다.', chips: ch }; } },
+            { label: '통역과 함께 차분하게 답한다', run: S => { const ch = []; bump(S, 'aware', 6, ch); grow(S, 'net', 2, ch); return { text: '정확한 성분 설명이 그대로 전달됐다. 피부과 의사 구독자들이 댓글로 칭찬했다.', chips: ch }; } },
+            { label: '구경꾼 모두에게 미니 키트를 깜짝 증정한다', run: S => { const ch = []; bump(S, 'cash', -800, ch); bump(S, 'fan', 8, ch); bump(S, 'aware', 5, ch); return { text: '“Free K-beauty!” 소문에 블록 끝까지 사람이 몰렸다.', chips: ch }; } }
+        ] },
+    { id: 'dubai', city: '두바이', title: '두바이 몰 럭셔리 팝업', text: '두바이 몰의 금빛 아트리움. 한 VIP 고객이 매니저를 통해 조용히 제안을 전해 왔다.\n“이 라인 전체를, 중동 독점으로 가져가고 싶다고 하십니다.”', choices: [
+            { label: '중동 독점 계약을 맺는다', run: S => { const ch = []; bump(S, 'cash', 6000, ch); grow(S, 'biz', 3, ch); S.album.push('중동 독점 계약'); return { text: '계약금이 들어오는 데 하루도 걸리지 않았다.', chips: ch }; } },
+            { label: '한정판 「사파이어 골드 에디션」만 내준다', run: S => { const ch = []; bump(S, 'cash', 3000, ch); bump(S, 'aware', 6, ch); grow(S, 'aes', 2, ch); return { text: '금박 패키지 300세트가 사흘 만에 완판됐다.', chips: ch }; } },
+            { label: '정중히 거절하고 직접 진출한다', run: S => { const ch = []; grow(S, 'lead', 3, ch); bump(S, 'fan', 5, ch); return { text: '“우리 손으로 하겠습니다.” VIP는 오히려 더 관심을 보였다.', chips: ch }; } }
+        ] },
+];
+function tourEvent(S) {
+    if (!((S.inv && S.inv.overseas != null) || S.global))
+        return null;
+    const n = S.tour || 0;
+    if (n >= TOUR.length)
+        return null;
+    if (S.tourM != null && S.m < S.tourM + 3)
+        return null;
+    const T = TOUR[n];
+    S.tour = n + 1;
+    S.tourM = S.m;
+    S.album.push(`${T.city} 팝업`);
+    return { id: 'tour_' + T.id, face: 'news', speaker: 'GLOBAL TOUR', title: `${T.city} · ${T.title}`, cg: 'tour_' + T.id, text: () => T.text, choices: T.choices };
+}
+// ---- 10년 연표: 앨범 기록에 달을 붙여 둔다 ----
+function stampTL(S) {
+    S.tl = S.tl || [];
+    const n = S.tlN || 0;
+    if (n === 0 && S.album.length && S.m > 1 && !S.tl.length) {
+        S.album.forEach(t => S.tl.push({ m: null, t }));
+        S.tlN = S.album.length;
+        return;
+    }
+    for (let i = n; i < S.album.length; i++)
+        S.tl.push({ m: S.m, t: S.album[i] });
+    S.tlN = S.album.length;
+}
 // 출시 3년이 된 제품: 리뉴얼·단종·그대로 중에서 고른다 (한 달에 한 개씩)
 function prodReviewEvent(S) {
     const idx = S.prods.findIndex(p => prodAge(S, p) >= PROD_LIFE && !p.asked);
@@ -1531,7 +1745,7 @@ const ACTS = {
     seed: { cat: '업무', name: '인플루언서 시딩', desc: '성분 덕후 크리에이터들에게 제품을 보낸다.', cost: 150, hp: 6, stress: 6, eff: '인지도↑ 팬덤↑ 인맥↑', req: S => S.prods.length > 0 ? null : '제품 필요',
         run: (S, ch) => { grow(S, 'net', rand(1.5, 2.5), ch); bump(S, 'aware', (3 + S.st.net * 0.06 + S.st.mkt * 0.035) * seasonBoost(S), ch); bump(S, 'fan', 2 + avgQ(S) * 0.03, ch); return pick(['“전성분 보고 놀랐다”는 언박싱 영상이 올라왔다.', '피부과 전문의 유튜버가 성분표를 칭찬했다.', '리뷰 댓글에 “재구매각”이 줄줄이 달렸다.']); } },
     live: { cat: '업무', name: '라이브 커머스', desc: '직접 방송에 나가 판다. 즉시 매출, 체력 소모가 크다.', cost: 0, hp: 18, stress: 10, eff: '즉시 매출 인지도↑', req: S => S.prods.length > 0 ? null : '제품 필요',
-        run: (S, ch) => { grow(S, 'mkt', rand(1.5, 2.5), ch); const rev = Math.round(S.prods.reduce((a, p) => a + p.q, 0) * (S.st.mkt * 0.45 + S.aware * 0.45 + (S.st.charm || 0) * 0.25 + 5) * 0.3 * rand(.8, 1.2)); S.liveRev += rev; push(ch, '라이브 매출', rev, true); bump(S, 'aware', 1.5, ch); bump(S, 'fan', 1, ch); return rev > 800 ? '채팅창이 터졌다. 준비한 물량이 30분 만에 완판.' : '시청자 수는 아쉬웠지만 단골 몇 분이 끝까지 함께해줬다.'; } },
+        run: (S, ch) => { grow(S, 'mkt', rand(1.5, 2.5), ch); const rev = Math.round(S.prods.reduce((a, p) => a + p.q, 0) * (S.st.mkt * 0.45 + S.aware * 0.45 + (S.st.charm || 0) * 0.25 + 5) * 0.3 * rand(.8, 1.2)); S.liveRev += rev; S.liveLast = rev; S.liveShow = S.m; push(ch, '라이브 매출', rev, true); bump(S, 'aware', 1.5, ch); bump(S, 'fan', 1, ch); return rev > 800 ? '채팅창이 터졌다. 준비한 물량이 30분 만에 완판.' : '시청자 수는 아쉬웠지만 단골 몇 분이 끝까지 함께해줬다.'; } },
     popup: { cat: '업무', name: '성수 팝업스토어', desc: '긁힌 유리 터널을 지나는 체험형 공간을 연다. 2칸(20일) 운영.', slots: 2, cost: 600, hp: 24, stress: 16, eff: '인지도↑↑↑ 팬덤↑↑↑', req: S => S.prods.length > 0 ? null : '제품 필요',
         run: (S, ch) => { grow(S, 'aes', rand(2, 3.5), ch); bump(S, 'aware', 12 + S.st.aes * 0.15, ch); bump(S, 'fan', 8 + S.st.aes * 0.12, ch); return pick(['오픈런 줄이 골목 끝까지 섰다.', '유리 터널 포토존 사진이 인스타에 도배됐다.', '“브랜드 세계관이 다르다”는 방문 후기가 쏟아졌다.']); } },
     ir: { cat: '업무', name: '투자 IR 미팅', desc: 'VC에 피칭한다. 경영·인맥·인지도가 높을수록 성공률↑', cost: 20, hp: 10, stress: 14, eff: '투자 유치 기회', req: S => S.invest >= 3 ? '투자 라운드 완료' : null,
@@ -1859,6 +2073,7 @@ function launch(S) {
     const prodCost = S.prods.length ? 500 : 200; // 첫 제품은 소량 생산
     S.prods.push({ name, base, q, m: S.m, pop: Math.round(clamp(35 + q * 0.3 + S.aware * 0.15, 5, 95)) });
     S.cash -= prodCost;
+    S.planFor = S.prods.length - 1;
     bump(S, 'aware', 4, null);
     bump(S, 'fan', 3, null);
     S.album.push(name + ' 출시');
@@ -2468,6 +2683,7 @@ function mgmtEff(S) {
     return { sales, cogsRate, team, cap: Math.floor(cap) };
 }
 function settle(S) {
+    stampTL(S);
     const mo = monthOf(S);
     const D = diffOf(S);
     popTick(S);
@@ -4504,6 +4720,22 @@ function fixedEvents(S) {
         if (pr)
             out.push(pr);
     }
+    if (S.planFor != null) {
+        const pe = planEvent(S);
+        if (pe)
+            out.unshift(pe);
+    }
+    if (S.liveShow === S.m) {
+        if (out.length < 3)
+            out.push(liveEvent(S));
+        else
+            S.liveShow = null;
+    }
+    if (out.length < 3) {
+        const tv = tourEvent(S);
+        if (tv)
+            out.push(tv);
+    }
     const le = loveEvent(S);
     if (le)
         out.push(le);
@@ -4656,16 +4888,6 @@ function computeEnding(S) {
     if (S.ending === 'bankrupt' || S.ending === 'exit' || S.ending === 'nolaunch')
         return S.ending;
     const st = S.st, v = valuation(S), ch = st.charm || 0;
-    if (S.global && v >= 2000000 && st.lead >= 55 && st.biz >= 65)
-        return 'chair';
-    if (st.rnd >= 85 && st.aes >= 85 && S.fan >= 70 && maxQ(S) >= 80)
-        return 'couture';
-    if (ch >= 75 && st.aes >= 85)
-        return 'model';
-    if ((ch >= 85 || (S.actFame && ch >= 75)) && st.aes >= 40)
-        return 'actress';
-    if (st.lead >= 80 && st.net >= 80 && st.biz >= 60)
-        return 'minister';
     if (S.burnouts >= 4)
         return 'burnout';
     const ptTotal = Object.values(S.jobDone || {}).reduce((a, b) => a + b, 0);
@@ -4674,17 +4896,24 @@ function computeEnding(S) {
         if (pe0)
             return pe0;
     }
-    const top = STAT_KEYS.reduce((a, k) => (st[k] || 0) > (st[a] || 0) ? k : a, 'rnd');
-    if (top === 'biz' && st.biz >= 85 && S.invest >= 2)
-        return 'vc';
-    if (top === 'rnd' && st.rnd >= 85)
-        return 'lab';
-    if (top === 'aes' && st.aes >= 85)
-        return 'director';
-    if (st.mkt >= 75 && ch >= 55 && S.fan >= 60 && !S.olive)
-        return 'influencer';
-    if (S.olive && S.aware >= 90 && S.fan >= 60)
-        return 'olive';
+    // 성공 엔딩: 조건을 넘은 것들 중에서 「가장 많이 키운 쪽」에 맞는 엔딩을 고른다 (예전엔 회장이 맨 앞이라 거의 회장만 나왔다)
+    // 결전의 날 선택이 그쪽 엔딩에 +8을 준다
+    const fp = S.finalPick, bias = { deal: ['chair', 'vc'], lab: ['lab', 'couture'], stage: ['model', 'actress', 'influencer', 'director'], people: ['minister', 'olive'] }[fp] || [];
+    const C = [];
+    const add = (k, ok, fit) => { if (ok)
+        C.push({ k, fit: fit + (bias.includes(k) ? 8 : 0) }); };
+    add('chair', S.global && v >= 2000000 && st.lead >= 55 && st.biz >= 65, (st.biz + st.lead) / 2 + Math.min(6, v / 2000000) - 4);
+    add('couture', st.rnd >= 85 && st.aes >= 85 && S.fan >= 70 && maxQ(S) >= 80, (st.rnd + st.aes) / 2 + 2);
+    add('model', ch >= 75 && st.aes >= 85, (ch + st.aes) / 2);
+    add('actress', (ch >= 85 || (S.actFame && ch >= 75)) && st.aes >= 40, ch + (S.actFame ? 6 : 0) - 2);
+    add('minister', st.lead >= 80 && st.net >= 80 && st.biz >= 60, (st.lead + st.net) / 2);
+    add('vc', st.biz >= 85 && S.invest >= 2, st.biz - 2);
+    add('lab', st.rnd >= 85, st.rnd);
+    add('director', st.aes >= 85, st.aes - 1);
+    add('influencer', st.mkt >= 75 && ch >= 55 && S.fan >= 60 && !S.olive, (st.mkt + ch) / 2 + 1);
+    add('olive', S.olive && S.aware >= 90 && S.fan >= 60, (S.aware + S.fan) / 2 - 6);
+    if (C.length)
+        return C.reduce((a, b) => b.fit > a.fit ? b : a).k;
     const pe = partTimeEnding(S);
     if (pe)
         return pe;
@@ -5707,7 +5936,8 @@ async function playEvent(ev) {
     if (!P[pid])
         P[pid] = { k, m: S.m };
     const pre = { rivalWin: S.rivalWin };
-    const out = ev.choices[k].awards ? await awardsLive(ev.choices[k].awards) : ev.choices[k].run(S);
+    const C0 = ev.choices[k];
+    const out = C0.awards ? await awardsLive(C0.awards) : C0.plan ? await planLive() : C0.liveshow ? await liveShowLive() : C0.run(S);
     render();
     const pend2 = say({ speaker: ev.speaker, face: ev.face, title: ev.choices[k].label, text: out.text, chips: out.chips });
     const brokeUp = ev.leave && S.love && Object.values(S.love).some(v => v.stage === -9) && S.heartbreak === 3;
@@ -5726,6 +5956,224 @@ async function playEvent(ev) {
         if (so)
             await playEvent(so);
     }
+}
+// ---------- 신제품 기획 회의: 카드 4장을 차례로 고른다 ----------
+const PLAN_TAG = { barrier: '장벽', mild: '저자극', repair: '재생', glow: '광채', tone: '톤업', calm: '진정', aging: '안티에이징', premium: '프리미엄', light: '산뜻함', trend: '트렌디', eco: '친환경', mass: '대중성' };
+function planLive() {
+    return new Promise(resolve => {
+        const P = planSetup(S), p = S.prods[S.planFor], picks = [];
+        if (!p) {
+            resolve({ text: '', chips: [] });
+            return;
+        }
+        const el = document.createElement('div');
+        el.className = 'aw pl';
+        el.setAttribute('role', 'dialog');
+        el.setAttribute('aria-label', '신제품 기획 회의');
+        el.innerHTML = `<div class="aw-bg" style="background-image:url('art/cg_plan.jpg')"></div>
+      <div class="aw-top"><div class="aw-head"><small>NEW PRODUCT MEETING</small><b>「${esc(p.name)}」 기획 회의</b></div></div>
+      <div class="pl-prod"><img src="${prodInfo(p).img}" alt=""><div><small>올해 시장 키워드</small><b>「${P.trend.name}」</b><span>키워드와 어울리는 카드를 고를수록 품질과 첫 인기도가 올라요.</span></div></div>
+      <ol class="pl-steps">${P.steps.map((st, i) => `<li id="pl-s${i}"><small>${st.label}</small><b>?</b></li>`).join('')}</ol>
+      <div class="aw-act" id="pl-act"></div>`;
+        $('#phone').appendChild(el);
+        bgm('event');
+        sfx('select');
+        const act = el.querySelector('#pl-act');
+        function step(i) {
+            const st = P.steps[i];
+            act.innerHTML = `<p class="q">${i + 1}/4 · ${st.label}을 골라 주세요</p><div class="pl-cards"></div>`;
+            const box = act.querySelector('.pl-cards');
+            st.opts.forEach((o, k) => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'pl-card';
+                b.innerHTML = `<i>${o.icon}</i><b>${o.name}</b><span>${o.tags.map(t => `<em>${PLAN_TAG[t]}</em>`).join('')}${o.pop != null ? `<em class="x">인기 ${o.pop > 0 ? '+' : ''}${o.pop}</em>` : ''}${o.q ? `<em class="x">품질 ${o.q > 0 ? '+' : ''}${o.q}</em>` : ''}</span>`;
+                b.onclick = () => {
+                    sfx('select');
+                    picks[i] = k;
+                    const li = el.querySelector('#pl-s' + i);
+                    li.classList.add('on');
+                    li.querySelector('b').textContent = `${o.icon} ${o.name}`;
+                    if (i < 3)
+                        step(i + 1);
+                    else
+                        finish();
+                };
+                box.appendChild(b);
+            });
+            setTimeout(() => { const f = box.querySelector('button'); if (f)
+                f.focus({ preventScroll: true }); }, 30);
+        }
+        function finish() {
+            const out = planApply(S, P, picks);
+            const word = { great: '대박 예감', good: '호평', ok: '무난', meh: '아쉬움' }[out.grade];
+            act.innerHTML = `<div class="aw-res ${out.grade === 'great' || out.grade === 'good' ? 'grand' : out.grade === 'ok' ? 'gold' : 'none'}"><b>${word}</b><span>트렌드 적중 ${out.hits}개</span></div><p>${out.text.split('\n').slice(1).join('<br>')}</p>`;
+            sfx(out.grade === 'meh' ? 'down' : 'fanfare');
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'aw-btn';
+            b.textContent = '출시하기';
+            b.onclick = () => { sfx('click'); el.remove(); resolve({ text: out.text, chips: out.chips }); };
+            act.appendChild(b);
+            setTimeout(() => b.focus({ preventScroll: true }), 30);
+            render();
+        }
+        step(0);
+    });
+}
+// ---------- 라이브 커머스: 채팅 질문 4개에 답한다 ----------
+const LIVE_FILL = ['ㅎㅇㅎㅇ', '첫방부터 봤어요!!', '언니 오늘 피부 미쳤다', '소리 잘 들려요~', '이거 재입고 언제예요', '구매 완료 🛒', 'ㅋㅋㅋㅋ', '하트 누르고 갑니다 💙', '패키지 너무 예뻐', '엄마 선물로 샀어요'];
+function liveShowLive() {
+    return new Promise(resolve => {
+        const L = liveSetup(S), ans = [];
+        let viewers = L.viewers, sold = 0;
+        const el = document.createElement('div');
+        el.className = 'aw lv';
+        el.setAttribute('role', 'dialog');
+        el.setAttribute('aria-label', '라이브 커머스 방송');
+        el.innerHTML = `<div class="lv-bg" style="background-image:url('${actSrc(S, 'live')}')"></div>
+      <div class="lv-top"><span class="lv-on">● LIVE</span><span>👀 <b id="lv-v">${viewers.toLocaleString()}</b></span><span>🛒 <b id="lv-s">0</b></span></div>
+      <div class="lv-chat" id="lv-chat" aria-live="polite"></div><div class="aw-act" id="lv-act"></div>`;
+        $('#phone').appendChild(el);
+        bgm('event');
+        sfx('select');
+        const chat = el.querySelector('#lv-chat'), act = el.querySelector('#lv-act'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const line = (who, t, cls) => { const d = document.createElement('p'); if (cls)
+            d.className = cls; d.innerHTML = `<b>${esc(who)}</b> ${esc(t)}`; chat.appendChild(d); while (chat.children.length > 7)
+            chat.firstChild.remove(); };
+        const fill = n => { for (let i = 0; i < n; i++)
+            line(pick(['쿠션요정', '민감피부', 'sz러버', '데일리뷰티', '촉촉이', '퇴근후뷰티']), pick(LIVE_FILL)); };
+        const upd = () => { el.querySelector('#lv-v').textContent = Math.max(0, Math.round(viewers)).toLocaleString(); el.querySelector('#lv-s').textContent = sold; };
+        const hearts = n => { if (reduce)
+            return; for (let i = 0; i < n; i++) {
+            const h = document.createElement('i');
+            h.className = 'lv-heart';
+            h.textContent = pick(['💙', '💗', '🤍', '✨']);
+            h.style.right = (8 + Math.random() * 30) + 'px';
+            h.style.animationDelay = (Math.random() * .6) + 's';
+            el.appendChild(h);
+            setTimeout(() => h.remove(), 2200);
+        } };
+        function ask(i) {
+            const Q = LIVE_QS[L.qs[i]];
+            fill(2);
+            line(Q.who, Q.q, 'hl');
+            act.innerHTML = `<p class="q">${i + 1}/4 · 질문에 답해 주세요</p>`;
+            Q.a.forEach((a, k) => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'aw-opt';
+                b.innerHTML = `<b>${a.label}</b>`;
+                b.onclick = () => {
+                    sfx('select');
+                    ans[i] = k;
+                    const sc = a.sc(S);
+                    viewers *= sc === 2 ? 1.25 : sc === 1 ? 1.05 : 0.85;
+                    sold += Math.round((sc + 0.5) * rand(8, 16) * (1 + S.fan / 100));
+                    upd();
+                    hearts(sc * 4);
+                    line(S.name + ' 대표', a.label.replace(/[“”]/g, ''), 'me');
+                    act.innerHTML = `<p>${a.re(S)}</p>`;
+                    sfx(sc === 2 ? 'up' : sc === 0 ? 'bad' : 'click');
+                    const nb = document.createElement('button');
+                    nb.type = 'button';
+                    nb.className = 'aw-btn';
+                    nb.textContent = i < 3 ? '다음 채팅' : '방송 마치기';
+                    nb.onclick = () => { sfx('click'); i < 3 ? ask(i + 1) : done(); };
+                    act.appendChild(nb);
+                    setTimeout(() => nb.focus({ preventScroll: true }), 30);
+                };
+                act.appendChild(b);
+            });
+            setTimeout(() => { const f = act.querySelector('.aw-opt'); if (f)
+                f.focus({ preventScroll: true }); }, 30);
+        }
+        function done() {
+            const out = liveApply(S, L, ans);
+            const word = { great: '역대급 방송', good: '좋은 방송', ok: '무난한 방송', bad: '아쉬운 방송' }[out.grade];
+            act.innerHTML = `<div class="aw-res ${out.grade === 'great' || out.grade === 'good' ? 'grand' : out.grade === 'ok' ? 'gold' : 'none'}"><b>${word}</b><span>최고 시청자 ${Math.round(viewers).toLocaleString()}명 · 판매 ${sold}개${out.extra ? ` · 추가 매출 ${fmtMoney(out.extra)}원` : ''}</span></div>`;
+            sfx(out.grade === 'bad' ? 'down' : 'fanfare');
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'aw-btn';
+            b.textContent = '계속';
+            b.onclick = () => { sfx('click'); el.remove(); resolve({ text: out.text, chips: out.chips }); };
+            act.appendChild(b);
+            setTimeout(() => b.focus({ preventScroll: true }), 30);
+            render();
+        }
+        fill(3);
+        ask(0);
+    });
+}
+// ---------- 10년 연표 ----------
+const TL_ICON = [[/출시/, '🧴'], [/리뉴얼/, '🔄'], [/단종/, '🗂️'], [/대상|우수상|어워즈/, '🏆'], [/팝업|입점|진출|법인|독점/, '🌏'], [/투자|시리즈|IR/, '💰'], [/결혼|프러포즈|연인|고백|첫 키스|데이트/, '💗'], [/설립|센터|공장|재단|스토어/, '🏢'], [/인터뷰|방송|드라마|영화|매거진/, '🎬'], [/구매/, '🛍️'], [/입학|졸업|자격|박사/, '🎓']];
+const tlIcon = t => { const f = TL_ICON.find(([r]) => r.test(t)); return f ? f[1] : '✦'; };
+function timelineData(S) { stampTL(S); const by = {}; for (const e of S.tl || []) {
+    const y = e.m == null ? '그 전' : yearOf({ m: e.m });
+    (by[y] || (by[y] = [])).push(e);
+} return by; }
+function openTimeline() {
+    const by = timelineData(S), years = Object.keys(by);
+    const el = document.createElement('div');
+    el.className = 'tl-wrap';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-label', '10년 연표');
+    el.innerHTML = `<div class="tl-card"><div class="tl-head"><div><small>${esc(S.brand)} · ${esc(S.name)} 대표</small><b>10년 연표</b></div><button type="button" class="sheet-x" aria-label="닫기">×</button></div>
+    <div class="tl-list">${years.length ? years.map(y => {
+        const m0 = by[y][0].m;
+        const age = m0 == null ? null : ageOf(Object.assign(Object.assign({}, S), { m: m0 }));
+        const img = m0 == null ? '' : `art/${AGE_STAGES.filter(a => a.from <= m0).pop().key}_${['winter', 'spring', 'summer', 'autumn'][Math.floor(((m0 % 12) + 1) % 12 / 3)]}.jpg`;
+        const main = by[y].filter(e => !/구매/.test(e.t)), buy = by[y].length - main.length;
+        return `<section class="tl-year">${img ? `<img src="${img}" alt="">` : ''}<div><h4>${y}${typeof y === 'number' ? '년' : ''}${age ? ` <small>${age}세</small>` : ''}</h4><ul>${main.map(e => `<li><i>${tlIcon(e.t)}</i>${esc(e.t)}</li>`).join('')}${buy ? `<li class="dim"><i>🛍️</i>쇼핑 ${buy}건</li>` : ''}</ul></div></section>`;
+    }).join('') : '<p>기록이 없어요.</p>'}</div>
+    <button type="button" class="btn" id="tl-save">연표 이미지 저장</button></div>`;
+    document.body.appendChild(el);
+    el.querySelector('.sheet-x').onclick = () => el.remove();
+    el.addEventListener('click', e => { if (e.target === el)
+        el.remove(); });
+    el.querySelector('#tl-save').onclick = () => saveTimelineImage(by);
+}
+function saveTimelineImage(by) {
+    const years = Object.keys(by), W = 1080, rows = years.map(y => by[y].filter(e => !/구매/.test(e.t)).slice(0, 6));
+    const H = 360 + rows.reduce((a, r) => a + 90 + r.length * 52, 0) + 120;
+    const c = document.createElement('canvas');
+    c.width = W;
+    c.height = H;
+    const g = c.getContext('2d');
+    const grd = g.createLinearGradient(0, 0, 0, H);
+    grd.addColorStop(0, '#0d1440');
+    grd.addColorStop(1, '#2a3a8f');
+    g.fillStyle = grd;
+    g.fillRect(0, 0, W, H);
+    g.fillStyle = '#E8C77A';
+    g.font = '600 34px sans-serif';
+    g.fillText('STAGE:ZERO MAKER', 80, 110);
+    g.fillStyle = '#fff';
+    g.font = '800 72px serif';
+    g.fillText(`${S.brand} 10년 연표`, 80, 200);
+    g.fillStyle = '#C9CCE6';
+    g.font = '34px sans-serif';
+    g.fillText(`${S.name} 대표 · ${S.endKey && ENDINGS[S.endKey] ? ENDINGS[S.endKey].title : ''}`, 80, 260);
+    let y = 340;
+    years.forEach((yr, i) => {
+        g.fillStyle = '#FFE08A';
+        g.font = '700 44px sans-serif';
+        g.fillText(`${yr}${/^\d+$/.test(yr) ? '년' : ''}`, 80, y);
+        y += 20;
+        g.strokeStyle = 'rgba(232,199,122,.5)';
+        g.beginPath();
+        g.moveTo(80, y);
+        g.lineTo(W - 80, y);
+        g.stroke();
+        y += 50;
+        rows[i].forEach(e => { g.fillStyle = '#fff'; g.font = '34px sans-serif'; g.fillText(`${tlIcon(e.t)}  ${e.t}`.slice(0, 40), 100, y); y += 52; });
+        y += 20;
+    });
+    g.fillStyle = '#AEB3D6';
+    g.font = '28px sans-serif';
+    g.fillText('긁힌 유리를 투명하게.', 80, H - 60);
+    c.toBlob(b => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `${S.brand}-10년연표.png`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); toast('연표 이미지를 저장했어요'); }, 'image/png');
 }
 // ---------- 어워즈 실시간 심사: 심사위원이 한 명씩 점수를 공개하고, 중간에 발표 멘트를 고른다 ----------
 const RIVAL_SPEECH = ['“트렌드는 따라가는 게 아니라 만드는 거예요.”', '“루미에르랩은 숫자로 증명합니다. 올해 매출 성장률 210%.”', '“저희 고객은 기다리지 않아요. 저희가 먼저 가니까요.”', '“빛나는 피부엔 이유가 있죠. 그 이유가 저희예요.”'];
@@ -5998,7 +6446,7 @@ function cgKey(ev) { if (ev.cg)
     return `${ev.id}_${stageOf(S).key.slice(3)}`; if (CG_MAP[ev.id])
     return CG_MAP[ev.id]; const p = CG_PREFIX.find(([x]) => ev.id.startsWith(x)); return p ? p[1] : null; }
 const cgSrc = k => `art/cg_${k}.jpg`;
-const CG_ALL = ['hero_vc1', 'hero_vc2', 'hero_vc3', 'hero_vc4', ...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'tvshow', 'script', 'filming', 'premiere', 'magazine', 'soldout', 'fake1', 'fake2', 'fake3', 'finalday', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
+const CG_ALL = ['hero_vc1', 'hero_vc2', 'hero_vc3', 'hero_vc4', ...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'plan', 'tour_tokyo', 'tour_paris', 'tour_ny', 'tour_dubai', 'tvshow', 'script', 'filming', 'premiere', 'magazine', 'soldout', 'fake1', 'fake2', 'fake3', 'finalday', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
 let cgFlip = false;
 function showCG(key, o = {}) {
     return new Promise(res => {
@@ -6194,7 +6642,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.11-G';
+const BUILD_TAG = '2026.11.11-H';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
@@ -6438,10 +6886,11 @@ function finish() {
       <div class="album">${S.album.length ? S.album.map(a => `<span class="tag on">${esc(a)}</span>`).join('') : '<span class="tag">기록 없음</span>'}</div>
       <div class="eyebrow" style="margin-top:18px">엔딩 도감 ${Object.keys(ENDINGS).filter(k => seenEnd[k]).length} / ${Object.keys(ENDINGS).length}</div>
       <div class="album">${Object.entries(ENDINGS).map(([k, e]) => `${seenEnd[k] ? `<button class="tag ${k === key ? 'on' : ''}" data-end="${k}">${esc(e.title)}</button>` : `<span class="tag">？？？</span>`}`).join('')}</div>
-      <div class="btn-row" style="justify-content:flex-start;margin-top:22px"><button class="btn" id="btn-share">엔딩 카드 공유</button> <button class="btn ghost" id="btn-again">다시 창업하기</button></div>
+      <div class="btn-row" style="justify-content:flex-start;margin-top:22px"><button class="btn" id="btn-tl">📜 10년 연표</button> <button class="btn" id="btn-share">엔딩 카드 공유</button> <button class="btn ghost" id="btn-again">다시 창업하기</button></div>
     </div>`;
     show('scr-ending');
     $('#btn-again').onclick = () => { S = null; boot(); };
+    $('#btn-tl').onclick = () => openTimeline();
     const who = `${S.name} 대표 · 「${S.brand}」`;
     $('#btn-share').onclick = () => shareEnding(key, who);
     track('ending', Object.assign({ ending: key, grade: E.grade, month: S.m, origin: S.origin, why: S.why || '', prods: S.prods.length, value: Math.round(valuation(S)) }, loverSummary(S)));
