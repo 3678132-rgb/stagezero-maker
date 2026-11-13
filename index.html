@@ -706,7 +706,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.11-I</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.13-A</span>
       </div>
     </div>
   </section>
@@ -1950,10 +1950,13 @@ const ACTS = {
         run: (S, ch, out) => {
             grow(S, 'charm', rand(1.5, 2.5), ch);
             const L = loveOf(S);
-            if (!L.playboy && R() < 0.6) {
-                out.lover = 'playboy';
-                out.place = 'rooftop';
-                return meetLover(S, 'playboy', ch);
+            if (!L.playboy && !S.married && R() < 0.6) {
+                const t = meetLover(S, 'playboy', ch);
+                if (t) {
+                    out.lover = 'playboy';
+                    out.place = 'rooftop';
+                    return t;
+                }
             }
             if (L.playboy && L.playboy.stage !== -9) {
                 addAff(S, 'playboy', 4, ch);
@@ -1985,9 +1988,12 @@ const ACTS = {
                 }
                 return `소개팅 내내 휴대폰 진동에 신경이 쓰였다. ${lv.name}에게는 ‘미팅’이라고 해 뒀다.\n…이러다 들키면 끝이다.`;
             }
-            if (!L.star && (S.st.charm || 0) >= 35 && R() < 0.55) {
-                out.lover = 'star';
-                return meetLover(S, 'star', ch);
+            if (!L.star && !S.married && (S.st.charm || 0) >= 35 && R() < 0.55) {
+                const t = meetLover(S, 'star', ch);
+                if (t) {
+                    out.lover = 'star';
+                    return t;
+                }
             }
             return pick(['상대가 2시간 내내 코인 이야기만 했다. 커피만 마시고 왔다.', '“화장품 회사요? 그럼 샘플 좀…” 다음은 없다.', '좋은 사람이었지만 설렘은 없었다. 그래도 맛있는 파스타는 남았다.', '상대가 우리 브랜드 찐팬이었다. 연애보다 인터뷰가 됐다.']);
         } },
@@ -2462,17 +2468,26 @@ function addAff(S, id, d, ch) { const L = loveOf(S); const v = L[id]; if (!v)
 // 다른 활동에서 우연히 만나는 인연
 function loveHook(S, id, out, ch) {
     const L = loveOf(S);
-    if (id === 'hire' && !L.intern) {
-        out.lover = 'intern';
-        out.loveText = meetLover(S, 'intern', ch);
+    if (id === 'hire' && !L.intern && !S.married) {
+        const t = meetLover(S, 'intern', ch);
+        if (t) {
+            out.lover = 'intern';
+            out.loveText = t;
+        }
     }
-    if (id === 'ir' && !L.vc && R() < 0.45) {
-        out.lover = 'vc';
-        out.loveText = meetLover(S, 'vc', ch);
+    if (id === 'ir' && !L.vc && !S.married && R() < 0.45) {
+        const t = meetLover(S, 'vc', ch);
+        if (t) {
+            out.lover = 'vc';
+            out.loveText = t;
+        }
     }
-    if (id === 'party' && !L.ceo2 && R() < 0.45) {
-        out.lover = 'ceo2';
-        out.loveText = meetLover(S, 'ceo2', ch);
+    if (id === 'party' && !L.ceo2 && !S.married && R() < 0.45) {
+        const t = meetLover(S, 'ceo2', ch);
+        if (t) {
+            out.lover = 'ceo2';
+            out.loveText = t;
+        }
     }
 }
 // ---------- 직무별 채용 ----------
@@ -6642,7 +6657,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.11-I';
+const BUILD_TAG = '2026.11.13-A';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
