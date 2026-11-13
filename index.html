@@ -706,7 +706,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.13-B</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.13-C</span>
       </div>
     </div>
   </section>
@@ -3093,7 +3093,7 @@ const EVENTS = [
         ] },
     { id: 'autumn_dry', once: false, w: 3, place: 'office', cast: { ask: 'sec' }, cond: S => [10, 11].includes(monthOf(S)) && S.prods.length > 0,
         face: 'colon', speaker: '콜론', title: '건조한 가을, 보습 검색량 급증',
-        text: () => '“대표님, ‘속건조’ 검색량이 지난달 대비 3배입니다. 기회예요.”',
+        text: S => noSec(S) ? '모니터에 뜬 검색 트렌드 그래프. ‘속건조’ 검색량이 지난달 대비 3배다.\n…기회다.' : '“대표님, ‘속건조’ 검색량이 지난달 대비 3배입니다. 기회예요.”',
         choices: [
             { label: '보습 캠페인을 바로 띄운다', sub: '인지도↑', run: S => { const ch = []; bump(S, 'aware', 5, ch); grow(S, 'mkt', 1, ch); bump(S, 'stress', 4, ch); return { text: '「가을 속건조 SOS」 캠페인이 하루 만에 세팅됐다.', chips: ch }; } },
             { label: '제형 개선부터 한다', sub: '제품 품질↑', run: S => { const ch = []; S.prods.forEach(p => p.q = clamp(p.q + 2, 10, 100)); push(ch, '평균 품질', 2); grow(S, 'rnd', 1, ch); return { text: '세라마이드 함량을 올렸다. 겨울까지 버틸 크림이 됐다.', chips: ch }; } },
@@ -3943,7 +3943,7 @@ function loveEvent(S) {
     const L = loveOf(S);
     const partner = Object.keys(L).find(i => L[i].stage >= 1);
     // ---- 비서 콜론 루트 열기 ----
-    if (!L.colon && !S.married && (S.m >= 18 || Object.keys(S.seen).some(k => k.startsWith('after_'))) && !S.seen['colon_open']) {
+    if (!L.colon && !S.married && S.secGone == null && (S.m >= 18 || Object.keys(S.seen).some(k => k.startsWith('after_'))) && !S.seen['colon_open']) {
         return { id: 'colon_open', face: 'ceo', speaker: 'OFFICE', title: '새벽 2시의 컵라면', place: 'office', cast: { ask: 'lv_colon' },
             text: () => '모두 퇴근한 사무실. 콜론이 컵라면 두 개를 들고 왔다.\n“대표님, 오늘 점심도 안 드셨죠. 스케줄에 다 적혀 있어요.” 안경 너머 눈이 유난히 다정했다.',
             choices: [
@@ -4495,7 +4495,7 @@ function grantEvents(S) {
             text: () => solo ? `메일함에 「${g.name}」 모집 공고가 와 있었다. 선정되면 ${fmtMoney(g.amt)}원.\n심사에서는 ${g.hint}. 혼자 따져 보니 합격 가능성은 대략 ${Math.round(pr * 100)}%.` : `“대표님, 「${g.name}」 모집 공고예요. 선정되면 ${fmtMoney(g.amt)}원을 받을 수 있어요.\n심사에서는 ${g.hint}. 지금 상태면 합격 가능성은 대략 ${Math.round(pr * 100)}% 정도로 보여요.”`,
             choices: [
                 { label: '지원한다 (사업계획서 작성)', sub: '체력 -10 · 스트레스 +10 · 2개월 뒤 발표평가', run: S => { const ch = []; bump(S, 'hp', -10, ch); bump(S, 'stress', 10, ch); grow(S, 'biz', 1, ch); G[k] = { state: 'applied', due: S.m + 2, p: pr }; return { text: S.secGone != null ? '밤새 사업계획서 30쪽을 혼자 썼다. 오탈자는… 아마 있을 것이다. 제출 완료!' : '밤새 사업계획서 30쪽을 썼다. 콜론이 오탈자 47개를 잡아냈다. 제출 완료!', chips: ch }; } },
-                { label: '이번엔 넘긴다', sub: '지금 일에 집중', run: S => { G[k] = { state: 'skip', retry: S.m + 6 }; return { text: '“알겠습니다. 다음 공고 나오면 다시 알려 드릴게요.”', chips: [] }; } },
+                { label: '이번엔 넘긴다', sub: '지금 일에 집중', run: S => { G[k] = { state: 'skip', retry: S.m + 6 }; return { text: solo ? '메일을 보관함으로 옮겼다. 다음 공고를 기다리기로 했다.' : '“알겠습니다. 다음 공고 나오면 다시 알려 드릴게요.”', chips: [] }; } },
             ] };
     }
     return null;
@@ -5537,13 +5537,19 @@ function dialogHTML(o) {
     if (face === 'colon' && S && S.secGone != null) {
         if (S.sec2 && SEC2[S.sec2]) {
             secImg = SEC2[S.sec2].img;
-            if (!o.speaker || o.speaker === '콜론')
+            if (!o.speaker || /콜론/.test(o.speaker))
                 o = Object.assign(Object.assign({}, o), { speaker: `비서 ${SEC2[S.sec2].name}` });
+        }
+        // 콜론이 떠나고 새 비서도 없을 때: 비서 말투 대사는 팀원(있으면)이나 내 메모로 보여 준다. 화자 이름에 콜론이 남지 않게
+        else if (hasStaff(S) && /^“/.test(o.text || '')) {
+            secImg = 'art/spr_team.png';
+            if (!o.speaker || /콜론|비서/.test(o.speaker))
+                o = Object.assign(Object.assign({}, o), { speaker: '팀원' });
         }
         else {
             face = 'ceo';
-            if (!o.speaker)
-                o = Object.assign(Object.assign({}, o), { speaker: '나' });
+            if (!o.speaker || /콜론|비서/.test(o.speaker))
+                o = Object.assign(Object.assign({}, o), { speaker: /^“/.test(o.text || '') ? '📋 업무 메모' : '나' });
         }
     }
     const chips = (o.chips || []).map(c => { const v = c.money ? fmtMoney(c.d) + '원' : (Math.abs(c.d) < 1 ? c.d.toFixed(1) : Math.round(c.d)); const sign = c.d > 0 ? '+' : ''; const bad = (c.label === '스트레스' || c.label === '번아웃') ? c.d > 0 : c.d < 0; return `<span class="chip ${bad ? 'down' : 'up'}">${c.label} ${sign}${v}</span>`; }).join('');
@@ -6659,7 +6665,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.13-B';
+const BUILD_TAG = '2026.11.13-C';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
