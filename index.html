@@ -706,7 +706,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.13-A</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.13-B</span>
       </div>
     </div>
   </section>
@@ -1379,6 +1379,8 @@ const TOUR = [
             { label: '정중히 거절하고 직접 진출한다', run: S => { const ch = []; grow(S, 'lead', 3, ch); bump(S, 'fan', 5, ch); return { text: '“우리 손으로 하겠습니다.” VIP는 오히려 더 관심을 보였다.', chips: ch }; } }
         ] },
 ];
+// 투어 그림은 나이대별: 20세는 22세 그림, 27세는 기본(cg_tour_<도시>.jpg)
+function tourCg(S, id) { const a = stageOf(S).key.slice(3); return a === '27' ? 'tour_' + id : `tour_${id}_${a === '20' ? '22' : a}`; }
 function tourEvent(S) {
     if (!((S.inv && S.inv.overseas != null) || S.global))
         return null;
@@ -1391,7 +1393,7 @@ function tourEvent(S) {
     S.tour = n + 1;
     S.tourM = S.m;
     S.album.push(`${T.city} 팝업`);
-    return { id: 'tour_' + T.id, face: 'news', speaker: 'GLOBAL TOUR', title: `${T.city} · ${T.title}`, cg: 'tour_' + T.id, text: () => T.text, choices: T.choices };
+    return { id: 'tour_' + T.id, face: 'news', speaker: 'GLOBAL TOUR', title: `${T.city} · ${T.title}`, cg: tourCg(S, T.id), text: () => T.text, choices: T.choices };
 }
 // ---- 10년 연표: 앨범 기록에 달을 붙여 둔다 ----
 function stampTL(S) {
@@ -6461,7 +6463,7 @@ function cgKey(ev) { if (ev.cg)
     return `${ev.id}_${stageOf(S).key.slice(3)}`; if (CG_MAP[ev.id])
     return CG_MAP[ev.id]; const p = CG_PREFIX.find(([x]) => ev.id.startsWith(x)); return p ? p[1] : null; }
 const cgSrc = k => `art/cg_${k}.jpg`;
-const CG_ALL = ['hero_vc1', 'hero_vc2', 'hero_vc3', 'hero_vc4', ...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'plan', 'tour_tokyo', 'tour_paris', 'tour_ny', 'tour_dubai', 'tvshow', 'script', 'filming', 'premiere', 'magazine', 'soldout', 'fake1', 'fake2', 'fake3', 'finalday', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
+const CG_ALL = ['hero_vc1', 'hero_vc2', 'hero_vc3', 'hero_vc4', ...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'plan', ...['tokyo', 'paris', 'ny', 'dubai'].flatMap(c => ['tour_' + c, ...['22', '25', '30'].map(a => `tour_${c}_${a}`)]), 'tvshow', 'script', 'filming', 'premiere', 'magazine', 'soldout', 'fake1', 'fake2', 'fake3', 'finalday', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
 let cgFlip = false;
 function showCG(key, o = {}) {
     return new Promise(res => {
@@ -6657,7 +6659,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.13-A';
+const BUILD_TAG = '2026.11.13-B';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
