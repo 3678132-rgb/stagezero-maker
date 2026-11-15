@@ -727,7 +727,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
           <button class="btn ghost" id="btn-badges">🏅 배지</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.15-D</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.15-E</span>
       </div>
     </div>
   </section>
@@ -1427,7 +1427,7 @@ function duelStartEvent(S) {
     if (!p || S.duel)
         return null;
     const yr = Math.floor(S.m / 12), rname = DUEL_NAME[prodInfo(p).type] || '루미 시그니처';
-    const rpop = Math.round(clamp(popOf(p) + rand(4, 14) + Math.min(6, (S.rivalBoost || 0)), 25, 98)); // 내 제품보다 조금 높게: 마케팅으로 뒤집어야 이긴다
+    const rpop = Math.round(clamp(popOf(p) + rand(4, 14) + Math.min(6, (S.rivalBoost || 0)) + (diffOf(S).rival || 0) * 0.6, 15, 98)); // 내 제품보다 조금 높게: 마케팅으로 뒤집어야 이긴다
     S.duel = { name: p.name, rname, rpop, end: S.m + 1 };
     S.duelYear = yr;
     return { id: 'duel_start_' + S.m, face: 'news', speaker: 'RIVAL', title: `${RIVAL_BRAND}의 맞불 출시`, cg: 'duel', cast: { ask: 'rival_smug' },
@@ -1649,7 +1649,7 @@ function pitchSetup(S) {
         const j = Math.floor(R() * (i + 1));
         [ids[i], ids[j]] = [ids[j], ids[i]];
     }
-    const base = 38 + (S.st.biz + S.st.net) / 9 + S.aware / 10 - rum.pen * 60 + (wearing(S, 'blazer') ? 5 : 0) - S.invest * 5;
+    const base = 38 + (S.st.biz + S.st.net) / 9 + S.aware / 10 - rum.pen * 60 + (wearing(S, 'blazer') ? 5 : 0) - S.invest * 5 + (diffOf(S).pitch || 0);
     return { round: R_, inv: ids.map(id => ({ id, interest: Math.round(clamp(base + rand(-8, 8), 5, 80)), q: PITCH_QS[id][Math.floor(R() * PITCH_QS[id].length)] })) };
 }
 function pitchAnswer(S, P, i, k) {
@@ -1987,9 +1987,12 @@ function drinkPotion(S, id) {
 }
 // ---- 난이도: 쉬움은 예전 그대로(시작 자금만 넉넉), 보통·어려움은 판관비·법인세·제품 노후화·경쟁 심화 ----
 const DIFF = {
-    easy: { name: '쉬움', desc: '시작 자금이 넉넉하고 비용 부담이 적어요. 처음 해 보는 사람에게.', cash: 600, sga: 0, tax: 0, age: 0, ageFloor: 1, comp: 0, sales: 1 },
-    normal: { name: '보통', desc: '회사가 커질수록 판관비와 법인세가 붙고, 오래된 제품은 덜 팔려요.', cash: 0, sga: 0.2, tax: 0.22, age: 0.018, ageFloor: 0.5, comp: 0.04, sales: 1 },
-    hard: { name: '어려움', desc: '매출이 덜 나오고 비용이 커요. 신제품과 투자 없이는 버티기 어려워요.', cash: 0, sga: 0.24, tax: 0.25, age: 0.022, ageFloor: 0.4, comp: 0.045, sales: 0.9 },
+    easy: { name: '쉬움', desc: '능력치가 쑥쑥 오르고 덜 지쳐요. 비용 부담이 적고 라이벌도 순해요.', cash: 800, sga: 0, tax: 0, age: 0, ageFloor: 1, comp: 0, sales: 1.1, grow: 1.3, stress: 0.7, hp: 0.85, fixed: 100, rival: -8, pitch: 8,
+        tags: ['시작 자금 +8,000만', '성장 ×1.3', '스트레스 ×0.7', '라이벌 약함'] },
+    normal: { name: '보통', desc: '회사가 커질수록 판관비와 법인세가 붙고, 오래된 제품은 덜 팔려요.', cash: 0, sga: 0.2, tax: 0.22, age: 0.018, ageFloor: 0.5, comp: 0.04, sales: 1, grow: 1, stress: 1, hp: 1, fixed: 150, rival: 0, pitch: 0,
+        tags: ['판관비 20%', '법인세 22%', '제품 노후화'] },
+    hard: { name: '어려움', desc: '성장이 느리고 쉽게 지쳐요. 비용은 크고 매출은 적고, 한서린과 투자자도 깐깐해요.', cash: 0, sga: 0.3, tax: 0.3, age: 0.026, ageFloor: 0.35, comp: 0.05, sales: 0.8, grow: 0.8, stress: 1.3, hp: 1.15, fixed: 250, rival: 10, pitch: -8,
+        tags: ['성장 ×0.8', '스트레스 ×1.3', '매출 ×0.8', '라이벌 강함'] },
 };
 const diffOf = S => DIFF[S.diff] || DIFF.normal;
 // 출시 2년이 지나면 매달 조금씩 덜 팔린다(리뉴얼하면 다시 새 제품)
@@ -2072,7 +2075,8 @@ function restoreRate(S) { return clamp((S.aware * 0.9 + S.fan * 0.9 + avgQ(S) * 
 // 수치 변경 + 칩 기록
 // 10년 플레이에 맞춘 성장 곡선: 높을수록 더디게 오른다
 let GROW_MULT = 1;
-function grow(S, k, base, ch) { const cur = S.st[k]; const nv = clamp(cur + base * GROW_MULT * ((S.gb && S.gb[k]) || 1) * 0.6 * Math.max(0.08, 1 - cur / 115), 0, 100); push(ch, STAT[k], nv - cur); S.st[k] = nv; }
+function grow(S, k, base, ch) { const cur = S.st[k]; if (base > 0)
+    base *= ((DIFF[S.diff] || DIFF.normal).grow || 1); const nv = clamp(cur + base * GROW_MULT * ((S.gb && S.gb[k]) || 1) * 0.6 * Math.max(0.08, 1 - cur / 115), 0, 100); push(ch, STAT[k], nv - cur); S.st[k] = nv; }
 function bump(S, key, d, ch) {
     const label = { hp: '체력', stress: '스트레스', aware: '인지도', fan: '팬덤', cash: '자금' }[key];
     if (key === 'cash') {
@@ -3081,7 +3085,7 @@ function doAction(S, id) {
     }
     const summer = [7, 8].includes(monthOf(S));
     if (a.cat !== '휴식') {
-        const hpCost = Math.round((a.hp + (summer ? 3 : 0)) * (a.cat === '운동' ? 1 : 1 - (S.fit || 0) / 300));
+        const hpCost = Math.round((a.hp + (summer ? 3 : 0)) * (a.cat === '운동' ? 1 : 1 - (S.fit || 0) / 300) * (diffOf(S).hp || 1));
         if (S.hp < hpCost) {
             bump(S, 'hp', 12, ch);
             bump(S, 'stress', 4, ch);
@@ -3090,7 +3094,7 @@ function doAction(S, id) {
         if (a.cost)
             bump(S, 'cash', -a.cost, ch);
         bump(S, 'hp', -hpCost, ch);
-        bump(S, 'stress', a.stress * (S.hp < 30 ? 1.3 : 1) * (a.stress > 0 && S.prof && S.prof.blood === 'A' ? 1.05 : 1), ch);
+        bump(S, 'stress', a.stress * (S.hp < 30 ? 1.3 : 1) * (a.stress > 0 && S.prof && S.prof.blood === 'A' ? 1.05 : 1) * (a.stress > 0 ? (diffOf(S).stress || 1) : 1), ch);
     }
     else if (a.cost)
         bump(S, 'cash', -a.cost, ch);
@@ -3184,7 +3188,7 @@ function settle(S) {
     }
     const rev = Math.round(base * mult * rand(.92, 1.08)) + S.liveRev;
     const sga = Math.round(rev * D.sga);
-    const fixed = 150 + payroll(S) + sga;
+    const fixed = (S.prods.length ? (D.fixed || 150) : Math.min(150, D.fixed || 150)) + payroll(S) + sga; // 첫 제품 전에는 어려움도 기본 고정비
     const cogs = Math.round(rev * Math.max(0.2, me.cogsRate - (invested(S, 'factory') ? 0.08 : 0)));
     const net = rev - cogs - fixed;
     S.cash += net;
@@ -4211,7 +4215,7 @@ const AWARD_SPEECH = {
     dare: { label: '“내년엔 루미에르랩을 확실히 이기겠습니다.”', sub: '모 아니면 도 · 매력이 높을수록 성공', pow: S => 0 },
 };
 const AWARD_GOLD_GAP = 15; // 이기면 대상, 이 점수 안으로 지면 우수상
-function awardsRivalBase(S) { return 48 + Math.floor(S.m / 12) * 5 + (S.rivalBoost || 0); }
+function awardsRivalBase(S) { return 48 + Math.floor(S.m / 12) * 5 + (S.rivalBoost || 0) + (diffOf(S).rival || 0); }
 function awardsSetup(S, cat) {
     const c = AWARD_CATS[cat], rb = awardsRivalBase(S);
     const ids = Object.keys(JUDGES);
@@ -7355,7 +7359,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.15-D';
+const BUILD_TAG = '2026.11.15-E';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
@@ -7736,7 +7740,7 @@ function renderProfile() {
     const tot = STAT_KEYS.map(k => `${STAT[k]} ${(o.st[k] || 0) + (pm.st[k] || 0)}${pm.st[k] ? `<b>(+${pm.st[k]})</b>` : ''}`).join(' · ');
     const z = ZODIACS.find(x => x.id === chosenProf.zodiac);
     $('#pf-sum').innerHTML = `<div><b>${chosenProf.mbti}</b> ${MBTI_NICK[chosenProf.mbti] || ''} · <b>${BLOODS[chosenProf.blood].name}</b> ${BLOODS[chosenProf.blood].desc} · <b>${z.name}</b> ${z.d} <span class="tr">(${z.range} · 생일은 ${z.bm}월)</span></div>
-    <div>시작 능력치: ${tot}</div><div>시작 자금 ${fmtMoney(o.cash + (DIFF[chosenDiff].cash || 0))}원${DIFF[chosenDiff].cash ? ` (쉬움 +${fmtMoney(DIFF[chosenDiff].cash)}원)` : ''} · 난이도 ${DIFF[chosenDiff].name}</div><div class="tr">${pm.traits.map(t => '· ' + esc(t)).join('<br>')}</div>`;
+    <div>시작 능력치: ${tot}</div><div>시작 자금 ${fmtMoney(o.cash + (DIFF[chosenDiff].cash || 0))}원${DIFF[chosenDiff].cash ? ` (${DIFF[chosenDiff].name} ${DIFF[chosenDiff].cash > 0 ? '+' : '−'}${fmtMoney(Math.abs(DIFF[chosenDiff].cash))}원)` : ''} · 난이도 ${DIFF[chosenDiff].name}</div><div class="tr">${pm.traits.map(t => '· ' + esc(t)).join('<br>')}</div>`;
 }
 document.addEventListener('click', e => {
     const b = e.target.closest('[data-blood]');
@@ -7766,7 +7770,7 @@ document.addEventListener('change', e => { if (e.target.id === 'pf-zodiac') {
     renderProfile();
 } });
 function renderDiffs() { const el = $('#diffs'); if (!el)
-    return; el.innerHTML = Object.entries(DIFF).map(([k, d]) => `<button class="origin" data-diff="${k}" aria-pressed="${k === chosenDiff}"><b>${d.name}</b><span>${d.desc}</span>${d.cash ? `<span class="mono">시작 자금 +${fmtMoney(d.cash)}원</span>` : ''}</button>`).join(''); }
+    return; el.innerHTML = Object.entries(DIFF).map(([k, d]) => `<button class="origin" data-diff="${k}" aria-pressed="${k === chosenDiff}"><b>${d.name}</b><span>${d.desc}</span><span class="mono">${d.tags.join(' · ')}</span></button>`).join(''); }
 function renderOrigins() {
     renderDiffs();
     $('#origins').innerHTML = ORIGINS.map(o => `<button class="origin" data-origin="${o.id}" aria-pressed="${o.id === chosenOrigin}"><b>${o.name}</b><span>${o.desc}</span><span class="mono">${Object.entries(o.st).filter(([, v]) => v >= 12).map(([k, v]) => STAT[k] + ' ' + v).join(' · ')} · 시작 자금 ${fmtMoney(o.cash)}</span></button>`).join('');
