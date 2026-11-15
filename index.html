@@ -706,7 +706,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.13-C</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.15-A</span>
       </div>
     </div>
   </section>
@@ -5669,10 +5669,12 @@ function playMini(id, a, i, span = 1) {
         return Promise.resolve();
     const k = MINI_KIND[a.cat] || 'work', d0 = i * 10, step = span;
     w.innerHTML = `<div class="mini-win" role="img" aria-label="${esc(a.name)} 하는 중"><div class="mini-title"><span>${esc(a.name)}</span><em>${SLOT_NAMES[i]}${span > 1 ? '~' + SLOT_NAMES[Math.min(2, i + span - 1)] : ''}</em></div>
-    <div class="mini-stage k-${k}" id="mini-stage"><img class="a" src="art/mini_${id}_a.png" alt=""><img class="b" src="art/mini_${id}_b.png" alt=""></div>
+    <div class="mini-stage k-${k}${MINI_NOB.has(id) ? ' nob' : ''}" id="mini-stage"><img class="a" src="art/mini_${id}_a.png" alt="">${MINI_NOB.has(id) ? '' : `<img class="b" src="art/mini_${id}_b.png" alt="">`}</div>
     <div class="mini-bar"><i id="mini-bar"></i></div><div class="mini-day"><span id="mini-day">${monthOf(S)}월 ${d0 + 1}일</span><span>탭하면 건너뛰기</span></div></div>`;
     const st = $('#mini-stage');
-    st.querySelector('img.b').onerror = () => st.classList.add('nob');
+    const ib = st.querySelector('img.b');
+    if (ib)
+        ib.onerror = () => st.classList.add('nob');
     w.hidden = false;
     $("#dialog").hidden = true;
     bgm(a.cat === "연애" ? "love" : "run");
@@ -6665,7 +6667,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.13-C';
+const BUILD_TAG = '2026.11.15-A';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
@@ -7443,9 +7445,11 @@ async function enterGame(isNew) {
     }
     monthIntro();
 }
+// 미니 화면 그림 중 두 번째 동작(b)이 없는 활동. 새 미니 그림을 a만 넣으면 여기에 추가
+const MINI_NOB = new Set(['board', 'brandlab', 'cert', 'concert', 'emba', 'lang', 'oneday', 'pet', 'phd', 'picnic', 'temple', 'visit']);
 function preloadArt() {
     for (const st of AGE_STAGES)
-        for (const m of ['ok', 'tired']) {
+        for (const m of ['tired', S ? seasonKey(S) : 'spring']) {
             const i = new Image();
             i.src = `art/${st.key}_${m}.jpg`;
         }
@@ -7454,7 +7458,7 @@ function preloadArt() {
         i.src = S ? actSrc(S, id) : `art/act_${id}.jpg`;
     }
     for (const id of Object.keys(ACTS))
-        for (const f of ['a', 'b']) {
+        for (const f of MINI_NOB.has(id) ? ['a'] : ['a', 'b']) {
             const i = new Image();
             i.src = `art/mini_${id}_${f}.png`;
         }
@@ -7519,7 +7523,7 @@ if('serviceWorker' in navigator){
   }).catch(()=>{});
   navigator.serviceWorker.addEventListener('message',e=>{
     if(e.data&&e.data.type==='progress'){ bar.hidden=false; bar.textContent=`오프라인 준비 중 ${e.data.done}/${e.data.total}`; }
-    if(e.data&&e.data.type==='ready'){ bar.hidden=false; bar.textContent='✓ 오프라인 준비 완료! 이제 비행기모드에서도 실행돼요.'; setTimeout(()=>bar.hidden=true,4000); }
+    if(e.data&&e.data.type==='ready'){ bar.hidden=false; bar.textContent=hadCtl?`✓ 새 그림 ${e.data.n||0}장을 받았어요.`:'✓ 오프라인 준비 완료! 이제 비행기모드에서도 실행돼요.'; setTimeout(()=>bar.hidden=true,4000); }
   });
 }
 </script></body></html>
