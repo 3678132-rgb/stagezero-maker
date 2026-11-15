@@ -576,6 +576,9 @@ body.running .phone .dialog{max-height:30%}
 .pl-steps small{display:block;font-size:10.5px;color:#AEB3D6}.pl-steps b{display:block;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pl-steps li.on{border-style:solid;border-color:#E8C77A;background:rgba(232,199,122,.12)}
 .pl-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .pl-card{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;padding:10px 6px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.25);min-width:0}
+.pu-hero{flex:1 1 150px!important;min-height:150px;border-radius:14px;background:50% 22%/cover no-repeat;border:1px solid rgba(232,199,122,.45);flex:none}
+.pu .pl-steps li{background-size:cover;background-position:center;min-height:48px}
+.pu-card{padding:5px 5px 8px}.pu-card img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:9px}
 .pl-card i{font-style:normal;font-size:30px}.pl-card b{font-size:13px;line-height:1.25}.pl-card span{display:flex;flex-wrap:wrap;justify-content:center;gap:3px}
 .pl-card em{font-style:normal;font-size:10px;padding:1px 6px;border-radius:99px;background:rgba(142,160,255,.25);color:#dfe4ff}.pl-card em.x{background:rgba(232,199,122,.25);color:#FFE08A}
 .pl-card:hover,.pl-card:focus-visible{border-color:#FFE08A;outline:none;box-shadow:0 0 0 1px #FFE08A}
@@ -727,7 +730,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
           <button class="btn ghost" id="btn-badges">🏅 배지</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.15-E</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.15-F</span>
       </div>
     </div>
   </section>
@@ -1706,10 +1709,10 @@ function pitchEvent(S) {
 // ---- 팝업 매장 꾸미기: 성수 팝업을 열면 그날 방문객 성향에 맞춰 포토존·체험·굿즈·음악을 고른다 ----
 const POPUP_CROWD = [{ name: '인증샷 MZ', tags: ['photo', 'trend'], line: '오픈 전부터 휴대폰을 든 줄이 길다.' }, { name: '성분 덕후', tags: ['science', 'calm'], line: '성분표를 프린트해 온 손님들이 보인다.' }, { name: '선물 고르는 직장인', tags: ['gift', 'calm'], line: '점심시간에 쇼핑백을 든 직장인이 몰린다.' }, { name: '외국인 관광객', tags: ['photo', 'gift'], line: '캐리어를 끈 관광객들이 지도 앱을 보며 들어온다.' }];
 const POPUP_STEPS = [
-    { key: 'zone', label: '포토존', opts: [{ name: '긁힌 유리 터널', icon: '🪞', tags: ['photo', 'trend'] }, { name: '거대 세럼 병 조형물', icon: '🧪', tags: ['photo', 'science'] }, { name: '블루 플라워 아치', icon: '💐', tags: ['photo', 'gift'] }] },
-    { key: 'exp', label: '체험', opts: [{ name: '피부 진단 부스', icon: '🔬', tags: ['science'] }, { name: '테스터 바 & 손등 비교', icon: '🧴', tags: ['science', 'calm'] }, { name: '나만의 각인 서비스', icon: '✒️', tags: ['gift', 'trend'] }] },
-    { key: 'goods', label: '굿즈', opts: [{ name: '한정 토트백', icon: '👜', tags: ['trend', 'photo'] }, { name: '미니 키트 기프트 박스', icon: '🎁', tags: ['gift'] }, { name: '성분 카드 북', icon: '📘', tags: ['science'] }] },
-    { key: 'music', label: '음악', opts: [{ name: 'DJ 라이브', icon: '🎧', tags: ['trend', 'photo'] }, { name: '잔잔한 피아노', icon: '🎹', tags: ['calm', 'gift'] }, { name: '물소리 ASMR', icon: '💧', tags: ['calm', 'science'] }] },
+    { key: 'zone', label: '포토존', opts: [{ name: '긁힌 유리 터널', img: 'art/pu_zone_glass.jpg', icon: '🪞', tags: ['photo', 'trend'] }, { name: '거대 세럼 병 조형물', img: 'art/pu_zone_bottle.jpg', icon: '🧪', tags: ['photo', 'science'] }, { name: '블루 플라워 아치', img: 'art/pu_zone_flower.jpg', icon: '💐', tags: ['photo', 'gift'] }] },
+    { key: 'exp', label: '체험', opts: [{ name: '피부 진단 부스', img: 'art/pu_exp_scan.jpg', icon: '🔬', tags: ['science'] }, { name: '테스터 바 & 손등 비교', img: 'art/pu_exp_tester.jpg', icon: '🧴', tags: ['science', 'calm'] }, { name: '나만의 각인 서비스', img: 'art/pu_exp_engrave.jpg', icon: '✒️', tags: ['gift', 'trend'] }] },
+    { key: 'goods', label: '굿즈', opts: [{ name: '한정 토트백', img: 'art/pu_goods_tote.jpg', icon: '👜', tags: ['trend', 'photo'] }, { name: '미니 키트 기프트 박스', img: 'art/pu_goods_kit.jpg', icon: '🎁', tags: ['gift'] }, { name: '성분 카드 북', img: 'art/pu_goods_card.jpg', icon: '📘', tags: ['science'] }] },
+    { key: 'music', label: '음악', opts: [{ name: 'DJ 라이브', img: 'art/pu_music_dj.jpg', icon: '🎧', tags: ['trend', 'photo'] }, { name: '잔잔한 피아노', img: 'art/pu_music_piano.jpg', icon: '🎹', tags: ['calm', 'gift'] }, { name: '물소리 ASMR', img: 'art/pu_music_water.jpg', icon: '💧', tags: ['calm', 'science'] }] },
 ];
 function popupSetup(S) { return { crowd: POPUP_CROWD[Math.floor(R() * POPUP_CROWD.length)], steps: POPUP_STEPS }; }
 function popupApply(S, P, picks) {
@@ -6705,6 +6708,7 @@ function popupLive(P) {
         el.setAttribute('aria-label', '팝업 매장 꾸미기');
         el.innerHTML = `<div class="aw-bg" style="background-image:url('art/cg_popup_open.jpg')"></div>
       <div class="aw-top"><div class="aw-head"><small>POP-UP STORE</small><b>성수 팝업 꾸미기</b></div></div>
+      <div class="pu-hero" style="background-image:url('art/cg_popup_open.jpg')"></div>
       <div class="pl-prod"><div><small>오늘 손님</small><b>「${P.crowd.name}」</b><span>${P.crowd.tags.map(t => POPUP_TAG[t]).join(' · ')} 태그가 맞을수록 손님이 몰려요.</span></div></div>
       <ol class="pl-steps">${P.steps.map((st, i) => `<li id="pu-s${i}"><small>${st.label}</small><b>?</b></li>`).join('')}</ol>
       <div class="aw-act" id="pu-act"></div>`;
@@ -6719,9 +6723,9 @@ function popupLive(P) {
             st.opts.forEach((o, k) => {
                 const b = document.createElement('button');
                 b.type = 'button';
-                b.className = 'pl-card';
-                b.innerHTML = `<i>${o.icon}</i><b>${o.name}</b><span>${o.tags.map(t => `<em${P.crowd.tags.includes(t) ? ' class="x"' : ''}>${POPUP_TAG[t]}</em>`).join('')}</span>`;
-                b.onclick = () => { sfx('select'); picks[i] = k; const li = el.querySelector('#pu-s' + i); li.classList.add('on'); li.querySelector('b').textContent = `${o.icon} ${o.name}`; i < 3 ? step(i + 1) : finish(); };
+                b.className = 'pl-card pu-card';
+                b.innerHTML = `<img src="${o.img}" alt=""><b>${o.name}</b><span>${o.tags.map(t => `<em${P.crowd.tags.includes(t) ? ' class="x"' : ''}>${POPUP_TAG[t]}</em>`).join('')}</span>`;
+                b.onclick = () => { sfx('select'); picks[i] = k; const li = el.querySelector('#pu-s' + i); li.classList.add('on'); li.style.backgroundImage = `linear-gradient(rgba(7,11,34,.35),rgba(7,11,34,.8)),url('${o.img}')`; li.querySelector('b').textContent = o.name; i < 3 ? step(i + 1) : finish(); };
                 box.appendChild(b);
             });
             setTimeout(() => { const f = box.querySelector('button'); if (f)
@@ -7359,7 +7363,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.15-E';
+const BUILD_TAG = '2026.11.15-F';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
