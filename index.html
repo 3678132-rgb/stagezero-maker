@@ -718,7 +718,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.15-B</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.15-C</span>
       </div>
     </div>
   </section>
@@ -1449,10 +1449,10 @@ function duelEndEvent(S) {
 }
 // ---- 팀원 스토리: 직원이 2·3·4·5명이 될 때 이름 있는 팀원이 들어오고, 각자 3막짜리 이야기가 있다 ----
 const TEAM_CAST = [
-    { id: 'jiwoo', name: '민지우', role: '퍼포먼스 마케터', roleId: 'growth', age: 24, join: 2, intro: '“안녕하세요! 민지우예요. 릴스 하나로 매출 두 배 만들어 볼게요!” 휴대폰을 든 손이 벌써 바쁘다.' },
-    { id: 'taeo', name: '박태오', role: '연구원', roleId: 'lab', age: 27, join: 3, intro: '“박태오입니다.” 인사는 그게 끝이었다. 첫날 퇴근 전, 책상 위에 제형 개선 메모 열두 장이 놓여 있었다.' },
-    { id: 'harin', name: '최하린', role: '패키지 디자이너', roleId: 'design', age: 25, join: 4, intro: '“솔직하게 말씀드려도 돼요? 지금 패키지, 예쁜데 기억에 안 남아요.” 첫 미팅부터 직구였다.' },
-    { id: 'seungmin', name: '오승민', role: 'MD·영업 매니저', roleId: 'md', age: 34, join: 5, intro: '“대표님, 저 바이어들 사이에선 ‘승민이 형’으로 통합니다. 첫 주에 미팅 세 개 잡아 올게요.” 넉살 좋게 웃었다.' },
+    { id: 'jiwoo', lunch: '지우가 메뉴판을 들고 사진부터 찍었다. “이 집 마라탕 요즘 릴스에서 난리예요! 대표님 먼저 드세요, 저 이거 스토리 올려도 되죠?”', work: '지우가 노트북을 펼치자마자 광고 대시보드 탭 열두 개가 떴다. “오늘 안에 경쟁사 릴스 50개 분석해 올게요!”', name: '민지우', role: '퍼포먼스 마케터', roleId: 'growth', age: 24, join: 2, intro: '“안녕하세요! 민지우예요. 릴스 하나로 매출 두 배 만들어 볼게요!” 휴대폰을 든 손이 벌써 바쁘다.' },
+    { id: 'taeo', lunch: '태오는 메뉴판을 한참 보다가 국밥을 시켰다. “…성분표 없는 음식은 오랜만이네요.” 대표가 웃자 그도 아주 조금 웃었다.', work: '태오가 말없이 고개를 끄덕이고 연구실로 들어갔다. 한 시간 뒤 메일함에 「현 제형 개선안 v1」이 와 있었다.', name: '박태오', role: '연구원', roleId: 'lab', age: 27, join: 3, intro: '“박태오입니다.” 인사는 그게 끝이었다. 첫날 퇴근 전, 책상 위에 제형 개선 메모 열두 장이 놓여 있었다.' },
+    { id: 'harin', lunch: '하린이 파스타 접시를 돌려 사진 각도를 맞췄다. “대표님, 이 집 인테리어 톤이 딱 저희 패키지 방향이에요. 오길 잘했네요.”', work: '하린이 태블릿에 펜을 대자마자 시안 세 개가 나왔다. “이 중에 대표님 마음에 드는 거 없으면, 그게 정답이에요. 다시 할게요.”', name: '최하린', role: '패키지 디자이너', roleId: 'design', age: 25, join: 4, intro: '“솔직하게 말씀드려도 돼요? 지금 패키지, 예쁜데 기억에 안 남아요.” 첫 미팅부터 직구였다.' },
+    { id: 'seungmin', lunch: '승민이 앉자마자 사장님께 인사했다. “사장님, 여기 제육 두 개요! …대표님, 이 집 사장님이 H&B 바이어 삼촌이에요.” 정말 발이 넓었다.', work: '승민이 샘플 박스를 챙겨 들었다. “그럼 오늘 바로 거래처 세 군데 돌고 오겠습니다. 저녁에 보고드릴게요!”', name: '오승민', role: 'MD·영업 매니저', roleId: 'md', age: 34, join: 5, intro: '“대표님, 저 바이어들 사이에선 ‘승민이 형’으로 통합니다. 첫 주에 미팅 세 개 잡아 올게요.” 넉살 좋게 웃었다.' },
 ];
 const tm = (S, id) => (S.team || {})[id];
 const tmIn = (S, id) => { const t = tm(S, id); return t && !t.gone; };
@@ -1567,8 +1567,8 @@ function teamEvent(S) {
             S.team[c.id] = { since: S.m, trust: 50, step: 0 };
             return { id: 'tm_join_' + c.id, face: 'ceo', speaker: 'NEW MEMBER', title: `새 팀원 ${c.name}`, place: 'office', cast: { ask: 'tm_' + c.id },
                 text: () => `${c.role} ${c.name}(${c.age})${josa(c.name, '이', '가').slice(c.name.length)} 합류했다.\n${c.intro}`,
-                choices: [{ label: '환영 점심을 산다', run: S => { const ch = []; tmTrust(S, c.id, 5, ch); bump(S, 'cash', -10, ch); return { text: `${josa(c.name, '이', '가')} 메뉴판을 보며 웃었다. “대표님, 여기 제일 비싼 거 시켜도 돼요?”`, chips: ch }; } },
-                    { label: '바로 업무를 맡긴다', run: S => { const ch = []; grow(S, STAT_KEYS.includes(ROLES.find(r => r.id === c.roleId).stat) ? ROLES.find(r => r.id === c.roleId).stat : 'biz', 1, ch); return { text: `${josa(c.name, '이', '가')} 노트북을 펼쳤다. “네, 바로 시작할게요.”`, chips: ch }; } }] };
+                choices: [{ label: '환영 점심을 산다', run: S => { const ch = []; tmTrust(S, c.id, 5, ch); bump(S, 'cash', -10, ch); return { text: c.lunch, chips: ch }; } },
+                    { label: '바로 업무를 맡긴다', run: S => { const ch = []; grow(S, STAT_KEYS.includes(ROLES.find(r => r.id === c.roleId).stat) ? ROLES.find(r => r.id === c.roleId).stat : 'biz', 1, ch); return { text: c.work, chips: ch }; } }] };
         }
     }
     for (const c of TEAM_CAST) {
@@ -6931,7 +6931,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.15-B';
+const BUILD_TAG = '2026.11.15-C';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
