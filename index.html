@@ -587,6 +587,14 @@ body.running .phone .dialog{max-height:30%}
 .lv .aw-act{margin-top:8px;position:relative}
 .lv-heart{position:absolute;bottom:200px;font-style:normal;font-size:22px;animation:lvheart 2s ease-out forwards;pointer-events:none}
 @keyframes lvheart{from{transform:translateY(0) scale(.6);opacity:0}15%{opacity:1}to{transform:translateY(-260px) scale(1.2);opacity:0}}
+.pt-inv{list-style:none;margin:0;padding:0;display:grid;gap:6px}.pt-inv li{display:grid;grid-template-columns:52px 1fr 36px;gap:8px;align-items:center;background:rgba(7,11,34,.78);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:6px 8px;transition:border-color .3s,box-shadow .3s}
+.pt-inv img{width:52px;height:52px;border-radius:10px;object-fit:cover;object-position:50% 15%;background:#dfe4ff}.pt-inv b{font-size:13.5px}.pt-inv small{display:block;font-size:10.5px;color:#AEB3D6}
+.pt-g{position:relative;display:block;height:8px;border-radius:99px;background:rgba(255,255,255,.15);margin-top:4px}.pt-g i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#8ea0ff,#E8C77A);transition:width .6s ease}.pt-g::after{content:"";position:absolute;left:60%;top:-3px;bottom:-3px;width:2px;background:#FFE08A}
+.pt-g em{position:absolute;right:0;top:-16px;font-style:normal;font-family:var(--f-mono);font-size:11px}.pt-g em.up{color:#7CF0A0}.pt-g em.dn{color:#FF8A8A}
+.pt-inv strong{font-family:var(--f-mono);font-size:18px;text-align:right}.pt-inv li.now{border-color:#E8C77A;box-shadow:0 0 0 1px #E8C77A}.pt-inv li.yes strong{color:#7CF0A0}
+.pt-rule{margin:0;font-size:11.5px;color:#C9CCE6;text-shadow:0 1px 4px #000}.pt .aw-bg{opacity:.55;filter:none}
+.bdg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.bdg .b{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;padding:8px 4px;border-radius:12px;background:#f3f4f8;border:1px solid var(--line);opacity:.6}
+.bdg .b.on{opacity:1;background:linear-gradient(180deg,#fff8e1,#fff);border-color:#E9C77A}.bdg i{font-style:normal;font-size:26px}.bdg b{font-size:12px}.bdg small{font-size:10px;color:var(--mute);line-height:1.3}
 .ms-wrap{position:absolute;inset:0;z-index:46;background:rgba(10,12,30,.55);display:flex;align-items:center;justify-content:center;padding:14px;animation:fadein .25s ease both}
 .ms{width:100%;max-width:380px;max-height:100%;overflow:auto;background:#fff;border-radius:18px;border-top:3px solid #E9C77A;padding:14px 14px 12px;display:flex;flex-direction:column;gap:8px;box-shadow:0 12px 40px rgba(0,0,0,.3)}
 .ms-head small{display:block;font-family:var(--f-mono);font-size:11px;color:var(--mute);letter-spacing:.1em}.ms-head b{display:block;font-family:var(--f-display);font-size:20px}.ms-head span{font-size:12.5px;color:var(--sub,#555)}
@@ -717,8 +725,9 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn" id="btn-new">새로 시작</button>
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
+          <button class="btn ghost" id="btn-badges">🏅 배지</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.15-C</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.15-D</span>
       </div>
     </div>
   </section>
@@ -1359,6 +1368,8 @@ function liveApply(S, L, ans) {
         bump(S, 'aware', 2, ch);
     }
     const grade = sc >= 7 ? 'great' : sc >= 5 ? 'good' : sc >= 3 ? 'ok' : 'bad';
+    if (grade === 'great')
+        S.liveGreat = true;
     const text = { great: '역대급 방송. 동시 시청자 기록을 갈아치웠다. 방송이 끝나자 팀원들이 박수를 쳤다.', good: '좋은 방송이었다. 단골이 늘었다.', ok: '무난하게 마쳤다. 다음엔 더 잘할 수 있다.', bad: '아쉬운 방송. 끝나고 한참 화면을 꺼진 채로 바라봤다.' }[grade] + (meme ? '\n…그리고 짤이 하나 돌기 시작했다.' : '');
     return { grade, sc, meme, extra, text, chips: ch };
 }
@@ -1593,6 +1604,235 @@ function teamEvent(S) {
     }
     return null;
 }
+// ---- 투자 피칭 실시간 대결: IR에서 파트너 미팅이 잡히면, 투자자 세 명이 한 명씩 질문하고 관심도가 실시간으로 바뀐다 ----
+const INVESTORS = {
+    yoon: { name: '윤재현', role: 'VC 심사역', img: 'art/spr_vc.png', likes: 'num', likeLabel: '숫자와 지표' },
+    kang: { name: '강미래', role: 'VC 파트너', img: 'art/inv_kang.jpg', likes: 'mkt', likeLabel: '시장과 브랜드' },
+    dan: { name: '다니엘 최', role: '엔젤 투자자 · 전 창업자', img: 'art/inv_dan.jpg', likes: 'founder', likeLabel: '창업자의 그릿' },
+};
+const PITCH_QS = {
+    yoon: [{ q: '“재구매율이랑 고객 획득 비용, 숫자로 말씀해 주세요.”', a: [
+                { label: '대시보드를 띄워 코호트별 재구매율을 보여 준다', fit: 'num', pow: S => S.st.biz * 0.35 + S.prods.length * 2 },
+                { label: '“리뷰를 보시면 고객 사랑이 느껴지실 거예요.”', fit: 'mkt', pow: S => S.fan * 0.25 },
+                { label: '“정확한 숫자는 나중에 메일로 드릴게요.”', fit: 'dodge', pow: () => -8 }
+            ] },
+        { q: '“월 매출이 꺾이면 버틸 수 있는 런웨이가 몇 개월이죠?”', a: [
+                { label: '월별 현금흐름표로 시나리오 세 개를 보여 준다', fit: 'num', pow: S => S.st.biz * 0.4 },
+                { label: '“그럴 일 없게 만들겠습니다.”', fit: 'founder', pow: S => (S.st.charm || 0) * 0.15 },
+                { label: '“투자 받으면 괜찮아요.”', fit: 'dodge', pow: () => -10 }
+            ] }],
+    kang: [{ q: '“스킨케어, 이미 레드오션 아닌가요? 왜 지금 이 브랜드죠?”', a: [
+                { label: '「손상 복구」라는 빈자리를 포지셔닝 맵으로 보여 준다', fit: 'mkt', pow: S => S.st.mkt * 0.3 + S.st.aes * 0.15 },
+                { label: '시장 규모(TAM·SAM)를 숫자로 쪼개 보여 준다', fit: 'num', pow: S => S.st.biz * 0.25 },
+                { label: '“저희 제품이 제일 좋아서요.”', fit: 'dodge', pow: () => -6 }
+            ] },
+        { q: '“루미에르랩이 똑같이 따라 하면요?”', a: [
+                { label: '“브랜드 세계관과 팬덤은 못 따라 해요.” 팬 커뮤니티 지표를 보여 준다', fit: 'mkt', pow: S => S.fan * 0.3 + S.aware * 0.1 },
+                { label: '특허·처방 데이터로 기술 장벽을 설명한다', fit: 'num', pow: S => S.st.rnd * 0.3 },
+                { label: '“한서린 대표는 저를 못 이겨요.”', fit: 'founder', pow: S => (S.st.charm || 0) >= 60 ? 12 : -4 }
+            ] }],
+    dan: [{ q: '“왜 대표님이어야 하죠? 이 회사, 망하면 뭐 하실 거예요?”', a: [
+                { label: '긁힌 유리를 꺼내 창업한 이유를 이야기한다', fit: 'founder', pow: S => (S.st.charm || 0) * 0.25 + S.st.lead * 0.15 },
+                { label: '“망하지 않을 이유가 여기 있습니다.” 사업계획서를 편다', fit: 'num', pow: S => S.st.biz * 0.2 },
+                { label: '“그런 생각은 안 해 봤어요.”', fit: 'dodge', pow: () => -5 }
+            ] },
+        { q: '“가장 크게 실패했던 순간을 말해 주세요.”', a: [
+                { label: '첫 제품이 망할 뻔했던 밤을 솔직하게 말한다', fit: 'founder', pow: S => S.st.lead * 0.25 + (S.burnouts ? 6 : 0) },
+                { label: '실패에서 바꾼 지표를 정리해 보여 준다', fit: 'num', pow: S => S.st.biz * 0.2 },
+                { label: '“아직 크게 실패한 적은 없어요.”', fit: 'dodge', pow: () => -8 }
+            ] }],
+};
+function pitchSetup(S) {
+    const R_ = ROUNDS[S.invest], rum = vcRumor(S);
+    const ids = ['yoon', 'kang', 'dan'];
+    for (let i = ids.length - 1; i > 0; i--) {
+        const j = Math.floor(R() * (i + 1));
+        [ids[i], ids[j]] = [ids[j], ids[i]];
+    }
+    const base = 38 + (S.st.biz + S.st.net) / 9 + S.aware / 10 - rum.pen * 60 + (wearing(S, 'blazer') ? 5 : 0) - S.invest * 5;
+    return { round: R_, inv: ids.map(id => ({ id, interest: Math.round(clamp(base + rand(-8, 8), 5, 80)), q: PITCH_QS[id][Math.floor(R() * PITCH_QS[id].length)] })) };
+}
+function pitchAnswer(S, P, i, k) {
+    const v = P.inv[i], a = v.q.a[k], like = INVESTORS[v.id].likes;
+    const pw = a.pow(S);
+    const d = Math.round(a.fit === 'dodge' ? pw - 6 : a.fit === like ? 5 + pw * 0.7 : 2 + pw * 0.3);
+    v.interest = Math.round(clamp(v.interest + d, 0, 100));
+    // 다른 투자자들도 분위기를 탄다
+    P.inv.forEach((o, j) => { if (j !== i)
+        o.interest = Math.round(clamp(o.interest + (a.fit === 'dodge' ? -4 : a.fit === like && d >= 15 ? 2 : 0), 0, 100)); });
+    return { d, hit: a.fit === like, dodge: a.fit === 'dodge' };
+}
+function pitchResolve(S, P) {
+    const R_ = P.round;
+    const yes = P.inv.filter(v => v.interest >= 60).length;
+    const ch = [];
+    let text;
+    if (yes >= 2) {
+        const amt = Math.round(R_.amt * (yes === 3 ? 1.3 : 1));
+        S.invest++;
+        bump(S, 'cash', amt, ch);
+        bump(S, 'stress', 6, ch);
+        grow(S, 'lead', 2, ch);
+        S.album.push(R_.name + ' 유치' + (yes === 3 ? ' (만장일치)' : ''));
+        if (yes === 3)
+            S.pitchAll = true;
+        text = `${R_.name} ${fmtMoney(amt)}원 투자 확정!${yes === 3 ? ' 세 명 모두 손을 들었다. 조건도 30% 더 좋게.' : ' 텀싯에 서명하는 손이 떨렸다.'}`;
+    }
+    else if (yes === 1) {
+        const v = P.inv.find(x => x.interest >= 60), amt = Math.round(R_.amt * 0.25);
+        bump(S, 'cash', amt, ch);
+        grow(S, 'biz', 1, ch);
+        text = `${INVESTORS[v.id].name}만 손을 들었다. 라운드는 다음으로 미뤄졌지만, 브릿지 투자 ${fmtMoney(amt)}원을 받았다.`;
+    }
+    else {
+        bump(S, 'stress', 8, ch);
+        grow(S, 'biz', 1, ch);
+        text = '“이번엔 패스하겠습니다.” 엘리베이터 문이 닫히고 한참 숨을 몰아쉬었다.';
+    }
+    return { yes, text, chips: ch };
+}
+function pitchEvent(S) {
+    if (S.pitchPend == null)
+        return null;
+    S.pitchPend = null;
+    if (S.invest >= 3)
+        return null;
+    const R_ = ROUNDS[S.invest];
+    return { id: 'pitch_' + S.m, face: 'news', speaker: 'PITCH', title: `${R_.name} 파트너 미팅`, cg: 'pitch',
+        text: () => `IR이 통과됐다. 오늘은 ${R_.name} 파트너 미팅.\n투자자 세 명이 한 명씩 질문한다. 관심도 60을 넘긴 투자자가 두 명 이상이면 투자가 확정된다.`,
+        choices: [{ label: '피칭 시작', pitch: true, run: S => { const P = pitchSetup(S); P.inv.forEach((v, i) => { const like = INVESTORS[v.id].likes; let k = v.q.a.findIndex(a => a.fit === like); if (R() < 0.3)
+                    k = Math.floor(R() * v.q.a.length); pitchAnswer(S, P, i, k); }); return pitchResolve(S, P); } }] };
+}
+// ---- 팝업 매장 꾸미기: 성수 팝업을 열면 그날 방문객 성향에 맞춰 포토존·체험·굿즈·음악을 고른다 ----
+const POPUP_CROWD = [{ name: '인증샷 MZ', tags: ['photo', 'trend'], line: '오픈 전부터 휴대폰을 든 줄이 길다.' }, { name: '성분 덕후', tags: ['science', 'calm'], line: '성분표를 프린트해 온 손님들이 보인다.' }, { name: '선물 고르는 직장인', tags: ['gift', 'calm'], line: '점심시간에 쇼핑백을 든 직장인이 몰린다.' }, { name: '외국인 관광객', tags: ['photo', 'gift'], line: '캐리어를 끈 관광객들이 지도 앱을 보며 들어온다.' }];
+const POPUP_STEPS = [
+    { key: 'zone', label: '포토존', opts: [{ name: '긁힌 유리 터널', icon: '🪞', tags: ['photo', 'trend'] }, { name: '거대 세럼 병 조형물', icon: '🧪', tags: ['photo', 'science'] }, { name: '블루 플라워 아치', icon: '💐', tags: ['photo', 'gift'] }] },
+    { key: 'exp', label: '체험', opts: [{ name: '피부 진단 부스', icon: '🔬', tags: ['science'] }, { name: '테스터 바 & 손등 비교', icon: '🧴', tags: ['science', 'calm'] }, { name: '나만의 각인 서비스', icon: '✒️', tags: ['gift', 'trend'] }] },
+    { key: 'goods', label: '굿즈', opts: [{ name: '한정 토트백', icon: '👜', tags: ['trend', 'photo'] }, { name: '미니 키트 기프트 박스', icon: '🎁', tags: ['gift'] }, { name: '성분 카드 북', icon: '📘', tags: ['science'] }] },
+    { key: 'music', label: '음악', opts: [{ name: 'DJ 라이브', icon: '🎧', tags: ['trend', 'photo'] }, { name: '잔잔한 피아노', icon: '🎹', tags: ['calm', 'gift'] }, { name: '물소리 ASMR', icon: '💧', tags: ['calm', 'science'] }] },
+];
+function popupSetup(S) { return { crowd: POPUP_CROWD[Math.floor(R() * POPUP_CROWD.length)], steps: POPUP_STEPS }; }
+function popupApply(S, P, picks) {
+    const cards = P.steps.map((st, i) => st.opts[picks[i]]);
+    const hits = cards.reduce((a, c) => a + c.tags.filter(t => P.crowd.tags.includes(t)).length, 0);
+    const grade = hits >= 6 ? 'great' : hits >= 4 ? 'good' : hits >= 2 ? 'ok' : 'meh';
+    const ch = [];
+    const visitors = Math.round((800 + S.aware * 40) * (0.7 + hits * 0.12)), posts = Math.round(visitors * (cards.some(c => c.tags.includes('photo')) ? 0.35 : 0.15) * (0.7 + hits * 0.1));
+    bump(S, 'aware', Math.round(hits * 1.6 - 2), ch);
+    bump(S, 'fan', Math.round(hits * 1.2 - 1), ch);
+    if (grade === 'great') {
+        grow(S, 'aes', 2, ch);
+        S.popupGreat = true;
+        S.album.push('팝업 오픈런');
+    }
+    return { grade, hits, visitors, posts, text: `방문객 ${visitors.toLocaleString()}명 · 인증샷 ${posts.toLocaleString()}개\n${{ great: '역대급 팝업. 줄이 골목을 두 번 감았다.', good: '반응이 좋다. 재방문 손님도 보였다.', ok: '무난했다. 다음엔 손님 성향에 더 맞춰 보자.', meh: '손님 성향과 공간이 어긋났다. 오래 머무는 사람이 적었다.' }[grade]}`, chips: ch };
+}
+function popupEvent(S) {
+    if (S.popupPend !== S.m)
+        return null;
+    S.popupPend = null;
+    const P0 = popupSetup(S);
+    return { id: 'popup_' + S.m, face: 'ceo', speaker: 'POP-UP', title: '팝업 매장 꾸미기', cg: 'popup_open',
+        text: () => `성수 팝업 오픈 전날. 사전 예약을 보니 「${P0.crowd.name}」 손님이 많다. ${P0.crowd.line}\n포토존·체험·굿즈·음악을 하나씩 골라 공간을 완성하자.`,
+        choices: [{ label: '공간 꾸미기 시작', popup: P0, run: S => popupApply(S, P0, P0.steps.map(() => Math.floor(R() * 3))) }] };
+}
+// ---- 리뷰 위기: 악성 리뷰가 퍼진다. 대응을 고르면 석 달 뒤 진실이 밝혀진다 ----
+function reviewEvent(S) {
+    const RV = S.review;
+    if (RV && !RV.done && S.m >= RV.m + 3) {
+        RV.done = true;
+        const p = RV.prod, t = RV.truth, k = RV.pick;
+        const truthLine = { rival: `조사 결과, 최초 리뷰 계정들은 한 대행사가 만든 가짜 계정이었다. 그 대행사의 고객 명단에 「${RIVAL_BRAND}」가 있었다.`, defect: '조사 결과, 특정 로트의 보존제 배합이 미세하게 틀어져 있었다. 진짜 문제였다.', mis: '조사 결과, 리뷰어는 다른 제품과 섞어 써서 생긴 자극이었다. 제품 자체엔 문제가 없었다.' }[t];
+        const good = (t === 'defect' && k !== 'ignore') || (t !== 'defect' && k === 'open') || (t === 'mis' && k === 'refund');
+        return { id: 'review_truth_' + S.m, face: 'news', speaker: 'NEWS', title: '리뷰 사태의 진실', text: () => truthLine + (good ? '\n그때의 대응이 옳았다. 「끝까지 책임지는 브랜드」라는 기사가 났다.' : k === 'ignore' ? '\n그때 아무 말도 안 한 게 화근이었다. “알면서 모른 척했다”는 말이 돌았다.' : '\n대응은 무난했지만, 아쉬움이 남았다.'),
+            choices: [{ label: good ? '팀과 함께 한숨 돌린다' : '다음엔 다르게 하자고 다짐한다', run: S => {
+                        const ch = [];
+                        if (good) {
+                            bump(S, 'fan', 8, ch);
+                            bump(S, 'aware', 6, ch);
+                            S.reviewWin = true;
+                            S.album.push('리뷰 사태 극복');
+                            if (t === 'rival')
+                                S.rivalBoost = Math.max(0, (S.rivalBoost || 0) - 3);
+                        }
+                        else if (k === 'ignore') {
+                            bump(S, 'fan', -8, ch);
+                            bump(S, 'aware', -4, ch);
+                            bump(S, 'stress', 8, ch);
+                        }
+                        else {
+                            bump(S, 'fan', 2, ch);
+                        }
+                        return { text: good ? '고객센터에 “응원합니다” 메시지가 쌓였다.' : '회의록 맨 위에 적었다. 「위기 대응 매뉴얼」.', chips: ch };
+                    } }] };
+    }
+    if (RV || S.m < 8 || !S.prods.length || R() > 0.05)
+        return null;
+    const p = S.prods[Math.floor(R() * S.prods.length)];
+    const tr = ['rival', 'defect', 'mis'][Math.floor(R() * 3)];
+    S.review = { m: S.m, prod: p.name, truth: tr, pick: null };
+    return { id: 'review_' + S.m, face: 'news', speaker: 'COMMUNITY', title: '별점 1점 리뷰가 퍼진다', cg: 'review',
+        text: () => `「${p.name}」 리뷰 하나가 커뮤니티에 퍼졌다.\n“이거 쓰고 얼굴 뒤집어졌어요. 다들 쓰지 마세요.” 사진과 함께 공유 3,000회. 비슷한 리뷰가 하나둘 따라 올라온다.\n…진짜일까?`,
+        choices: [
+            { label: '성분·시험 성적서 전체 공개 + 사과문', sub: '자금 −200만 · 연구↑', run: S => { const ch = []; S.review.pick = 'open'; bump(S, 'cash', -200, ch); grow(S, 'rnd', 1, ch); bump(S, 'stress', 6, ch); return { text: '시험 성적서 47쪽을 그대로 올렸다. “조사 결과는 석 달 안에 공개하겠습니다.”', chips: ch }; } },
+            { label: '원하는 고객 전원 환불', sub: '자금 −매출 절반 · 팬덤 유지', run: S => { const ch = []; S.review.pick = 'refund'; bump(S, 'cash', -Math.max(300, Math.round(avgRev(S) * 0.5)), ch); bump(S, 'fan', 2, ch); return { text: '환불 신청 버튼을 메인에 걸었다. 생각보다 신청은 적었다.', chips: ch }; } },
+            { label: '대응하지 않는다', sub: '지금은 조용히', run: S => { const ch = []; S.review.pick = 'ignore'; const b = popOf(p); const pp = S.prods.find(x => x.name === p.name); if (pp) {
+                    pp.pop = clamp(b - 8, 3, 100);
+                    push(ch, '인기도', -8);
+                } return { text: '댓글창을 닫았다. 사흘쯤 지나자 조용해지는 것 같았다.', chips: ch }; } },
+        ] };
+}
+// ---- 제품 사고(리콜) 후폭풍: 리콜 위기에서 고른 대응이 넉 달 뒤 돌아온다 ----
+function recallAfterEvent(S) {
+    const F = S.recallFx;
+    if (!F || F.done || S.m < F.m + 4)
+        return null;
+    F.done = true;
+    if (F.pick === 'full')
+        return { id: 'recall_after_' + S.m, face: 'news', speaker: 'NEWS', title: '모범 리콜 사례', text: () => '한국소비자원 보고서에 우리 리콜이 「모범 사례」로 실렸다.\n“문제를 먼저 말하는 브랜드는 오래 간다.” 경제지 칼럼이 인용했다.',
+            choices: [{ label: '팀에게 공을 돌린다', run: S => { const ch = []; bump(S, 'fan', 8, ch); bump(S, 'aware', 6, ch); grow(S, 'lead', 2, ch); S.recallHero = true; return { text: 'QC팀 단톡방에 기사 링크를 올렸다. 하트가 끝없이 달렸다.', chips: ch }; } }] };
+    const caught = F.pick === 'blame' ? R() < 0.75 : R() < 0.5;
+    if (!caught)
+        return { id: 'recall_after_' + S.m, face: 'ceo', speaker: '나', title: '조용히 지나간 일', text: () => '넉 달이 지났다. 그 일은 아무도 다시 꺼내지 않았다.\n그래도 가끔, 그 로트 번호가 꿈에 나왔다.', choices: [{ label: 'QC 기준을 두 배로 올린다', run: S => { const ch = []; bump(S, 'cash', -300, ch); grow(S, 'biz', 2, ch); S.prods.forEach(p => p.q = clamp(p.q + 2, 10, 100)); push(ch, '모든 제품 품질', 2); return { text: '공장 라인에 검사 단계가 하나 더 생겼다.', chips: ch }; } }] };
+    return { id: 'recall_after_' + S.m, face: 'news', speaker: 'SCANDAL', title: F.pick === 'blame' ? 'OEM 공장의 반박' : '내부 제보', cg: 'scandal',
+        text: () => F.pick === 'blame' ? 'OEM 공장이 반박 자료를 냈다. “배합 지시서는 브랜드가 보낸 그대로였다.”\n메일 캡처가 공개됐다. 여론이 한순간에 돌아섰다.' : '“알고도 조용히 교환만 했다.” 전 직원의 내부 제보 기사가 떴다.\n별점 테러가 시작됐다.',
+        choices: [{ label: '공개 사과하고 전량 리콜한다', run: S => { const ch = []; bump(S, 'cash', -Math.max(1000, Math.round(avgRev(S) * 0.8)), ch); bump(S, 'fan', -8, ch); bump(S, 'aware', -3, ch); bump(S, 'stress', 12, ch); return { text: '늦었지만 바로잡았다. 사과문 마지막 줄을 쓰며 손이 떨렸다.', chips: ch }; } },
+            { label: '버틴다', run: S => { const ch = []; bump(S, 'fan', -15, ch); bump(S, 'aware', -6, ch); bump(S, 'stress', 15, ch); S.prods.forEach(p => p.pop = clamp(popOf(p) - 10, 3, 100)); push(ch, '모든 제품 인기도', -10); return { text: '불매 해시태그가 실검에 올랐다. 매대에서 제품이 하나둘 빠졌다.', chips: ch }; } }] };
+}
+// ---- 업적 배지: 판이 달라도 계속 쌓인다 ----
+const BADGES = [
+    { id: 'first', icon: '🧴', name: '첫 출시', desc: '첫 제품을 출시했다', ok: S => S.prods.length >= 1 },
+    { id: 'lineup', icon: '🗂️', name: '풀 라인업', desc: '제품 8개를 동시에 판매했다', ok: S => S.prods.length >= 8 },
+    { id: 'hitplan', icon: '💡', name: '대박 예감', desc: '기획 회의에서 「대박 예감」을 받았다', ok: S => S.prods.some(p => p.concept && p.concept.grade === 'great') },
+    { id: 'renew3', icon: '🔄', name: '3세대 장인', desc: '한 제품을 3세대까지 리뉴얼했다', ok: S => S.prods.some(p => (p.gen || 1) >= 3) },
+    { id: 'retire', icon: '🕊️', name: '아름다운 퇴장', desc: '제품을 단종했다', ok: S => (S.retired || []).length >= 1 },
+    { id: 'live', icon: '📺', name: '역대급 방송', desc: '라이브 방송에서 「역대급」을 받았다', ok: S => !!S.liveGreat },
+    { id: 'popup', icon: '🎪', name: '오픈런', desc: '팝업 꾸미기에서 「역대급 팝업」을 만들었다', ok: S => !!S.popupGreat },
+    { id: 'tour', icon: '🌏', name: '월드 투어', desc: '도쿄·파리·뉴욕·두바이 팝업을 모두 열었다', ok: S => (S.tour || 0) >= 4 },
+    { id: 'duel1', icon: '⚔️', name: '맞불 승리', desc: '루미에르랩의 맞불을 이겼다', ok: S => (S.duelWins || 0) >= 1 },
+    { id: 'duel3', icon: '🗡️', name: '맞불 3승', desc: '맞불에서 세 번 이겼다', ok: S => (S.duelWins || 0) >= 3 },
+    { id: 'grand', icon: '🏆', name: '대상', desc: 'K-뷰티 어워즈 대상을 받았다', ok: S => (S.awards && S.awards.grand || 0) >= 1 },
+    { id: 'grand3', icon: '👑', name: '대상 3관왕', desc: '어워즈 대상을 세 번 받았다', ok: S => (S.awards && S.awards.grand || 0) >= 3 },
+    { id: 'carpet', icon: '💃', name: '레드카펫 퀸', desc: '레드카펫 꾸밈에서 한서린을 이겼다', ok: S => (S.rcWins || 0) >= 1 },
+    { id: 'seed', icon: '🌱', name: '첫 투자', desc: '시드 투자를 받았다', ok: S => S.invest >= 1 },
+    { id: 'seriesb', icon: '💰', name: '시리즈 B', desc: '시리즈 B까지 투자를 받았다', ok: S => S.invest >= 3 },
+    { id: 'pitchall', icon: '🙌', name: '만장일치', desc: '피칭에서 투자자 세 명 모두 손을 들었다', ok: S => !!S.pitchAll },
+    { id: 'review', icon: '🔎', name: '진실은 밝혀진다', desc: '리뷰 위기를 옳은 대응으로 넘겼다', ok: S => !!S.reviewWin },
+    { id: 'recall', icon: '🛡️', name: '책임지는 브랜드', desc: '자발적 리콜이 모범 사례가 됐다', ok: S => !!S.recallHero },
+    { id: 'olive', icon: '🏬', name: '전국 입점', desc: 'H&B 전국 매장에 입점했다', ok: S => !!S.olive },
+    { id: 'global', icon: '✈️', name: '글로벌', desc: '해외에 진출했다', ok: S => !!S.global },
+    { id: 'empire', icon: '🏢', name: '뷰티 제국', desc: '회사 투자 5개를 모두 세웠다', ok: S => INVEST.every(it => invested(S, it.id)) },
+    { id: 'rich', icon: '💎', name: '자금 100억', desc: '보유 자금 100억을 넘겼다', ok: S => S.cash >= 1000000 },
+    { id: 'team', icon: '👥', name: '드림팀', desc: '이름 있는 팀원 네 명이 모두 입사했다', ok: S => TEAM_CAST.every(c => (S.team || {})[c.id]) },
+    { id: 'promote', icon: '🎖️', name: '모두의 승진', desc: '남아 있는 팀원 네 명이 모두 승진했다', ok: S => TEAM_CAST.every(c => { const t = (S.team || {})[c.id]; return t && !t.gone && t.lead; }) },
+    { id: 'wedding', icon: '💒', name: '사내 결혼식', desc: '하린과 태오의 결혼식에 갔다', ok: S => S.album.includes('최하린♥박태오 결혼') },
+    { id: 'closet', icon: '👗', name: '패셔니스타', desc: '옷 다섯 벌을 모두 샀다', ok: S => OUTFITS.every(o => (S.closet || {})[o.id] != null) },
+    { id: 'potion', icon: '✨', name: '연금술사', desc: '물약 대성공을 맛봤다', ok: S => (S.potionGreat || 0) >= 1 },
+    { id: 'potionbad', icon: '😵', name: '실험 정신', desc: '물약 부작용을 세 번 겪었다', ok: S => (S.potionSide || 0) >= 3 },
+    { id: 'married', icon: '💍', name: '결혼', desc: '사랑하는 사람과 결혼했다', ok: S => !!S.married },
+    { id: 'pet', icon: '🐶', name: '구름이 집사', desc: '반려견을 입양했다', ok: S => !!S.pet },
+    { id: 'decade', icon: '🎂', name: '10년 완주', desc: '폐업 없이 10년을 채웠다', ok: S => S.m >= TOTAL_MONTHS - 1 && !['bankrupt', 'nolaunch'].includes(S.ending) },
+];
 // ---- 10년 연표: 앨범 기록에 달을 붙여 둔다 ----
 function stampTL(S) {
     S.tl = S.tl || [];
@@ -1734,8 +1974,12 @@ function drinkPotion(S, id) {
     const b = S.st[id] || 0;
     S.st[id] = clamp(b + d, 0, 100);
     push(ch, STAT[id], S.st[id] - b);
-    if (kind === 'side')
+    if (kind === 'side') {
         bump(S, 'stress', 10, ch);
+        S.potionSide = (S.potionSide || 0) + 1;
+    }
+    if (kind === 'great')
+        S.potionGreat = (S.potionGreat || 0) + 1;
     r.n++;
     r.m = S.m;
     S.lastBuy = { name: P.name, price };
@@ -1947,7 +2191,7 @@ const ACTS = {
     live: { cat: '업무', name: '라이브 커머스', desc: '직접 방송에 나가 판다. 즉시 매출, 체력 소모가 크다.', cost: 0, hp: 18, stress: 10, eff: '즉시 매출 인지도↑', req: S => S.prods.length > 0 ? null : '제품 필요',
         run: (S, ch) => { grow(S, 'mkt', rand(1.5, 2.5), ch); const rev = Math.round(S.prods.reduce((a, p) => a + p.q, 0) * (S.st.mkt * 0.45 + S.aware * 0.45 + (S.st.charm || 0) * 0.25 + 5) * 0.3 * rand(.8, 1.2)); S.liveRev += rev; S.liveLast = rev; S.liveShow = S.m; push(ch, '라이브 매출', rev, true); bump(S, 'aware', 1.5, ch); bump(S, 'fan', 1, ch); return rev > 800 ? '채팅창이 터졌다. 준비한 물량이 30분 만에 완판.' : '시청자 수는 아쉬웠지만 단골 몇 분이 끝까지 함께해줬다.'; } },
     popup: { cat: '업무', name: '성수 팝업스토어', desc: '긁힌 유리 터널을 지나는 체험형 공간을 연다. 2칸(20일) 운영.', slots: 2, cost: 600, hp: 24, stress: 16, eff: '인지도↑↑↑ 팬덤↑↑↑', req: S => S.prods.length > 0 ? null : '제품 필요',
-        run: (S, ch) => { grow(S, 'aes', rand(2, 3.5), ch); bump(S, 'aware', 12 + S.st.aes * 0.15, ch); bump(S, 'fan', 8 + S.st.aes * 0.12, ch); return pick(['오픈런 줄이 골목 끝까지 섰다.', '유리 터널 포토존 사진이 인스타에 도배됐다.', '“브랜드 세계관이 다르다”는 방문 후기가 쏟아졌다.']); } },
+        run: (S, ch) => { grow(S, 'aes', rand(2, 3.5), ch); bump(S, 'aware', 12 + S.st.aes * 0.15, ch); bump(S, 'fan', 8 + S.st.aes * 0.12, ch); S.popupPend = S.m; return '팝업 장소를 계약했다. 이번 달 말, 공간을 직접 꾸며 문을 연다.'; } },
     ir: { cat: '업무', name: '투자 IR 미팅', desc: 'VC에 피칭한다. 경영·인맥·인지도가 높을수록 성공률↑', cost: 20, hp: 10, stress: 14, eff: '투자 유치 기회', req: S => S.invest >= 3 ? '투자 라운드 완료' : null,
         run: (S, ch) => {
             grow(S, 'biz', rand(1.5, 2.5), ch);
@@ -1958,15 +2202,11 @@ const ACTS = {
             const rum = vcRumor(S);
             const chance = Math.max(0.03, 0.12 + (S.st.biz + S.st.net) / 320 + S.aware / 400 - rum.pen + (wearing(S, 'blazer') ? 0.06 : 0));
             const roll = R();
-            if (roll >= chance && rum.pen > 0)
+            if (roll >= chance * 2.2 && rum.pen > 0)
                 return rum.line;
-            if (roll < chance) {
-                S.invest++;
-                bump(S, 'cash', R_.amt, ch);
-                bump(S, 'stress', 8, ch);
-                grow(S, 'lead', 2, ch);
-                S.album.push(R_.name + ' 유치');
-                return `${R_.name} ${fmtMoney(R_.amt)} 투자 확정! 텀싯에 서명하는 손이 떨렸다.`;
+            if (roll < Math.min(0.85, chance * 2.2)) {
+                S.pitchPend = S.m;
+                return `IR 1차 통과! ${R_.name} 파트너 미팅이 잡혔다. 이번 달 말, 투자자 세 명 앞에서 피칭한다.`;
             }
             return pick(['“시장 크기가 잘 안 그려지네요.” 다음 미팅을 기약했다.', '파트너 미팅까지 갔지만 마지막에 보류됐다.', '피칭은 좋았는데, 숫자 질문에서 말이 꼬였다.']);
         } },
@@ -3076,17 +3316,13 @@ const EVENTS = [
             { label: '소품 협찬만 (제품 제공)', sub: '인지도↑', run: S => { const ch = []; bump(S, 'cash', -200, ch); bump(S, 'aware', 4, ch); return { text: '2회차 배경에 우리 크림이 3초 나왔다. 팬들은 그 3초를 찾아냈다.', chips: ch }; } },
             { label: '거절한다', sub: '경영↑', run: S => { const ch = []; grow(S, 'biz', 1, ch); return { text: '“브랜드 톤이 맞을 때 다시 연락 주세요.”', chips: ch }; } },
         ] },
-    { id: 'recall', once: false, w: 2, cd: 24, place: 'office', cast: { ask: 'sec_alarm', res: () => 'sec' }, cond: S => S.prods.length >= 2 && S.m >= 18,
-        face: 'news', speaker: 'ALERT', title: '제품 리콜 위기',
-        text: S => `「${S.prods[S.prods.length - 1].name}」 일부 로트에서 분리 현상이 발견됐다.\n고객센터 문의가 한 시간에 200건. 기자들의 전화도 오기 시작했다.`,
+    { id: 'recall', once: false, w: 2, cd: 24, place: 'office', cast: { ask: 'sec_alarm', res: () => 'sec' }, cond: S => S.prods.length >= 2 && S.m >= 18 && !(S.recallFx && !S.recallFx.done),
+        face: 'news', speaker: 'ALERT', title: '제품 리콜 위기', cg: 'recall',
+        text: S => `공장에서 전화가 왔다. 「${S.prods[S.prods.length - 1].name}」 일부 로트에서 분리 현상과 이물이 발견됐다.\n라인이 멈췄다. 고객센터 문의가 한 시간에 200건. 기자 전화도 오기 시작했다.`,
         choices: [
-            { label: '전량 자발적 리콜 + 공개 사과', sub: '자금↓↓ · 장기 신뢰↑', run: S => { const ch = []; bump(S, 'cash', -Math.max(800, Math.round(avgRev(S) * 0.6)), ch); bump(S, 'fan', 6, ch); bump(S, 'aware', 3, ch); grow(S, 'lead', 2, ch); bump(S, 'stress', 10, ch); S.album.push('자발적 리콜'); return { text: '“문제를 숨기지 않는 브랜드.” 사과문이 오히려 칭찬 기사로 돌아왔다.', chips: ch }; } },
-            { label: '해당 로트만 조용히 교환', sub: '비용↓ · 들키면 역풍', run: S => { const ch = []; bump(S, 'cash', -300, ch); if (R() < 0.45) {
-                    bump(S, 'fan', -10, ch);
-                    bump(S, 'aware', -4, ch);
-                    bump(S, 'stress', 14, ch);
-                    return { text: '“쉬쉬했다”는 내부 제보 기사가 났다. 별점 테러가 시작됐다.', chips: ch };
-                } bump(S, 'stress', 6, ch); return { text: '다행히 조용히 지나갔다. 그래도 밤에 잠이 잘 안 왔다.', chips: ch }; } },
+            { label: '전량 자발적 리콜 + 공개 사과', sub: '자금↓↓ · 장기 신뢰↑', run: S => { const ch = []; bump(S, 'cash', -Math.max(800, Math.round(avgRev(S) * 0.6)), ch); bump(S, 'fan', 3, ch); grow(S, 'lead', 2, ch); bump(S, 'stress', 10, ch); S.recallFx = { m: S.m, pick: 'full' }; S.album.push('자발적 리콜'); return { text: '“문제를 숨기지 않겠습니다.” 사과문을 올리고 전 제품 회수를 시작했다.', chips: ch }; } },
+            { label: '해당 로트만 조용히 교환', sub: '비용↓ · 들키면 역풍', run: S => { const ch = []; bump(S, 'cash', -300, ch); bump(S, 'stress', 6, ch); S.recallFx = { m: S.m, pick: 'quiet' }; return { text: '문의 온 고객에게만 조용히 새 제품을 보냈다. 일단은 잠잠하다.', chips: ch }; } },
+            { label: 'OEM 공장 탓으로 돌린다', sub: '지금은 무사 · 들키면 큰 역풍', run: S => { const ch = []; bump(S, 'stress', 3, ch); S.recallFx = { m: S.m, pick: 'blame' }; return { text: '“위탁 생산 공장의 공정 문제로 확인됐습니다.” 공지가 나갔다. 공장장은 전화를 받지 않았다.', chips: ch }; } },
         ] },
     { id: 'team_lead', once: false, w: 2, cd: 18, place: 'office', cast: { ask: 'team' }, cond: S => S.emp >= 3 && S.m >= 30,
         face: 'news', speaker: 'TEAM', title: '첫 팀장 승진',
@@ -4004,6 +4240,8 @@ function awardsResolve(S, A, speech) {
     A.look = lookOf(S, A.theme || rcTheme(S));
     if (!A.rlook)
         A.rlook = rivalLook(S);
+    if (A.look.score > A.rlook.score)
+        S.rcWins = (S.rcWins || 0) + 1;
     const mine = A.judges.reduce((a, j) => a + j.mine, 0) + A.look.score, rival = A.judges.reduce((a, j) => a + j.rival, 0) + A.rlook.score;
     const res = mine >= rival ? 'grand' : mine >= rival - AWARD_GOLD_GAP ? 'gold' : 'none';
     const ch = [];
@@ -4967,6 +5205,26 @@ function fixedEvents(S) {
         const te = teamEvent(S);
         if (te)
             out.push(te);
+    }
+    {
+        const pe = pitchEvent(S);
+        if (pe)
+            out.unshift(pe);
+    }
+    {
+        const pu = popupEvent(S);
+        if (pu)
+            out.unshift(pu);
+    }
+    if (out.length < 3) {
+        const rv = reviewEvent(S);
+        if (rv)
+            out.push(rv);
+    }
+    if (out.length < 3) {
+        const ra = recallAfterEvent(S);
+        if (ra)
+            out.push(ra);
     }
     const le = loveEvent(S);
     if (le)
@@ -6014,6 +6272,7 @@ async function runMonth() {
         hideActor();
     }
     await monthStats();
+    checkBadges();
     if (S.m + 1 >= TOTAL_MONTHS) {
         await finalDay();
         S.m++;
@@ -6196,7 +6455,7 @@ async function playEvent(ev) {
         P[pid] = { k, m: S.m };
     const pre = { rivalWin: S.rivalWin };
     const C0 = ev.choices[k];
-    const out = C0.awards ? await awardsLive(C0.awards) : C0.plan ? await planLive() : C0.liveshow ? await liveShowLive() : C0.run(S);
+    const out = C0.awards ? await awardsLive(C0.awards) : C0.plan ? await planLive() : C0.liveshow ? await liveShowLive() : C0.pitch ? await pitchLive() : C0.popup ? await popupLive(C0.popup) : C0.run(S);
     render();
     const pend2 = say({ speaker: ev.speaker, face: ev.face, title: ev.choices[k].label, text: out.text, chips: out.chips });
     const brokeUp = ev.leave && S.love && Object.values(S.love).some(v => v.stage === -9) && S.heartbreak === 3;
@@ -6364,6 +6623,171 @@ function liveShowLive() {
         fill(3);
         ask(0);
     });
+}
+// ---------- 투자 피칭: 투자자 세 명의 관심도 게이지가 답변마다 움직인다 ----------
+function pitchLive() {
+    return new Promise(resolve => {
+        const P = pitchSetup(S);
+        let i = 0;
+        const el = document.createElement('div');
+        el.className = 'aw pt';
+        el.setAttribute('role', 'dialog');
+        el.setAttribute('aria-label', '투자 피칭');
+        el.innerHTML = `<div class="aw-bg" style="background-image:url('art/cg_pitch.jpg')"></div>
+      <div class="aw-top"><div class="aw-head"><small>INVESTOR PITCH</small><b>${P.round.name} 파트너 미팅</b></div></div>
+      <ol class="pt-inv">${P.inv.map((v, j) => { const I = INVESTORS[v.id]; return `<li id="pt-i${j}"><img src="${I.img}" alt="${I.name}"><div><b>${I.name}</b><small>${I.role} · 보는 것: ${I.likeLabel}</small><span class="pt-g"><i style="width:${v.interest}%"></i><em></em></span></div><strong>${v.interest}</strong></li>`; }).join('')}</ol>
+      <p class="pt-rule">관심도 <b>60</b>을 넘긴 투자자가 두 명 이상이면 투자 확정 · 세 명이면 조건 30% 더 좋게</p>
+      <div class="aw-act" id="pt-act"></div>`;
+        $('#phone').appendChild(el);
+        bgm('event');
+        sfx('select');
+        const act = el.querySelector('#pt-act');
+        const paint = () => P.inv.forEach((v, j) => { const li = el.querySelector('#pt-i' + j); li.querySelector('i').style.width = v.interest + '%'; li.querySelector('strong').textContent = v.interest; li.classList.toggle('yes', v.interest >= 60); });
+        function ask() {
+            const v = P.inv[i], I = INVESTORS[v.id];
+            el.querySelectorAll('.pt-inv li').forEach((li, j) => li.classList.toggle('now', j === i));
+            act.innerHTML = `<p class="q">${i + 1}/3 · ${I.name}</p><p>${v.q.q}</p>`;
+            v.q.a.forEach((a, k) => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'aw-opt';
+                b.innerHTML = `<b>${a.label}</b>`;
+                b.onclick = () => {
+                    const r = pitchAnswer(S, P, i, k);
+                    sfx(r.dodge ? 'bad' : r.hit ? 'up' : 'click');
+                    paint();
+                    const em = el.querySelector('#pt-i' + i + ' em');
+                    em.textContent = (r.d >= 0 ? '+' : '') + r.d;
+                    em.className = r.d >= 0 ? 'up' : 'dn';
+                    act.innerHTML = `<p>${r.dodge ? `${I.name}의 펜이 멈췄다. 분위기가 싸늘해졌다.` : r.hit ? `${josa(I.name, '이', '가')} 몸을 앞으로 기울였다. “흥미롭네요.”` : `${josa(I.name, '이', '가')} 고개를 끄덕였다. 나쁘지 않다.`}</p>`;
+                    const nb = document.createElement('button');
+                    nb.type = 'button';
+                    nb.className = 'aw-btn';
+                    nb.textContent = i < 2 ? '다음 질문' : '결과 듣기';
+                    nb.onclick = () => { sfx('click'); el.querySelectorAll('.pt-inv em').forEach(e => e.textContent = ''); i++; i < 3 ? ask() : done(); };
+                    act.appendChild(nb);
+                    setTimeout(() => nb.focus({ preventScroll: true }), 30);
+                };
+                act.appendChild(b);
+            });
+            setTimeout(() => { const f = act.querySelector('.aw-opt'); if (f)
+                f.focus({ preventScroll: true }); }, 30);
+        }
+        function done() {
+            el.querySelectorAll('.pt-inv li').forEach(li => li.classList.remove('now'));
+            const out = pitchResolve(S, P);
+            act.innerHTML = `<div class="aw-res ${out.yes >= 2 ? 'grand' : out.yes === 1 ? 'gold' : 'none'}"><b>${out.yes >= 2 ? '투자 확정' : out.yes === 1 ? '브릿지 투자' : '투자 보류'}</b><span>손을 든 투자자 ${out.yes}명</span></div>`;
+            sfx(out.yes >= 2 ? 'fanfare' : out.yes ? 'select' : 'bad');
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'aw-btn';
+            b.textContent = '계속';
+            b.onclick = () => { sfx('click'); el.remove(); resolve({ text: out.text, chips: out.chips }); };
+            act.appendChild(b);
+            setTimeout(() => b.focus({ preventScroll: true }), 30);
+            render();
+        }
+        ask();
+    });
+}
+// ---------- 팝업 매장 꾸미기 ----------
+const POPUP_TAG = { photo: '인증샷', trend: '트렌디', science: '성분', calm: '편안함', gift: '선물' };
+function popupLive(P) {
+    return new Promise(resolve => {
+        const picks = [];
+        const el = document.createElement('div');
+        el.className = 'aw pl pu';
+        el.setAttribute('role', 'dialog');
+        el.setAttribute('aria-label', '팝업 매장 꾸미기');
+        el.innerHTML = `<div class="aw-bg" style="background-image:url('art/cg_popup_open.jpg')"></div>
+      <div class="aw-top"><div class="aw-head"><small>POP-UP STORE</small><b>성수 팝업 꾸미기</b></div></div>
+      <div class="pl-prod"><div><small>오늘 손님</small><b>「${P.crowd.name}」</b><span>${P.crowd.tags.map(t => POPUP_TAG[t]).join(' · ')} 태그가 맞을수록 손님이 몰려요.</span></div></div>
+      <ol class="pl-steps">${P.steps.map((st, i) => `<li id="pu-s${i}"><small>${st.label}</small><b>?</b></li>`).join('')}</ol>
+      <div class="aw-act" id="pu-act"></div>`;
+        $('#phone').appendChild(el);
+        bgm('event');
+        sfx('select');
+        const act = el.querySelector('#pu-act');
+        function step(i) {
+            const st = P.steps[i];
+            act.innerHTML = `<p class="q">${i + 1}/4 · ${st.label}을 골라 주세요</p><div class="pl-cards"></div>`;
+            const box = act.querySelector('.pl-cards');
+            st.opts.forEach((o, k) => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'pl-card';
+                b.innerHTML = `<i>${o.icon}</i><b>${o.name}</b><span>${o.tags.map(t => `<em${P.crowd.tags.includes(t) ? ' class="x"' : ''}>${POPUP_TAG[t]}</em>`).join('')}</span>`;
+                b.onclick = () => { sfx('select'); picks[i] = k; const li = el.querySelector('#pu-s' + i); li.classList.add('on'); li.querySelector('b').textContent = `${o.icon} ${o.name}`; i < 3 ? step(i + 1) : finish(); };
+                box.appendChild(b);
+            });
+            setTimeout(() => { const f = box.querySelector('button'); if (f)
+                f.focus({ preventScroll: true }); }, 30);
+        }
+        function finish() {
+            const out = popupApply(S, P, picks);
+            const word = { great: '역대급 팝업', good: '호평', ok: '무난', meh: '아쉬움' }[out.grade];
+            act.innerHTML = `<div class="aw-res ${out.grade === 'great' || out.grade === 'good' ? 'grand' : out.grade === 'ok' ? 'gold' : 'none'}"><b>${word}</b><span>방문객 ${out.visitors.toLocaleString()}명 · 인증샷 ${out.posts.toLocaleString()}개</span></div>`;
+            sfx(out.grade === 'meh' ? 'down' : 'fanfare');
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'aw-btn';
+            b.textContent = '계속';
+            b.onclick = () => { sfx('click'); el.remove(); resolve({ text: out.text, chips: out.chips }); };
+            act.appendChild(b);
+            setTimeout(() => b.focus({ preventScroll: true }), 30);
+            render();
+        }
+        step(0);
+    });
+}
+// ---------- 업적 배지: 기기에 저장, 판이 달라도 쌓인다 ----------
+const BADGE_KEY = 'stagezero-badges';
+let badgeStore = (() => { try {
+    return JSON.parse(localStorage.getItem(BADGE_KEY) || '{}') || {};
+}
+catch (e) {
+    return {};
+} })();
+function checkBadges() {
+    if (!S)
+        return [];
+    const got = [];
+    for (const b of BADGES) {
+        if (badgeStore[b.id])
+            continue;
+        let ok = false;
+        try {
+            ok = b.ok(S);
+        }
+        catch (e) { }
+        if (ok) {
+            badgeStore[b.id] = Date.now();
+            got.push(b);
+        }
+    }
+    if (got.length) {
+        try {
+            localStorage.setItem(BADGE_KEY, JSON.stringify(badgeStore));
+        }
+        catch (e) { }
+        got.forEach((b, k) => setTimeout(() => { toast(`🏅 배지 획득! ${b.icon} ${b.name}`); sfx('fanfare'); }, k * 1800));
+    }
+    return got;
+}
+function badgesHTML() {
+    const n = BADGES.filter(b => badgeStore[b.id]).length;
+    return `<p class="sheet-sub">모은 배지 ${n} / ${BADGES.length} · 판이 달라도 계속 쌓여요</p><div class="bdg">${BADGES.map(b => badgeStore[b.id] ? `<div class="b on"><i>${b.icon}</i><b>${b.name}</b><small>${b.desc}</small></div>` : `<div class="b"><i>🔒</i><b>？？？</b><small>${b.desc}</small></div>`).join('')}</div>`;
+}
+function openBadges() {
+    const el = document.createElement('div');
+    el.className = 'tl-wrap';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-label', '업적 배지');
+    el.innerHTML = `<div class="tl-card"><div class="tl-head"><div><small>STAGE:ZERO MAKER</small><b>🏅 업적 배지</b></div><button type="button" class="sheet-x" aria-label="닫기">×</button></div>${badgesHTML()}</div>`;
+    document.body.appendChild(el);
+    el.querySelector('.sheet-x').onclick = () => el.remove();
+    el.addEventListener('click', e => { if (e.target === el)
+        el.remove(); });
 }
 // ---------- 한 달 성장 리포트: 이번 달 시작 때와 비교해 능력치가 얼마나 오르고 내렸는지 ----------
 function monthStats() {
@@ -6735,7 +7159,7 @@ function cgKey(ev) { if (ev.cg)
     return `${ev.id}_${stageOf(S).key.slice(3)}`; if (CG_MAP[ev.id])
     return CG_MAP[ev.id]; const p = CG_PREFIX.find(([x]) => ev.id.startsWith(x)); return p ? p[1] : null; }
 const cgSrc = k => `art/cg_${k}.jpg`;
-const CG_ALL = ['hero_vc1', 'hero_vc2', 'hero_vc3', 'hero_vc4', ...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'duel', 'duel_win', 'team_wedding', 'team_farewell', 'plan', ...['tokyo', 'paris', 'ny', 'dubai'].flatMap(c => ['tour_' + c, ...['22', '25', '30'].map(a => `tour_${c}_${a}`)]), 'tvshow', 'script', 'filming', 'premiere', 'magazine', 'soldout', 'fake1', 'fake2', 'fake3', 'finalday', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
+const CG_ALL = ['hero_vc1', 'hero_vc2', 'hero_vc3', 'hero_vc4', ...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'pitch', 'popup_open', 'review', 'recall', 'duel', 'duel_win', 'team_wedding', 'team_farewell', 'plan', ...['tokyo', 'paris', 'ny', 'dubai'].flatMap(c => ['tour_' + c, ...['22', '25', '30'].map(a => `tour_${c}_${a}`)]), 'tvshow', 'script', 'filming', 'premiere', 'magazine', 'soldout', 'fake1', 'fake2', 'fake3', 'finalday', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
 let cgFlip = false;
 function showCG(key, o = {}) {
     return new Promise(res => {
@@ -6931,7 +7355,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.15-C';
+const BUILD_TAG = '2026.11.15-D';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
@@ -7141,6 +7565,8 @@ function finish() {
     const key = computeEnding(S);
     const E = ENDINGS[key];
     S.endKey = key;
+    S.ending = S.ending || key;
+    checkBadges();
     clearSave();
     markEnding(key);
     bgm('ending');
@@ -7175,10 +7601,11 @@ function finish() {
       <div class="album">${S.album.length ? S.album.map(a => `<span class="tag on">${esc(a)}</span>`).join('') : '<span class="tag">기록 없음</span>'}</div>
       <div class="eyebrow" style="margin-top:18px">엔딩 도감 ${Object.keys(ENDINGS).filter(k => seenEnd[k]).length} / ${Object.keys(ENDINGS).length}</div>
       <div class="album">${Object.entries(ENDINGS).map(([k, e]) => `${seenEnd[k] ? `<button class="tag ${k === key ? 'on' : ''}" data-end="${k}">${esc(e.title)}</button>` : `<span class="tag">？？？</span>`}`).join('')}</div>
-      <div class="btn-row" style="justify-content:flex-start;margin-top:22px"><button class="btn" id="btn-tl">📜 10년 연표</button> <button class="btn" id="btn-share">엔딩 카드 공유</button> <button class="btn ghost" id="btn-again">다시 창업하기</button></div>
+      <div class="btn-row" style="justify-content:flex-start;margin-top:22px"><button class="btn" id="btn-tl">📜 10년 연표</button> <button class="btn ghost" id="btn-badge-end">🏅 배지</button> <button class="btn" id="btn-share">엔딩 카드 공유</button> <button class="btn ghost" id="btn-again">다시 창업하기</button></div>
     </div>`;
     show('scr-ending');
     $('#btn-again').onclick = () => { S = null; boot(); };
+    $('#btn-badge-end').onclick = () => openBadges();
     $('#btn-tl').onclick = () => openTimeline();
     const who = `${S.name} 대표 · 「${S.brand}」`;
     $('#btn-share').onclick = () => shareEnding(key, who);
@@ -7374,7 +7801,7 @@ function openSheet(name) {
     closeSheets();
     if (name === 'dex') {
         const seen = readEndings();
-        $('#dex').innerHTML = `<p class="sheet-sub">본 엔딩 ${Object.keys(ENDINGS).filter(k => seen[k]).length} / ${Object.keys(ENDINGS).length}</p><div class="dex-list">${Object.entries(ENDINGS).map(([k, e]) => (seen[k] ? `<button class="dx" data-end="${k}"><img src="art/end_${k}.jpg" alt="" loading="lazy"><span>${esc(e.title)}</span><span class="g">${e.grade}</span></button>` : `<div><span>？？？</span><span class="g"></span></div>`)).join('')}</div>`;
+        $('#dex').innerHTML = `<p class="sheet-sub">본 엔딩 ${Object.keys(ENDINGS).filter(k => seen[k]).length} / ${Object.keys(ENDINGS).length}</p><div class="dex-list">${Object.entries(ENDINGS).map(([k, e]) => (seen[k] ? `<button class="dx" data-end="${k}"><img src="art/end_${k}.jpg" alt="" loading="lazy"><span>${esc(e.title)}</span><span class="g">${e.grade}</span></button>` : `<div><span>？？？</span><span class="g"></span></div>`)).join('')}</div><h3 style="margin-top:14px"><span>업적 배지</span></h3>${badgesHTML()}`;
     }
     if (name === 'acts')
         renderSchedule();
@@ -7453,6 +7880,10 @@ document.addEventListener('click', e => {
     if (cat && S && S.phase === 'plan') {
         tab = cat.dataset.cat;
         openSheet('acts');
+        return;
+    }
+    if (e.target.closest('#btn-badges')) {
+        openBadges();
         return;
     }
     if (e.target.closest('[data-home]')) {
