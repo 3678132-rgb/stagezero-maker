@@ -162,6 +162,9 @@ button:focus-visible{outline:2px solid var(--serum);outline-offset:2px}
 .chips-inline{display:flex;flex-wrap:wrap;gap:5px;padding-block:6px}
 .tag{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:2px 8px;color:var(--mute);background:var(--glass-solid)}
 .tag.on{border-color:var(--serum);color:var(--serum);background:var(--serum-soft)}
+.duel{display:flex;flex-direction:column;gap:2px;padding:10px 12px;margin:8px 0;border-radius:12px;background:linear-gradient(90deg,#1f2a6b,#6b1f3a);color:#fff}.duel span{font-size:13px}.duel em{font-style:normal;font-family:var(--f-mono);font-size:16px;color:#FFE08A}.duel small{font-size:11px;color:#dfe2ff}
+.tmc{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tm{display:flex;gap:8px;align-items:center;padding:6px;border-radius:12px;background:#fff;border:1px solid var(--line)}.tm img{width:44px;height:58px;object-fit:cover;object-position:50% 0;border-radius:8px;background:#eef2fb;flex:none}
+.tm b{font-size:13px;display:block}.tm small{display:block;font-size:10.5px;color:var(--mute)}.tm.gone{opacity:.55}.tmbar{display:block;height:5px;border-radius:9px;background:#e7ebf6;overflow:hidden;margin:3px 0 1px}.tmbar i{display:block;height:100%;background:#4cc25a}
 .pc{display:grid;grid-template-columns:84px 1fr;gap:8px 10px;padding:10px;margin:8px 0;border-radius:14px;background:#fff;border:1px solid var(--line);box-shadow:0 2px 8px rgba(40,50,120,.06)}
 .pc>img{width:84px;height:84px;object-fit:cover;border-radius:10px;background:#eef2fb}
 .pc-t{min-width:0;display:flex;flex-direction:column;gap:2px}.pc-t small{font-size:11px;color:var(--mute)}.pc-t b{font-size:14.5px;line-height:1.3}.pc-t p{margin:0;font-size:12px;color:var(--sub,#555);line-height:1.4}
@@ -584,6 +587,15 @@ body.running .phone .dialog{max-height:30%}
 .lv .aw-act{margin-top:8px;position:relative}
 .lv-heart{position:absolute;bottom:200px;font-style:normal;font-size:22px;animation:lvheart 2s ease-out forwards;pointer-events:none}
 @keyframes lvheart{from{transform:translateY(0) scale(.6);opacity:0}15%{opacity:1}to{transform:translateY(-260px) scale(1.2);opacity:0}}
+.ms-wrap{position:absolute;inset:0;z-index:46;background:rgba(10,12,30,.55);display:flex;align-items:center;justify-content:center;padding:14px;animation:fadein .25s ease both}
+.ms{width:100%;max-width:380px;max-height:100%;overflow:auto;background:#fff;border-radius:18px;border-top:3px solid #E9C77A;padding:14px 14px 12px;display:flex;flex-direction:column;gap:8px;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.ms-head small{display:block;font-family:var(--f-mono);font-size:11px;color:var(--mute);letter-spacing:.1em}.ms-head b{display:block;font-family:var(--f-display);font-size:20px}.ms-head span{font-size:12.5px;color:var(--sub,#555)}
+.ms-list{list-style:none;margin:0;padding:0;display:grid;gap:5px}.ms-list li{display:grid;grid-template-columns:52px 1fr 30px 44px;gap:6px;align-items:center;font-size:12.5px}
+.ms-list .bar{position:relative;height:8px;border-radius:99px;background:#eef1f8;overflow:hidden}.ms-list .bar i{position:absolute;top:0;bottom:0}.ms-list .base{left:0;background:#b7c0dd}
+.ms-list .up .dlt{background:#3dbb62}.ms-list .dn .dlt{background:#e5524a}.ms-list li b{font-family:var(--f-mono);text-align:right}.ms-list li em{font-style:normal;font-family:var(--f-mono);font-size:11.5px;text-align:right}
+.ms-list li.up em{color:#1e8f45}.ms-list li.dn em{color:#d23b33}.ms-list li.z em{color:var(--mute)}.ms-sub{padding-top:6px;border-top:1px dashed var(--line)}
+.ms-cash{margin:0;font-size:13px}.ms-cash em{font-style:normal;font-family:var(--f-mono)}.ms-cash .up{color:#1e8f45}.ms-cash .dn{color:#d23b33}
+.ms-btn{all:unset;cursor:pointer;text-align:center;background:#1f3bb3;color:#fff;font-weight:700;border-radius:12px;padding:11px}.ms-btn:focus-visible{outline:2px solid #FFE08A;outline-offset:2px}
 .tl-wrap{position:fixed;inset:0;z-index:80;background:rgba(10,12,30,.6);display:flex;align-items:flex-end;justify-content:center}
 .tl-card{width:min(560px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:22px 22px 0 0;border-top:3px solid #E9C77A;padding:14px 16px 20px;display:flex;flex-direction:column;gap:10px}
 .tl-head{display:flex;justify-content:space-between;align-items:flex-start}.tl-head small{display:block;font-size:11.5px;color:var(--mute)}.tl-head b{font-family:var(--f-display);font-size:22px}
@@ -706,7 +718,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-load" hidden>이어하기</button>
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.15-A</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.15-B</span>
       </div>
     </div>
   </section>
@@ -1395,6 +1407,192 @@ function tourEvent(S) {
     S.album.push(`${T.city} 팝업`);
     return { id: 'tour_' + T.id, face: 'news', speaker: 'GLOBAL TOUR', title: `${T.city} · ${T.title}`, cg: tourCg(S, T.id), text: () => T.text, choices: T.choices };
 }
+// ---- 맞불 출시: 신제품을 내면 루미에르랩이 비슷한 제품을 낸다. 한 달 뒤 인기도로 결판 ----
+const DUEL_NAME = { '세럼': '루미 글로우 세럼', '크림': '루미 베일 크림', '앰플': '루미 리페어 샷', '토너': '루미 클리어 워터', '마스크팩': '루미 카밍 마스크', '선세럼': '루미 선 베일', '스틱 밤': '루미 SOS 스틱', '아이크림': '루미 아이 리프트' };
+function duelProd(S) { return S.duel && S.prods.find(p => p.name === S.duel.name); }
+function duelStartEvent(S) {
+    const p = S.prods.find(x => x.name === S.duelPend);
+    S.duelPend = null;
+    if (!p || S.duel)
+        return null;
+    const yr = Math.floor(S.m / 12), rname = DUEL_NAME[prodInfo(p).type] || '루미 시그니처';
+    const rpop = Math.round(clamp(popOf(p) + rand(4, 14) + Math.min(6, (S.rivalBoost || 0)), 25, 98)); // 내 제품보다 조금 높게: 마케팅으로 뒤집어야 이긴다
+    S.duel = { name: p.name, rname, rpop, end: S.m + 1 };
+    S.duelYear = yr;
+    return { id: 'duel_start_' + S.m, face: 'news', speaker: 'RIVAL', title: `${RIVAL_BRAND}의 맞불 출시`, cg: 'duel', cast: { ask: 'rival_smug' },
+        text: () => `「${p.name}」${josa(p.name, '이', '가').slice(p.name.length)} 나온 지 며칠 만에, ${RIVAL_BRAND}가 「${rname}」${josa(rname, '을', '를').slice(rname.length)} 발표했다.\n${RIVAL}이 무대에서 웃었다. “좋은 제품은 따라 할 가치가 있죠. 더 잘 만들면 되니까.”\n다음 달 말, 두 제품의 인기도로 승부가 난다. (상대 인기도 ${rpop})`,
+        choices: [
+            { label: '정면 승부를 선언한다', sub: '제품 탭에서 마케팅으로 인기도를 올리자', run: S => { const ch = []; bump(S, 'stress', 5, ch); grow(S, 'lead', 1, ch); return { text: '팀 단톡방에 한 줄을 남겼다. 「한 달. 우리 제품이 이긴다.」\n제품 탭에 대결 현황이 떴다.', chips: ch }; } },
+            { label: '출시 기념 할인으로 맞선다', sub: '자금 −300만 · 인기도 +8', run: S => { const ch = []; bump(S, 'cash', -300, ch); const b = popOf(p); p.pop = clamp(b + 8, 0, 100); push(ch, '인기도', Math.round(p.pop - b)); return { text: '「출시 기념 1+1」 배너를 걸었다. 장바구니 알림이 쌓이기 시작했다.', chips: ch }; } },
+            { label: '“우리 고객은 알아요.” 신경 쓰지 않는다', sub: '스트레스↓', run: S => { const ch = []; bump(S, 'stress', -4, ch); return { text: '모니터를 껐다. 그래도 다음 달 결과는 궁금할 것이다.', chips: ch }; } },
+        ] };
+}
+function duelEndEvent(S) {
+    const D = S.duel;
+    if (!D || S.m < D.end)
+        return null;
+    S.duel = null;
+    const p = S.prods.find(x => x.name === D.name);
+    if (!p)
+        return null;
+    const mine = Math.round(popOf(p)), win = mine >= D.rpop;
+    if (win) {
+        return { id: 'duel_win_' + S.m, face: 'news', speaker: 'VICTORY', title: '맞불 승리', cg: 'duel_win',
+            text: () => `한 달 뒤, 랭킹 1위는 「${p.name}」였다. (${mine} : ${D.rpop})\n“${RIVAL_BRAND}, 「${D.rname}」 단종 결정.” 업계 기사가 떴다. 팀원들이 소리를 질렀다.`,
+            choices: [{ label: '팀에게 회식을 쏜다', run: S => { const ch = []; bump(S, 'cash', -200, ch); bump(S, 'aware', 6, ch); bump(S, 'fan', 5, ch); grow(S, 'lead', 2, ch); S.rivalBoost = Math.max(0, (S.rivalBoost || 0) - 2); S.duelWins = (S.duelWins || 0) + 1; S.album.push(`맞불 승리: 「${D.rname}」 단종`); return { text: '삼겹살집이 떠나가라 건배했다. “대표님 최고!”', chips: ch }; } },
+                { label: `${RIVAL}에게 짧은 메시지를 보낸다`, run: S => { const ch = []; bump(S, 'aware', 6, ch); bump(S, 'fan', 5, ch); S.rivalFriend = (S.rivalFriend || 0) + 1; S.duelWins = (S.duelWins || 0) + 1; S.album.push(`맞불 승리: 「${D.rname}」 단종`); return { text: '「좋은 승부였어요.」 몇 분 뒤 답장이 왔다. 「다음엔 안 져요.」', chips: ch }; } }] };
+    }
+    return { id: 'duel_lose_' + S.m, face: 'news', speaker: 'RIVAL', title: '맞불 패배', cast: { ask: 'rival_smile' },
+        text: () => `한 달 뒤, 랭킹 위쪽에는 「${D.rname}」${josa(D.rname, '이', '가').slice(D.rname.length)} 있었다. (${mine} : ${D.rpop})\n“${RIVAL_BRAND}, 신제품 연속 완판.” ${RIVAL}의 인터뷰 기사가 메인에 걸렸다.`,
+        choices: [{ label: '원인을 분석한다', run: S => { const ch = []; const b = popOf(p); p.pop = clamp(b - 6, 3, 100); push(ch, '인기도', Math.round(p.pop - b)); grow(S, 'mkt', 2, ch); bump(S, 'stress', 5, ch); S.rivalBoost = (S.rivalBoost || 0) + 1; return { text: '광고 데이터를 밤새 뜯어봤다. 다음엔 출시 첫 주에 더 세게 가야 한다.', chips: ch }; } },
+            { label: '오늘은 그냥 쉰다', run: S => { const ch = []; const b = popOf(p); p.pop = clamp(b - 10, 3, 100); push(ch, '인기도', Math.round(p.pop - b)); bump(S, 'stress', -4, ch); S.rivalBoost = (S.rivalBoost || 0) + 1; return { text: '퇴근길에 떡볶이를 샀다. 지는 날도 있다.', chips: ch }; } }] };
+}
+// ---- 팀원 스토리: 직원이 2·3·4·5명이 될 때 이름 있는 팀원이 들어오고, 각자 3막짜리 이야기가 있다 ----
+const TEAM_CAST = [
+    { id: 'jiwoo', name: '민지우', role: '퍼포먼스 마케터', roleId: 'growth', age: 24, join: 2, intro: '“안녕하세요! 민지우예요. 릴스 하나로 매출 두 배 만들어 볼게요!” 휴대폰을 든 손이 벌써 바쁘다.' },
+    { id: 'taeo', name: '박태오', role: '연구원', roleId: 'lab', age: 27, join: 3, intro: '“박태오입니다.” 인사는 그게 끝이었다. 첫날 퇴근 전, 책상 위에 제형 개선 메모 열두 장이 놓여 있었다.' },
+    { id: 'harin', name: '최하린', role: '패키지 디자이너', roleId: 'design', age: 25, join: 4, intro: '“솔직하게 말씀드려도 돼요? 지금 패키지, 예쁜데 기억에 안 남아요.” 첫 미팅부터 직구였다.' },
+    { id: 'seungmin', name: '오승민', role: 'MD·영업 매니저', roleId: 'md', age: 34, join: 5, intro: '“대표님, 저 바이어들 사이에선 ‘승민이 형’으로 통합니다. 첫 주에 미팅 세 개 잡아 올게요.” 넉살 좋게 웃었다.' },
+];
+const tm = (S, id) => (S.team || {})[id];
+const tmIn = (S, id) => { const t = tm(S, id); return t && !t.gone; };
+function tmTrust(S, id, d, ch) { const t = tm(S, id); if (!t)
+    return; t.trust = clamp(t.trust + d, 0, 100); if (ch)
+    push(ch, `${TEAM_CAST.find(c => c.id === id).name} 신뢰`, d); }
+function tmLeave(S, id, ch, why) { const t = tm(S, id); if (!t || t.gone)
+    return; t.gone = why || 'left'; const c = TEAM_CAST.find(x => x.id === id); const st = staffOf(S); if (st[c.roleId])
+    removeStaff(S, c.roleId, ch);
+else if (S.emp > 0) {
+    S.emp--;
+    if (ch)
+        push(ch, '팀원', -1);
+} S.album.push(`${c.name} ${why === 'rival' ? '루미에르랩으로 이직' : why === 'studio' ? '독립' : '퇴사'}`); }
+const TEAM_STORY = {
+    jiwoo: [
+        S => ({ title: 'B급 밈 영상', text: '지우가 기획안을 내밀었다. 대표 얼굴이 합성된 B급 밈 영상.\n“이거 무조건 터져요. 대신 브랜드 톤이랑은 좀… 다르긴 해요.”', choices: [
+                { label: '믿고 맡긴다', run: S => { const ch = []; tmTrust(S, 'jiwoo', 15, ch); if (R() < 0.6) {
+                        bump(S, 'aware', 8, ch);
+                        bump(S, 'fan', 4, ch);
+                        return { text: '조회수 340만. 댓글창에 “대표님 킹받는데 사고 싶음”이 도배됐다.', chips: ch };
+                    } bump(S, 'aware', 3, ch); bump(S, 'stress', 5, ch); return { text: '반응은 반반이었다. “이 브랜드 원래 이런 느낌이었어?” 그래도 지우는 데이터를 정리해 왔다.', chips: ch }; } },
+                { label: '브랜드 톤에 맞게 다시 해 달라고 한다', run: S => { const ch = []; tmTrust(S, 'jiwoo', -10, ch); grow(S, 'aes', 1.5, ch); return { text: '“…네, 알겠습니다.” 지우가 기획안을 접었다. 다음 날 깔끔한 영상이 올라왔다.', chips: ch }; } }
+            ] }),
+        S => ({ title: '새벽 3시의 메시지', text: '새벽 3시, 지우에게서 메시지가 왔다.\n「대표님… 저 요즘 광고 대시보드 숫자만 보면 숨이 막혀요. 죄송해요.」', choices: [
+                { label: '일주일 휴가를 보낸다', run: S => { const ch = []; tmTrust(S, 'jiwoo', 15, ch); bump(S, 'cash', -100, ch); return { text: '「아무 생각 말고 쉬다 와요. 대시보드는 내가 볼게.」 일주일 뒤 지우가 제주 귤 한 박스를 들고 왔다.', chips: ch }; } },
+                { label: '이번 캠페인만 같이 버텨 달라고 한다', run: S => { const ch = []; tmTrust(S, 'jiwoo', -15, ch); grow(S, 'mkt', 2, ch); return { text: '캠페인은 성공했다. 지우는 웃었지만, 점심을 자주 걸렀다.', chips: ch }; } }
+            ] }),
+        S => ({ title: '스카우트 제의', text: '지우가 조심스럽게 말했다.\n“대형 플랫폼에서 마케팅 리드 제안이 왔어요. 연봉이 지금의 두 배예요. …대표님 생각이 궁금해서요.”', choices: [
+                { label: '“팀장 자리를 줄게. 같이 가자.”', run: S => { const ch = []; const ok = tm(S, 'jiwoo').trust >= 55; if (ok) {
+                        grow(S, 'mkt', 4, ch);
+                        bump(S, 'fan', 4, ch);
+                        tm(S, 'jiwoo').lead = true;
+                        S.album.push('민지우 마케팅팀장 승진');
+                        return { text: '“사실 대표님이 붙잡아 주길 바랐어요.” 지우가 웃었다. 다음 날 명함에 「마케팅팀장」이 찍혀 나왔다.', chips: ch };
+                    } tmLeave(S, 'jiwoo', ch); return { text: '“…죄송해요. 이미 마음을 정했어요.” 그동안 쌓인 서운함이 컸다.', chips: ch, farewell: 'jiwoo' }; } },
+                { label: '“네 커리어가 먼저야.” 응원하며 보내 준다', run: S => { const ch = []; tmLeave(S, 'jiwoo', ch); grow(S, 'lead', 2, ch); grow(S, 'net', 2, ch); return { text: '송별회에서 지우가 울었다. “여기서 배운 거, 평생 써먹을게요.”', chips: ch, farewell: 'jiwoo' }; } }
+            ] }),
+    ],
+    taeo: [
+        S => ({ title: '안정성 테스트 실패', text: '밤 11시 연구실. 태오가 혼자 샘플을 들여다보고 있었다.\n“…고온 안정성에서 분리돼요. 처음부터 다시 해야 할 것 같습니다.”', choices: [
+                { label: '같이 밤을 새운다', run: S => { const ch = []; tmTrust(S, 'taeo', 15, ch); grow(S, 'rnd', 2, ch); bump(S, 'hp', -10, ch); return { text: '새벽 5시, 열네 번째 샘플이 분리되지 않았다. 태오가 처음으로 웃었다. “…대표님, 손 빠르시네요.”', chips: ch }; } },
+                { label: '출시 일정을 미루자고 한다', run: S => { const ch = []; tmTrust(S, 'taeo', 8, ch); bump(S, 'stress', 3, ch); return { text: '“감사합니다. 제대로 만들겠습니다.” 태오는 그 주 내내 연구실 불을 끄지 않았다.', chips: ch }; } }
+            ] }),
+        S => ({ title: `${RIVAL}의 제안`, text: `태오가 휴대폰을 내밀었다. ${RIVAL}에게서 온 메시지였다.\n「박태오 연구원님, 루미에르랩 수석연구원 자리 비워 뒀어요. 연봉은 원하시는 대로.」\n“말씀드려야 할 것 같아서요.”`, choices: [
+                { label: '연봉을 맞춰 준다', run: S => { const ch = []; bump(S, 'cash', -500, ch); tmTrust(S, 'taeo', 5, ch); return { text: '“돈 때문에 보여 드린 건 아니었는데… 감사합니다.” 태오가 안경을 고쳐 썼다.', chips: ch }; } },
+                { label: '“네 연구는 여기서 빛날 거야.”', run: S => { const ch = []; if (tm(S, 'taeo').trust >= 55) {
+                        tmTrust(S, 'taeo', 10, ch);
+                        grow(S, 'rnd', 2, ch);
+                        return { text: '태오가 그 자리에서 답장을 보냈다. 「제 연구실은 여기 있습니다.」', chips: ch };
+                    } tmLeave(S, 'taeo', ch, 'rival'); S.rivalBoost = (S.rivalBoost || 0) + 3; return { text: '다음 주, 태오의 책상이 비어 있었다. 루미에르랩 신제품 보도자료에 그의 이름이 있었다.', chips: ch, farewell: 'taeo' }; } }
+            ] }),
+        S => ({ title: '첫 특허', text: '태오가 서류 한 장을 내밀었다. 「장벽 복원 복합체 특허 등록증」.\n“대표님이 그날 같이 밤새 주셔서 나온 거예요.”', choices: [
+                { label: '특허 기념 연구실 장비를 사 준다', run: S => { const ch = []; bump(S, 'cash', -800, ch); grow(S, 'rnd', 3, ch); S.prods.forEach(p => p.q = clamp(p.q + 4, 10, 100)); push(ch, '모든 제품 품질', 4); S.album.push('박태오 특허 등록'); return { text: '새 장비가 들어온 날, 태오가 연구실 문에 「STAGE:ZERO LAB」 명판을 붙였다.', chips: ch }; } },
+                { label: '특허를 마케팅 포인트로 쓴다', run: S => { const ch = []; bump(S, 'aware', 6, ch); grow(S, 'rnd', 2, ch); S.album.push('박태오 특허 등록'); return { text: '상세페이지에 「특허 성분」 배지가 붙었다. 태오는 쑥스러워하며 화면을 캡처했다.', chips: ch }; } }
+            ] }),
+    ],
+    harin: [
+        S => ({ title: '정면 반대', text: '패키지 리뉴얼 회의. 하린이 대표 시안을 화면에 띄우고 말했다.\n“이건 2년 전 트렌드예요. 제 안으로 가면 매대에서 3초 안에 눈에 띄어요.”', choices: [
+                { label: '하린의 안으로 간다', run: S => { const ch = []; tmTrust(S, 'harin', 15, ch); grow(S, 'aes', 3, ch); return { text: '새 패키지가 나온 날, 편집숍 MD에게서 먼저 연락이 왔다. 하린은 담담한 척했지만 입꼬리가 올라가 있었다.', chips: ch }; } },
+                { label: '대표 안을 고수한다', run: S => { const ch = []; tmTrust(S, 'harin', -10, ch); grow(S, 'lead', 2, ch); return { text: '“…알겠습니다. 대표님 브랜드니까요.” 하린은 말없이 파일을 저장했다.', chips: ch }; } }
+            ] }),
+        S => tmIn(S, 'taeo') ? ({ title: '사내 연애 소문', text: '탕비실에서 하린과 태오가 같은 머그컵을 들고 있었다. 팀 단톡방이 조용히 술렁였다.\n지우가 속삭였다. “대표님, 둘이 사귀는 거 맞대요!”', choices: [
+                { label: '모른 척 둘을 응원한다', run: S => { const ch = []; tmTrust(S, 'harin', 10, ch); tmTrust(S, 'taeo', 10, ch); bump(S, 'stress', -3, ch); tm(S, 'harin').couple = true; return { text: '회식 자리에서 둘이 나란히 앉도록 자리를 바꿔 줬다. 하린이 눈으로 고맙다고 했다.', chips: ch }; } },
+                { label: '사내 연애 규정을 만든다', run: S => { const ch = []; tmTrust(S, 'harin', -5, ch); tmTrust(S, 'taeo', -5, ch); grow(S, 'lead', 1, ch); tm(S, 'harin').couple = true; return { text: '규정은 공지됐다. 둘은 더 조심스러워졌지만, 헤어지진 않았다.', chips: ch }; } }
+            ] })
+            : ({ title: '하린의 개인전', text: '하린이 초대장을 내밀었다. 「최하린 개인전 — 유리의 결」.\n“…대표님이 오시면 좋겠어요.”', choices: [
+                    { label: '꽃을 들고 간다', run: S => { const ch = []; tmTrust(S, 'harin', 12, ch); grow(S, 'aes', 2, ch); return { text: '전시장 한쪽에 우리 첫 패키지 시안이 걸려 있었다. 제목은 「시작」.', chips: ch }; } },
+                    { label: '바빠서 축하 메시지만 보낸다', run: S => { const ch = []; tmTrust(S, 'harin', -5, ch); grow(S, 'biz', 1, ch); return { text: '「축하해요!」 읽음 표시가 뜨고, 답장은 오지 않았다.', chips: ch }; } }
+                ] }),
+        S => (tm(S, 'harin').couple && tmIn(S, 'taeo')) ? ({ title: '사내 결혼식', cg: 'team_wedding', text: '하린과 태오의 결혼식. 신랑 신부가 축사를 부탁했다.\n“대표님 아니었으면 저희 만날 일도 없었어요.”', choices: [
+                { label: '눈물 참으며 축사를 한다', run: S => { const ch = []; bump(S, 'stress', -12, ch); grow(S, 'lead', 2, ch); tmTrust(S, 'harin', 10, ch); tmTrust(S, 'taeo', 10, ch); S.album.push('최하린♥박태오 결혼'); return { text: '“두 분, 제 회사에서 만나 줘서 고마워요.” 말을 마치기도 전에 하객석에서 박수가 터졌다.', chips: ch }; } },
+                { label: '축가로 분위기를 띄운다', run: S => { const ch = []; bump(S, 'stress', -12, ch); grow(S, 'charm', 2, ch); S.album.push('최하린♥박태오 결혼'); return { text: '음정은 조금 흔들렸지만, 신부가 제일 크게 웃었다.', chips: ch }; } }
+            ] })
+            : ({ title: '독립 선언', text: '하린이 사직서 대신 사업계획서를 내밀었다.\n“제 디자인 스튜디오를 차리고 싶어요. …대표님처럼요.”', choices: [
+                    { label: '첫 고객이 되어 투자한다', run: S => { const ch = []; bump(S, 'cash', -1000, ch); tmLeave(S, 'harin', ch, 'studio'); grow(S, 'aes', 3, ch); grow(S, 'net', 2, ch); return { text: '하린의 스튜디오 첫 프로젝트는 우리 브랜드 리뉴얼이었다. 계약서에 「최우선 고객」이라고 적혀 있었다.', chips: ch, farewell: 'harin' }; } },
+                    { label: '붙잡는다', run: S => { const ch = []; if (tm(S, 'harin').trust >= 65) {
+                            tmTrust(S, 'harin', 5, ch);
+                            grow(S, 'aes', 2, ch);
+                            tm(S, 'harin').lead = true;
+                            S.album.push('최하린 디자인 디렉터 승진');
+                            return { text: '“…디자인 디렉터 자리라면, 한 번 더 해 볼게요.” 하린이 사업계획서를 서랍에 넣었다.', chips: ch };
+                        } tmLeave(S, 'harin', ch, 'studio'); return { text: '“죄송해요. 이번엔 제 이름으로 해 보고 싶어요.”', chips: ch, farewell: 'harin' }; } }
+                ] }),
+    ],
+    seungmin: [
+        S => ({ title: '접대 자리', text: '승민이 넥타이를 고쳐 매며 말했다.\n“대표님, 오늘 대형 유통 본부장님 술자리 있습니다. 같이 가시면 계약 확률 두 배예요.”', choices: [
+                { label: '같이 간다', run: S => { const ch = []; grow(S, 'net', 3, ch); bump(S, 'hp', -8, ch); tmTrust(S, 'seungmin', 8, ch); return { text: '새벽 1시, 본부장이 명함 뒤에 직통 번호를 적어 줬다. 승민이 택시 안에서 엄지를 들었다.', chips: ch }; } },
+                { label: '“접대 없이, 제품으로 승부해요.”', run: S => { const ch = []; tmTrust(S, 'seungmin', 12, ch); grow(S, 'biz', 1.5, ch); return { text: '승민이 잠깐 놀라더니 웃었다. “이런 대표님 처음이에요. 좋네요.” 샘플 박스를 들고 미팅에 갔다.', chips: ch }; } }
+            ] }),
+        S => ({ title: '발주 사고', text: '창고에서 전화가 왔다. 승민이 발주서에 0을 하나 더 붙였다. 재고가 열 배.\n승민이 고개를 숙였다. “…제 실수입니다. 책임지겠습니다.”', choices: [
+                { label: '“같이 수습하자.” 책임을 묻지 않는다', run: S => { const ch = []; bump(S, 'cash', -800, ch); tmTrust(S, 'seungmin', 20, ch); grow(S, 'lead', 2, ch); return { text: '승민이 일주일 동안 전국 거래처를 돌며 재고를 다 털었다. 마지막 박스를 보내고 둘이 편의점 맥주를 깠다.', chips: ch }; } },
+                { label: '징계하고 프로세스를 바꾼다', run: S => { const ch = []; tmTrust(S, 'seungmin', -20, ch); grow(S, 'biz', 2, ch); return { text: '발주 이중 확인 제도가 생겼다. 승민은 말수가 줄었다.', chips: ch }; } }
+            ] }),
+        S => ({ title: '영업이사 자리', text: '연말 평가 시즌. 승민이 사진 한 장을 보여 줬다. 돌잡이 상 앞의 딸.\n“우리 딸 돌이에요. …대표님, 저 이 회사에서 오래 있고 싶습니다.”', choices: [
+                { label: '영업이사로 승진시킨다', run: S => { const ch = []; if (tm(S, 'seungmin').trust >= 50) {
+                        grow(S, 'net', 4, ch);
+                        bump(S, 'aware', 3, ch);
+                        tm(S, 'seungmin').lead = true;
+                        S.album.push('오승민 영업이사 승진');
+                        return { text: '승진 발표 날, 승민이 딸 사진을 명함 지갑에 꽂았다. “이사님 소리, 어색하네요.”', chips: ch };
+                    } tmLeave(S, 'seungmin', ch); return { text: '“…사실 다른 회사에서 제안이 왔어요. 지난번 일 이후로 마음이 좀 떠났습니다.”', chips: ch, farewell: 'seungmin' }; } },
+                { label: '돌잔치 선물부터 챙긴다', run: S => { const ch = []; bump(S, 'cash', -50, ch); tmTrust(S, 'seungmin', 10, ch); bump(S, 'stress', -4, ch); return { text: '돌잔치에 금반지와 우리 베이비 라인 시제품을 보냈다. 승민 아내에게서 손편지가 왔다.', chips: ch }; } }
+            ] }),
+    ],
+};
+const TEAM_GAP = [5, 11, 19]; // 입사 후 몇 달째에 1·2·3막
+function teamEvent(S) {
+    S.team = S.team || {};
+    for (const c of TEAM_CAST) {
+        if (!S.team[c.id] && (S.emp || 0) >= c.join && S.prods.length) {
+            S.team[c.id] = { since: S.m, trust: 50, step: 0 };
+            return { id: 'tm_join_' + c.id, face: 'ceo', speaker: 'NEW MEMBER', title: `새 팀원 ${c.name}`, place: 'office', cast: { ask: 'tm_' + c.id },
+                text: () => `${c.role} ${c.name}(${c.age})${josa(c.name, '이', '가').slice(c.name.length)} 합류했다.\n${c.intro}`,
+                choices: [{ label: '환영 점심을 산다', run: S => { const ch = []; tmTrust(S, c.id, 5, ch); bump(S, 'cash', -10, ch); return { text: `${josa(c.name, '이', '가')} 메뉴판을 보며 웃었다. “대표님, 여기 제일 비싼 거 시켜도 돼요?”`, chips: ch }; } },
+                    { label: '바로 업무를 맡긴다', run: S => { const ch = []; grow(S, STAT_KEYS.includes(ROLES.find(r => r.id === c.roleId).stat) ? ROLES.find(r => r.id === c.roleId).stat : 'biz', 1, ch); return { text: `${josa(c.name, '이', '가')} 노트북을 펼쳤다. “네, 바로 시작할게요.”`, chips: ch }; } }] };
+        }
+    }
+    for (const c of TEAM_CAST) {
+        const t = S.team[c.id];
+        if (!t || t.gone || t.step >= 3)
+            continue;
+        if (S.m < t.since + TEAM_GAP[t.step])
+            continue;
+        const st = t.step;
+        const E = TEAM_STORY[c.id][st](S);
+        t.step++;
+        return { id: `tm_${c.id}_${st + 1}`, face: 'ceo', speaker: `TEAM · ${c.name}`, title: E.title, place: 'office', cast: E.cg ? null : { ask: 'tm_' + c.id }, cg: E.cg, text: () => E.text,
+            choices: E.choices.map(ch0 => (Object.assign(Object.assign({}, ch0), { run: S => { const r = ch0.run(S); if (r.farewell) {
+                    S.farewellNext = r.farewell;
+                } return r; } }))) };
+    }
+    if (S.farewellNext) {
+        const c = TEAM_CAST.find(x => x.id === S.farewellNext);
+        S.farewellNext = null;
+        return { id: 'tm_bye_' + c.id, face: 'ceo', speaker: 'TEAM', title: `${c.name}의 마지막 출근`, cg: 'team_farewell', text: () => `${c.name}의 마지막 출근날. 팀원들이 몰래 케이크를 준비했다.\n상자 맨 위에 입사 첫날 받은 사원증이 놓여 있었다.`,
+            choices: [{ label: '꽃다발을 건넨다', run: S => { const ch = []; bump(S, 'stress', -4, ch); grow(S, 'lead', 1, ch); return { text: `“대표님, 저 진짜 많이 배웠어요.” ${josa(c.name, '이', '가')} 꽃다발에 얼굴을 묻었다.`, chips: ch }; } }] };
+    }
+    return null;
+}
 // ---- 10년 연표: 앨범 기록에 달을 붙여 둔다 ----
 function stampTL(S) {
     S.tl = S.tl || [];
@@ -2082,6 +2280,8 @@ function launch(S) {
     S.prods.push({ name, base, q, m: S.m, pop: Math.round(clamp(35 + q * 0.3 + S.aware * 0.15, 5, 95)) });
     S.cash -= prodCost;
     S.planFor = S.prods.length - 1;
+    if (S.m >= 12 && S.prods.length >= 2 && !S.duel && S.duelYear !== Math.floor(S.m / 12) && R() < 0.55)
+        S.duelPend = name;
     bump(S, 'aware', 4, null);
     bump(S, 'fan', 3, null);
     S.album.push(name + ' 출시');
@@ -4753,6 +4953,21 @@ function fixedEvents(S) {
         if (tv)
             out.push(tv);
     }
+    {
+        const de = duelEndEvent(S);
+        if (de)
+            out.push(de);
+    }
+    if (S.duelPend && S.planFor == null && out.length < 3) {
+        const ds = duelStartEvent(S);
+        if (ds)
+            out.push(ds);
+    }
+    if (out.length < 3) {
+        const te = teamEvent(S);
+        if (te)
+            out.push(te);
+    }
     const le = loveEvent(S);
     if (le)
         out.push(le);
@@ -5158,6 +5373,7 @@ function renderProds() {
         return;
     const ret = S.retired || [];
     el.innerHTML = `<p class="sheet-sub">판매 중 ${S.prods.length} / 8 · 보유 자금 ${fmtMoney(S.cash)}원<br>마케팅은 제품마다 종류별로 한 달에 한 번. 인기도가 높을수록 잘 팔리고, 출시 3년이 지나면 인기가 떨어져요.</p>`
+        + (S.duel ? `<div class="duel"><b>⚔️ ${RIVAL_BRAND}와 맞불 중</b><span>「${esc(S.duel.name)}」 인기 <em>${Math.round(popOf(duelProd(S) || { pop: 0 }))}</em> vs 「${esc(S.duel.rname)}」 <em>${S.duel.rpop}</em></span><small>${S.m >= S.duel.end ? '이번 달 말에 결판' : '다음 달 말에 결판'} · 마케팅으로 인기도를 올리면 이겨요</small></div>` : '')
         + (S.prods.length ? S.prods.map((p, i) => prodCardHTML(S, p, i)).join('') : '<p class="pc-empty">아직 출시한 제품이 없어요. 교육·업무 탭의 제형 개발로 첫 제품을 만들어요.</p>')
         + (ret.length ? `<h3>단종한 제품</h3><div class="pc-ret">${ret.map(p => `<div><img src="${prodInfo(p).img}" alt=""><span>${esc(p.name)}</span><small>${yearOf({ m: p.m })}–${yearOf({ m: p.off })}</small></div>`).join('')}</div>` : '');
 }
@@ -5232,7 +5448,19 @@ function teamHTML() {
     const eff = `<div class="kv" style="margin-top:8px"><div><small>경영 효율(매출 배율)</small><b class="${me.sales < 0.95 ? 'neg' : ''}">×${me.sales.toFixed(2)}</b></div><div><small>원가율</small><b>${Math.round(me.cogsRate * 100)}%</b></div><div><small>리더십으로 감당 가능 인원</small><b class="${me.team < 1 ? 'neg' : ''}">${me.cap}명${me.team < 1 ? ` (초과 −${Math.round((1 - me.team) * 100)}%)` : ''}</b></div></div>`;
     return eff + `<h3 style="margin-top:10px"><span>팀 구성</span><span class="mono" style="font-size:11px">3개월 평균 매출 ${fmtMoney(Math.round(a))} · 정원 ${S.emp}/${headCap(S)}</span></h3>
     <p class="sheet-sub" style="margin:0 0 6px">${nh.role ? `다음 채용: <b>${nh.role.name}</b>` : esc(nh.block)} · 내보내기는 매출이 줄었을 때만 할 수 있어요 (퇴직금 1개월치).</p>
-    <div class="roles">${rows}</div>`;
+    <div class="roles">${rows}</div>${teamCastHTML(S)}`;
+}
+function teamCastHTML(S) {
+    const T = S.team || {};
+    const list = TEAM_CAST.filter(c => T[c.id]);
+    if (!list.length)
+        return '';
+    return `<h3 style="margin-top:10px"><span>함께하는 사람들</span></h3><div class="tmc">${list.map(c => {
+        const t = T[c.id];
+        const tr = Math.round(t.trust);
+        const tag = t.gone ? (t.gone === 'rival' ? '루미에르랩으로 이직' : t.gone === 'studio' ? '독립' : '퇴사') : t.lead ? ({ jiwoo: '마케팅팀장', taeo: '수석연구원', harin: '디자인 디렉터', seungmin: '영업이사' })[c.id] : c.role;
+        return `<div class="tm ${t.gone ? 'gone' : ''}"><img src="art/spr_tm_${c.id}.png" alt=""><div><b>${c.name}</b><small>${tag} · 입사 ${yearOf({ m: t.since })}년</small>${t.gone ? '' : `<span class="tmbar" role="img" aria-label="신뢰 ${tr}"><i style="width:${tr}%"></i></span><small>신뢰 ${tr}</small>`}</div></div>`;
+    }).join('')}</div>`;
 }
 function moodLabel() { return { sick: '몸살 기운', tired: '지침', happy: '의욕 충만', calm: '평온' }[moodOf(S)]; }
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
@@ -5708,6 +5936,7 @@ function playMini(id, a, i, span = 1) {
 async function runMonth() {
     if (busy)
         return;
+    S.snap = { st: Object.assign({}, S.st), hp: S.hp, stress: S.stress, aware: S.aware, fan: S.fan, cash: S.cash };
     seedMonth(S);
     save(); // 계획까지 저장해 두면, 중간에 앱이 꺼져도 같은 계획·같은 결과로 이어서 할 수 있다
     busy = true;
@@ -5784,6 +6013,7 @@ async function runMonth() {
         await ap;
         hideActor();
     }
+    await monthStats();
     if (S.m + 1 >= TOTAL_MONTHS) {
         await finalDay();
         S.m++;
@@ -5818,6 +6048,10 @@ const SPR = {
     vc: { src: 'art/spr_vc.png', name: '파트너', c: '' },
     reporter: { src: 'art/spr_reporter.png', name: '기자', c: '' },
     team: { src: 'art/spr_team.png', name: '팀원', c: '' },
+    tm_jiwoo: { src: 'art/spr_tm_jiwoo.png', name: '민지우', c: '' },
+    tm_taeo: { src: 'art/spr_tm_taeo.png', name: '박태오', c: '' },
+    tm_harin: { src: 'art/spr_tm_harin.png', name: '최하린', c: '' },
+    tm_seungmin: { src: 'art/spr_tm_seungmin.png', name: '오승민', c: '' },
     lv_playboy: { src: 'art/spr_lv_playboy.png', name: '강도윤', c: '' },
     lv_intern: { src: 'art/spr_lv_intern.png', name: '서하준', c: '' },
     lv_vc: { src: 'art/spr_lv_vc.png', name: '윤재현', c: '' },
@@ -6129,6 +6363,36 @@ function liveShowLive() {
         }
         fill(3);
         ask(0);
+    });
+}
+// ---------- 한 달 성장 리포트: 이번 달 시작 때와 비교해 능력치가 얼마나 오르고 내렸는지 ----------
+function monthStats() {
+    const P = S.snap;
+    if (!P)
+        return Promise.resolve();
+    return new Promise(resolve => {
+        const fmt = d => (d > 0 ? '+' : d < 0 ? '−' : '±') + (Math.abs(d) < 10 ? Math.abs(d).toFixed(1) : Math.round(Math.abs(d)));
+        const row = (label, a, b, inv) => {
+            const d = b - a, up = inv ? d < 0 : d > 0, z = Math.abs(d) < 0.05;
+            const lo = Math.min(a, b), hi = Math.max(a, b);
+            return `<li class="${z ? 'z' : up ? 'up' : 'dn'}"><span class="n">${label}</span><span class="bar"><i class="base" style="width:${clamp(lo, 0, 100)}%"></i><i class="dlt" style="left:${clamp(lo, 0, 100)}%;width:${clamp(hi - lo, 0, 100)}%"></i></span><b>${Math.round(b)}</b><em>${z ? '—' : fmt(d)}</em></li>`;
+        };
+        const up = STAT_KEYS.filter(k => S.st[k] - (P.st[k] || 0) >= 0.05).length, dn = STAT_KEYS.filter(k => S.st[k] - (P.st[k] || 0) <= -0.05).length;
+        const cash = S.cash - P.cash;
+        const el = document.createElement('div');
+        el.className = 'ms-wrap';
+        el.setAttribute('role', 'dialog');
+        el.setAttribute('aria-label', `${monthOf(S)}월 성장 리포트`);
+        el.innerHTML = `<div class="ms"><div class="ms-head"><small>${yearOf(S)}년 ${monthOf(S)}월</small><b>이번 달 성장 리포트</b><span>${up ? `📈 ${up}개 올랐어요` : ''}${up && dn ? ' · ' : ''}${dn ? `📉 ${dn}개 떨어졌어요` : ''}${!up && !dn ? '변화 없는 한 달' : ''}</span></div>
+      <ul class="ms-list">${STAT_KEYS.map(k => row(STAT[k], P.st[k] || 0, S.st[k] || 0)).join('')}</ul>
+      <ul class="ms-list ms-sub">${row('체력', P.hp, S.hp)}${row('스트레스', P.stress, S.stress, true)}${row('인지도', P.aware, S.aware)}${row('팬덤', P.fan, S.fan)}</ul>
+      <p class="ms-cash">자금 ${fmtMoney(S.cash)}원 <em class="${cash >= 0 ? 'up' : 'dn'}">(${cash >= 0 ? '+' : '−'}${fmtMoney(Math.abs(cash))})</em></p>
+      <button type="button" class="ms-btn">다음 달로</button></div>`;
+        $('#phone').appendChild(el);
+        sfx('select');
+        const b = el.querySelector('.ms-btn');
+        setTimeout(() => b.focus({ preventScroll: true }), 30);
+        b.onclick = () => { sfx('click'); el.remove(); S.snap = null; resolve(); };
     });
 }
 // ---------- 10년 연표 ----------
@@ -6471,7 +6735,7 @@ function cgKey(ev) { if (ev.cg)
     return `${ev.id}_${stageOf(S).key.slice(3)}`; if (CG_MAP[ev.id])
     return CG_MAP[ev.id]; const p = CG_PREFIX.find(([x]) => ev.id.startsWith(x)); return p ? p[1] : null; }
 const cgSrc = k => `art/cg_${k}.jpg`;
-const CG_ALL = ['hero_vc1', 'hero_vc2', 'hero_vc3', 'hero_vc4', ...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'plan', ...['tokyo', 'paris', 'ny', 'dubai'].flatMap(c => ['tour_' + c, ...['22', '25', '30'].map(a => `tour_${c}_${a}`)]), 'tvshow', 'script', 'filming', 'premiere', 'magazine', 'soldout', 'fake1', 'fake2', 'fake3', 'finalday', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
+const CG_ALL = ['hero_vc1', 'hero_vc2', 'hero_vc3', 'hero_vc4', ...Object.keys(LOVERS).flatMap(i => ['confess_' + i, 'propose_' + i]), 'trip_summer', 'trip_winter', 'prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'rival1', 'rival2', 'rival3', 'rival4', 'rival5', 'rival_final', 'awards', 'duel', 'duel_win', 'team_wedding', 'team_farewell', 'plan', ...['tokyo', 'paris', 'ny', 'dubai'].flatMap(c => ['tour_' + c, ...['22', '25', '30'].map(a => `tour_${c}_${a}`)]), 'tvshow', 'script', 'filming', 'premiere', 'magazine', 'soldout', 'fake1', 'fake2', 'fake3', 'finalday', 'bday', 'colon_open', 'colon_secret', 'colon_quit', 'confess', 'propose', 'triangle', 'breakup', 'rlover', 'promo', 'staff_idea', 'staff_conflict', 'staff_mistake', 'staff_viral', 'staff_burnout', 'workshop', 'party', 'sakura', 'monsoon', 'first_snow', 'chuseok', 'retail', 'scandal', 'celeb', 'supply', 'lab', 'fashion', 'ma', 'parents', 'letter', 'health', 'date', 'pet', 'intern_lead', 'rival_final', ...SEASON_CG.flatMap(e => ['20', '22', '25', '27', '30'].map(a => `${e}_${a}`))];
 let cgFlip = false;
 function showCG(key, o = {}) {
     return new Promise(res => {
@@ -6667,7 +6931,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.15-A';
+const BUILD_TAG = '2026.11.15-B';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
