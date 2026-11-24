@@ -576,9 +576,11 @@ body.running .phone .dialog{max-height:30%}
 .pl-steps small{display:block;font-size:10.5px;color:#AEB3D6}.pl-steps b{display:block;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pl-steps li.on{border-style:solid;border-color:#E8C77A;background:rgba(232,199,122,.12)}
 .pl-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .pl-card{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;padding:10px 6px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.25);min-width:0}
-.pu-hero{flex:1 1 150px!important;min-height:150px;border-radius:14px;background:50% 22%/cover no-repeat;border:1px solid rgba(232,199,122,.45);flex:none}
+.pu-hero{flex:1 1 150px;min-height:150px;border-radius:14px;background:50% 22%/cover no-repeat;border:1px solid rgba(232,199,122,.45)}
+.pu .aw-bg{opacity:.22;filter:blur(4px)}
+@media (max-height:720px){.pu .pu-hero{flex:0 0 96px;min-height:96px}.pu-card img{aspect-ratio:4/3}}
 .pu .pl-steps li{background-size:cover;background-position:center;min-height:48px}
-.pu-card{padding:5px 5px 8px}.pu-card img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:9px}
+.pu-card{padding:5px 5px 8px}.pu-card i{font-size:30px;line-height:1.6}.pu-card img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:9px}
 .pl-card i{font-style:normal;font-size:30px}.pl-card b{font-size:13px;line-height:1.25}.pl-card span{display:flex;flex-wrap:wrap;justify-content:center;gap:3px}
 .pl-card em{font-style:normal;font-size:10px;padding:1px 6px;border-radius:99px;background:rgba(142,160,255,.25);color:#dfe4ff}.pl-card em.x{background:rgba(232,199,122,.25);color:#FFE08A}
 .pl-card:hover,.pl-card:focus-visible{border-color:#FFE08A;outline:none;box-shadow:0 0 0 1px #FFE08A}
@@ -730,7 +732,7 @@ html.ios-app .phone{bottom:auto;height:max(100vh,var(--appH,100vh))}
           <button class="btn ghost" id="btn-open-load" hidden>불러오기</button>
           <button class="btn ghost" id="btn-badges">🏅 배지</button>
         </div>
-        <span class="build-tag">CANVAS LABS · BUILD 2026.11.15-F</span>
+        <span class="build-tag">CANVAS LABS · BUILD 2026.11.15-G</span>
       </div>
     </div>
   </section>
@@ -6718,17 +6720,22 @@ function popupLive(P) {
         const act = el.querySelector('#pu-act');
         function step(i) {
             const st = P.steps[i];
-            act.innerHTML = `<p class="q">${i + 1}/4 · ${st.label}을 골라 주세요</p><div class="pl-cards"></div>`;
+            act.innerHTML = `<p class="q">${i + 1}/${P.steps.length} · ${st.label}을 골라 주세요</p><div class="pl-cards"></div>`;
             const box = act.querySelector('.pl-cards');
+            let busy = false;
+            const shownAt = Date.now();
             st.opts.forEach((o, k) => {
                 const b = document.createElement('button');
                 b.type = 'button';
                 b.className = 'pl-card pu-card';
                 b.innerHTML = `<img src="${o.img}" alt=""><b>${o.name}</b><span>${o.tags.map(t => `<em${P.crowd.tags.includes(t) ? ' class="x"' : ''}>${POPUP_TAG[t]}</em>`).join('')}</span>`;
-                b.onclick = () => { sfx('select'); picks[i] = k; const li = el.querySelector('#pu-s' + i); li.classList.add('on'); li.style.backgroundImage = `linear-gradient(rgba(7,11,34,.35),rgba(7,11,34,.8)),url('${o.img}')`; li.querySelector('b').textContent = o.name; i < 3 ? step(i + 1) : finish(); };
+                const im = b.querySelector('img');
+                im.onerror = () => { const ic = document.createElement('i'); ic.textContent = o.icon; im.replaceWith(ic); };
+                b.onclick = () => { if (busy || Date.now() - shownAt < 350)
+                    return; busy = true; sfx('select'); picks[i] = k; const li = el.querySelector('#pu-s' + i); li.classList.add('on'); li.style.backgroundImage = `linear-gradient(rgba(7,11,34,.35),rgba(7,11,34,.8)),url('${o.img}')`; li.querySelector('b').textContent = `${o.icon} ${o.name}`; i < P.steps.length - 1 ? step(i + 1) : finish(); };
                 box.appendChild(b);
             });
-            setTimeout(() => { const f = box.querySelector('button'); if (f)
+            setTimeout(() => { act.scrollIntoView({ block: 'nearest' }); const f = box.querySelector('button'); if (f)
                 f.focus({ preventScroll: true }); }, 30);
         }
         function finish() {
@@ -7363,7 +7370,7 @@ document.addEventListener('click', ev => { const b = ev.target.closest && ev.tar
 // 구글 시트(Apps Script 웹앱) 주소를 넣으면 시작·챕터·엔딩 기록이 익명으로 쌓인다. 비어 있으면 아무것도 보내지 않는다
 const STATS_URL = '';
 const GAME_URL = 'https://3678132-rgb.github.io/stagezero-maker/';
-const BUILD_TAG = '2026.11.15-F';
+const BUILD_TAG = '2026.11.15-G';
 function playerId() { try {
     let id = localStorage.getItem('sz_pid');
     if (!id) {
